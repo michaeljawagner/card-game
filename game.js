@@ -112,6 +112,7 @@
       return { playerId: null, powerupId: null };
     }),
     selectedAssignPowerupId: null,
+    isBuildModalOpen: true,
     currentView: "build",
     buildScreen: "draft",
     gameStarted: false,
@@ -466,6 +467,16 @@
     });
   }
 
+    function openBuildModal() {
+    state.isBuildModalOpen = true;
+    render();
+  }
+
+  function closeBuildModal() {
+    state.isBuildModalOpen = false;
+    render();
+  }
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
   }
@@ -476,6 +487,7 @@
       return { playerId: null, powerupId: null };
     });
     state.selectedAssignPowerupId = null;
+    state.isBuildModalOpen = true;
     state.currentView = "build";
     state.buildScreen = "draft";
     state.gameStarted = false;
@@ -779,6 +791,55 @@
     );
   }
 
+    function renderBuildSummary() {
+    const playerCount = lineupPlayers().length;
+    return (
+      '<div class="bbg-build-summary">' +
+        '<div class="bbg-build-summary-copy">' +
+          '<div class="bbg-build-summary-title">Lineup Builder</div>' +
+          '<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached</div>' +
+        '</div>' +
+        '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>' +
+      '</div>'
+    );
+  }
+
+  function renderBuildModal() {
+    if (!state.isBuildModalOpen) return '';
+
+    return (
+      '<div class="bbg-build-modal-backdrop" data-action="close-build-modal">' +
+        '<div class="bbg-build-modal" data-modal-root="true">' +
+          '<div class="bbg-build-modal-top">' +
+            '<div>' +
+              '<div class="bbg-build-modal-kicker">Build Mode</div>' +
+              '<div class="bbg-build-modal-title">Create Your Lineup</div>' +
+            '</div>' +
+            '<button class="bbg-btn" data-action="close-build-modal">Done</button>' +
+          '</div>' +
+          renderBuildTabs() +
+          '<div class="bbg-build-modal-body">' +
+            renderBuildScreen() +
+            '<div class="bbg-build-modal-side">' +
+              '<div class="bbg-footer-box">' +
+                '<div class="bbg-lineup-header">Draft Pool</div>' +
+                '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
+              '</div>' +
+              '<div class="bbg-footer-box">' +
+                '<div class="bbg-lineup-header">Gamebreakers</div>' +
+                '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+          '<div class="bbg-build-modal-actions">' +
+            '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
+            '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 4 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function renderScorePanel() {
     return (
       '<div class="bbg-left-rail">' +
@@ -888,8 +949,7 @@
         '<div class="bbg-arcade-main">' +
             renderAtBatPanel() +
           '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
-          renderBuildTabs() +
-          renderBuildScreen() +
+          renderBuildSummary() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-due-up">' +
               '<div class="bbg-lineup-header">DUE UP FOR Dodgers</div>' +
@@ -899,22 +959,14 @@
               '<button class="bbg-spin-btn" data-action="take-at-bat"' + (!state.gameStarted || gameOver ? ' disabled' : '') + '>SPIN</button>' +
             '</div>' +
           '</div>' +
-          '<div class="bbg-footer-panels">' +
-            '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Draft Pool</div>' +
-              '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
-            '</div>' +
-            '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Gamebreakers</div>' +
-              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-              '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (canStart && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
-            '</div>' +
+            '<div class="bbg-footer-panels">' +
             '<div class="bbg-footer-box">' +
               '<div class="bbg-lineup-header">Feed</div>' +
               '<div class="bbg-feed">' + renderLog() + '</div>' +
               '<button class="bbg-btn bbg-btn-full" data-action="new-run">New Run</button>' +
             '</div>' +
           '</div>' +
+          renderBuildModal() +
         '</div>' +
       '</div>';
 
@@ -929,9 +981,15 @@
         const id = this.getAttribute("data-id");
         const slotIndex = this.getAttribute("data-slot-index");
         const screen = this.getAttribute("data-screen");
+        const isModalRoot = this.getAttribute("data-modal-root");
 
         if (action === "new-run") resetRun();
         if (action === "switch-build-screen") switchBuildScreen(screen);
+                if (action === "open-build-modal") openBuildModal();
+        if (action === "close-build-modal") {
+          if (isModalRoot) return;
+          closeBuildModal();
+        }
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
         if (action === "assign-powerup-slot") {
@@ -943,7 +1001,10 @@
           }
           render();
         }
-        if (action === "start-game") startGame();
+                if (action === "start-game") {
+          startGame();
+          if (state.gameStarted) closeBuildModal();
+        }
         if (action === "modifier") {
           state.modifier = id;
           render();
