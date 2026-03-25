@@ -113,6 +113,7 @@
     }),
     selectedAssignPowerupId: null,
     currentView: "build",
+    buildScreen: "draft",
     gameStarted: false,
     inning: 1,
     outs: 0,
@@ -453,6 +454,18 @@
     slot.powerupId = null;
   }
 
+    function switchBuildScreen(screen) {
+    state.buildScreen = screen;
+    render();
+  }
+
+  function selectedPowerupAssignedSlotIndex() {
+    if (!state.selectedAssignPowerupId) return -1;
+    return state.lineupSlots.findIndex(function (slot) {
+      return slot.powerupId === state.selectedAssignPowerupId;
+    });
+  }
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
   }
@@ -464,6 +477,7 @@
     });
     state.selectedAssignPowerupId = null;
     state.currentView = "build";
+    state.buildScreen = "draft";
     state.gameStarted = false;
     state.inning = 1;
     state.outs = 0;
@@ -715,6 +729,56 @@
       .join("");
   }
 
+    function renderBuildTabs() {
+    return (
+      '<div class="bbg-build-tabs">' +
+        '<button class="bbg-build-tab ' + (state.buildScreen === 'draft' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="draft">Draft Players</button>' +
+        '<button class="bbg-build-tab ' + (state.buildScreen === 'assign' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="assign">Assign Gamebreakers</button>' +
+      '</div>'
+    );
+  }
+
+  function renderBuildScreen() {
+    const playerCount = lineupPlayers().length;
+    const selectedAssignedSlot = selectedPowerupAssignedSlotIndex();
+
+    if (state.buildScreen === 'assign') {
+      return (
+        '<div class="bbg-build-panel">' +
+          '<div class="bbg-build-panel-header">' +
+            '<div class="bbg-build-panel-title">Assign Gamebreakers</div>' +
+            '<div class="bbg-build-panel-copy">Select a gamebreaker below, then click the slot beneath a player card to attach it.</div>' +
+          '</div>' +
+          '<div class="bbg-board-area">' +
+            '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
+          '</div>' +
+          '<div class="bbg-build-panel-footer">' +
+            '<div class="bbg-build-panel-copy">' +
+              (state.selectedAssignPowerupId
+                ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
+                : 'No gamebreaker selected. Click one in the Gamebreakers panel below.') +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
+    }
+
+    return (
+      '<div class="bbg-build-panel">' +
+        '<div class="bbg-build-panel-header">' +
+          '<div class="bbg-build-panel-title">Draft Players</div>' +
+          '<div class="bbg-build-panel-copy">Fill up to 6 lineup slots. You need at least 4 hitters before you can start the run.</div>' +
+        '</div>' +
+        '<div class="bbg-board-area">' +
+          '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
+        '</div>' +
+        '<div class="bbg-build-panel-footer">' +
+          '<div class="bbg-build-panel-copy">Current lineup: ' + playerCount + ' / 6 players</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function renderScorePanel() {
     return (
       '<div class="bbg-left-rail">' +
@@ -822,11 +886,10 @@
       '<div class="bbg-arcade-shell">' +
         renderScorePanel() +
         '<div class="bbg-arcade-main">' +
-          renderAtBatPanel() +
+            renderAtBatPanel() +
           '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
-          '<div class="bbg-board-area">' +
-            '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
-          '</div>' +
+          renderBuildTabs() +
+          renderBuildScreen() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-due-up">' +
               '<div class="bbg-lineup-header">DUE UP FOR Dodgers</div>' +
@@ -865,8 +928,10 @@
         const action = this.getAttribute("data-action");
         const id = this.getAttribute("data-id");
         const slotIndex = this.getAttribute("data-slot-index");
+        const screen = this.getAttribute("data-screen");
 
         if (action === "new-run") resetRun();
+        if (action === "switch-build-screen") switchBuildScreen(screen);
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
         if (action === "assign-powerup-slot") {
