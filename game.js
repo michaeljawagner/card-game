@@ -1093,7 +1093,7 @@
             '<div class="bbg-count-box">Spin Mode</div>' +
             '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
           '</div>' +
-          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : 'Start Run') + '</button>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : lineupPlayers().length >= 4 ? 'Start Run' : 'Set Lineup') + '</button>' +
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
@@ -1120,12 +1120,10 @@
         renderScorePanel() +
         '<div class="bbg-arcade-main">' +
             renderAtBatPanel() +
-          '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
-          renderBuildSummary() +
           renderLineupPreview() +
-                    '<div class="bbg-bottom-row">' +
+          '<div class="bbg-bottom-row">' +
             '<div class="bbg-spin-wrap">' +
-              '<button class="bbg-spin-btn" data-action="take-at-bat"' + (!state.gameStarted || gameOver ? ' disabled' : '') + '>SPIN</button>' +
+              '<button class="bbg-spin-btn" data-action="take-at-bat"' + (gameOver ? ' disabled' : '') + '>' + (state.gameStarted ? 'SPIN' : canStart ? 'START RUN' : 'SET LINEUP') + '</button>' +
             '</div>' +
           '</div>' +
             '<div class="bbg-footer-panels">' +
@@ -1181,9 +1179,12 @@
           render();
         }
         if (action === "take-at-bat") {
-          if (!state.gameStarted && lineupPlayers().length >= 4) {
-            startGame();
-            takeAtBat();
+          if (!state.gameStarted) {
+            if (lineupPlayers().length >= 4) {
+              startGame();
+            } else {
+              openBuildModal();
+            }
             return;
           }
           takeAtBat();
