@@ -607,10 +607,12 @@
 
   function renderDraftPool() {
     return state.draftPool
-      .map(function (player, index) {
-        const drafted = state.lineupSlots.some(function (slot) {
+      .filter(function (player) {
+        return !state.lineupSlots.some(function (slot) {
           return slot.playerId === player.id;
         });
+      })
+      .map(function (player, index) {
         const overall = getOverall(player);
         const rarity = getPlayerRarity(player);
         const position = getPlayerPosition(player, index);
@@ -622,9 +624,9 @@
                 '<div class="bbg-draft-name">' + player.name + '</div>' +
                 '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
               '</div>' +
-              '<button class="bbg-btn ' + (drafted ? "is-muted" : "") + '" data-action="draft" data-id="' + player.id + '"' +
-                (drafted || lineupPlayers().length >= 6 ? ' disabled' : '') +
-              '>' + (drafted ? 'Drafted' : 'Add To Lineup') + '</button>' +
+              '<button class="bbg-btn" data-action="draft" data-id="' + player.id + '"' +
+                (lineupPlayers().length >= 6 ? ' disabled' : '') +
+              '>Add To Lineup</button>' +
             '</div>' +
             '<div class="bbg-draft-stats">' +
               '<div class="bbg-draft-stat">CON <strong>' + player.contact + '</strong></div>' +
