@@ -983,14 +983,8 @@
     }
 
     return (
-      '<div class="bbg-build-panel">' +
-        '<div class="bbg-build-panel-header">' +
-          '<div class="bbg-build-panel-title">Lineup Preview</div>' +
-          '<div class="bbg-build-panel-copy">Your active roster stays visible on the game screen.</div>' +
-        '</div>' +
-        '<div class="bbg-board-area">' +
-          '<div class="bbg-lineup-grid is-setup-grid">' + html + '</div>' +
-        '</div>' +
+      '<div class="bbg-board-area">' +
+        '<div class="bbg-lineup-grid is-setup-grid">' + html + '</div>' +
       '</div>'
     );
   }
