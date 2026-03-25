@@ -1,33 +1,36 @@
-#card-game {
-  width: 100%;
-}
-
-#card-game .bbg-wrap {
-  font-family: Arial, sans-serif;
+.bbg-wrap {
+  font-family: sans-serif;
   background: #ffffff;
+  padding: 20px;
   border: 1px solid #e4e6f1;
   border-radius: 12px;
-  padding: 20px;
-  max-width: 600px;
-  color: #02060F;
+  max-width: 500px;
 }
 
-#card-game .bbg-score {
-  font-size: 22px;
-  font-weight: 700;
-  margin: 10px 0 16px;
+.bbg-score {
+  font-size: 24px;
+  font-weight: bold;
+  margin-bottom: 10px;
 }
 
-#card-game button {
+.bbg-bases {
+  margin: 10px 0;
+  font-size: 18px;
+}
+
+button {
+  margin-top: 10px;
   padding: 10px 14px;
-  border: 0;
   border-radius: 8px;
+  border: none;
   background: #2A5CFF;
-  color: #fff;
+  color: white;
   cursor: pointer;
 }
 
-#card-game .bbg-log {
-  margin-top: 16px;
-  font-size: 14px;
+.bbg-log {
+  margin-top: 20px;
+  font-size: 12px;
+  max-height: 150px;
+  overflow: auto;
 }
