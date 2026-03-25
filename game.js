@@ -71,21 +71,89 @@
 
   const DRAFT_POOL_SIZE = 12;
 
-  const POWERUPS = [
+    const POWERUPS = [
     {
       id: "moneyball",
       name: "Moneyball",
-      desc: "+8 walk chance for every hitter"
+      desc: "+8 walk chance for every hitter",
+      modifyWeights: function (weights) {
+        weights.walk += 6;
+      }
     },
     {
       id: "launch-angle",
       name: "Launch Angle Revolution",
-      desc: "+10 HR chance, -6 single chance"
+      desc: "+10 HR chance, -6 single chance",
+      modifyWeights: function (weights) {
+        weights.homer += 7;
+        weights.single -= 4;
+      }
     },
     {
       id: "small-ball",
       name: "Small Ball",
-      desc: "+10 single chance, singles push runners harder"
+      desc: "+10 single chance, singles push runners harder",
+      modifyWeights: function (weights) {
+        weights.single += 6;
+        weights.double += 1;
+      }
+    },
+    {
+      id: "green-light",
+      name: "Green Light",
+      desc: "+speed pressure, extra triples and singles",
+      modifyWeights: function (weights, context) {
+        weights.single += 3;
+        weights.triple += 3;
+        if (context.player && context.player.speed >= 80) {
+          weights.double += 2;
+        }
+      }
+    },
+    {
+      id: "two-strike",
+      name: "Two-Strike Approach",
+      desc: "Fewer strikeouts, more contact",
+      modifyWeights: function (weights) {
+        weights.strikeout -= 8;
+        weights.single += 4;
+        weights.walk += 2;
+      }
+    },
+    {
+      id: "gap-hunting",
+      name: "Gap Hunting",
+      desc: "Extra doubles and triples into the alleys",
+      modifyWeights: function (weights) {
+        weights.double += 6;
+        weights.triple += 1.5;
+        weights.homer -= 2;
+      }
+    },
+    {
+      id: "rally-time",
+      name: "Rally Time",
+      desc: "Big boost with runners on base",
+      modifyWeights: function (weights, context) {
+        if (context.bases[0] || context.bases[1] || context.bases[2]) {
+          weights.single += 4;
+          weights.double += 3;
+          weights.homer += 5;
+        }
+      }
+    },
+    {
+      id: "first-pitch",
+      name: "First Pitch Hunter",
+      desc: "Aggressive ambush power",
+      modifyWeights: function (weights, context) {
+        if (context.modifierId === "aggressive") {
+          weights.homer += 10;
+          weights.strikeout += 4;
+        } else {
+          weights.homer += 4;
+        }
+      }
     }
   ];
 
@@ -129,6 +197,7 @@
     enemyScore: 0,
     bases: [false, false, false],
     batterIndex: 0,
+    arcadeCombo: 0,
     runStats: {},
     gameStats: {},
     modifier: "normal",
@@ -161,19 +230,57 @@
     return shuffle(PLAYERS.slice()).slice(0, Math.min(DRAFT_POOL_SIZE, PLAYERS.length));
   }
 
-  function getArcadePoints(result, runs) {
+  function getArcadePoints(result, runs, combo) {
     let points = 0;
+    let label = "";
+    const runCount = runs || 0;
+    const comboCount = combo || 0;
 
-    if (result === "walk") points = 75;
-    else if (result === "single") points = 125;
-    else if (result === "double") points = 225;
-    else if (result === "triple") points = 350;
-    else if (result === "homer") points = 500;
-    else if (result === "strikeout") points = 25;
-    else if (result === "out") points = 50;
+    if (result === "walk") {
+      points = 75;
+      label = "Walk Bonus";
+    } else if (result === "single") {
+      points = 125;
+      label = "Single";
+    } else if (result === "double") {
+      points = 225;
+      label = "Double";
+    } else if (result === "triple") {
+      points = 350;
+      label = "Triple";
+    } else if (result === "homer") {
+      points = 500;
+      label = runCount === 4 ? "Grand Slam" : runCount === 3 ? "3-Run Home Run" : runCount === 2 ? "2-Run Home Run" : "Solo Home Run";
+    } else if (result === "strikeout") {
+      points = 25;
+      label = "Strikeout";
+    } else if (result === "out") {
+      points = 50;
+      label = "Out";
+    }
 
-    points += (runs || 0) * 150;
-    return points;
+    const runBonus = runCount * 150;
+    let comboBonus = 0;
+
+    if (comboCount >= 2 && (result === "single" || result === "double" || result === "triple" || result === "homer" || result === "walk")) {
+      comboBonus = comboCount * 40;
+    }
+
+    if (result === "double" || result === "triple" || result === "homer") {
+      comboBonus += 35;
+    }
+
+    if (runCount >= 2) {
+      comboBonus += runCount * 50;
+    }
+
+    return {
+      total: points + runBonus + comboBonus,
+      base: points,
+      runBonus: runBonus,
+      comboBonus: comboBonus,
+      label: label
+    };
   }
 
   function clamp(n, min, max) {
@@ -364,14 +471,32 @@
       out = 48;
     }
 
-    if (hasPowerup("moneyball")) walk += 6;
-    if (hasPowerup("launch-angle")) {
-      homer += 7;
-      single -= 4;
-    }
-    if (hasPowerup("small-ball")) {
-      single += 6;
-      double += 1;
+    const activePowerup = getCurrentBatterPowerup();
+    if (activePowerup && typeof activePowerup.modifyWeights === "function") {
+      const weightState = {
+        walk: walk,
+        single: single,
+        double: double,
+        triple: triple,
+        homer: homer,
+        strikeout: strikeout,
+        out: out
+      };
+
+      activePowerup.modifyWeights(weightState, {
+        player: player,
+        modifierId: modifierId,
+        bases: bases,
+        inning: inning
+      });
+
+      walk = weightState.walk;
+      single = weightState.single;
+      double = weightState.double;
+      triple = weightState.triple;
+      homer = weightState.homer;
+      strikeout = weightState.strikeout;
+      out = weightState.out;
     }
 
     if (inning >= 8 && runnersOn) {
@@ -531,6 +656,11 @@
     return active ? active.powerupId : null;
   }
 
+  function getCurrentBatterPowerup() {
+    const powerupId = currentBatterPowerupId();
+    return powerupId ? getPowerupById(powerupId) : null;
+  }
+
   function hasPowerup(id) {
     return currentBatterPowerupId() === id;
   }
@@ -625,6 +755,7 @@
     state.enemyScore = 0;
     state.bases = [false, false, false];
     state.batterIndex = 0;
+    state.arcadeCombo = 0;
     state.runStats = {};
     state.gameStats = {};
     state.modifier = "normal";
@@ -702,20 +833,31 @@
       state.bases = advanced.bases;
     }
 
+    const isPositiveOutcome = result === "walk" || result === "single" || result === "double" || result === "triple" || result === "homer";
+    if (isPositiveOutcome) {
+      state.arcadeCombo += 1;
+    } else {
+      state.arcadeCombo = 0;
+    }
+
+    const arcadePoints = getArcadePoints(result, advanced.runs, state.arcadeCombo);
+
     state.score += advanced.runs;
-    state.arcadeScore += getArcadePoints(result, advanced.runs);
+    state.arcadeScore += arcadePoints.total;
 
     if (result === "out" || result === "strikeout") {
       state.outs += 1;
     }
 
-        state.batterIndex += 1;
-    const arcadePoints = getArcadePoints(result, advanced.runs);
+    state.batterIndex += 1;
     state.lastOutcome = {
       batter: batter.name,
       text: advanced.text,
       runs: advanced.runs,
-      points: arcadePoints
+      points: arcadePoints.total,
+      combo: state.arcadeCombo,
+      pointsLabel: arcadePoints.label,
+      pointsBreakdown: arcadePoints
     };
     updatePlayerStatsForResult(batter.id, result, advanced.runs);
 
@@ -723,7 +865,9 @@
       batter.name +
         ": " +
         advanced.text +
-        (advanced.runs > 0 ? " +" + advanced.runs + " run" + (advanced.runs > 1 ? "s" : "") : "")
+        (advanced.runs > 0 ? " +" + advanced.runs + " run" + (advanced.runs > 1 ? "s" : "") : "") +
+        " • " + arcadePoints.total + " pts" +
+        (arcadePoints.comboBonus > 0 ? " • combo bonus" : "")
     );
 
     if (state.outs >= 3) {
@@ -1050,7 +1194,7 @@
         '</div>' +
         '<div class="bbg-callout">' +
                     '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : '') + '</div>' +
-                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : !state.gameStarted ? 'Set your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
+                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text + (state.lastOutcome.combo >= 2 ? ' • Combo x' + state.lastOutcome.combo : '') : !state.gameStarted ? 'Set your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
         '<button class="bbg-menu-btn">Gamebreakers (' + assignedPowerupCount() + ')</button>' +
