@@ -463,7 +463,12 @@
       first = false;
       second = false;
       third = false;
-      text = "Home Run";
+
+      if (runs === 1) text = "Solo Home Run";
+      else if (runs === 2) text = "2-Run Home Run";
+      else if (runs === 3) text = "3-Run Home Run";
+      else text = "Grand Slam";
+
       return { bases: [first, second, third], runs: runs, text: text };
     }
 
@@ -1052,7 +1057,7 @@
         '</div>' +
         '<div class="bbg-callout">' +
                     '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : 900) + '</div>' +
-                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : '3-Run Home Run') + '</div>' +
+                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : !state.gameStarted ? 'Build your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
         '<button class="bbg-menu-btn">Gamebreakers (' + assignedPowerupCount() + ')</button>' +
