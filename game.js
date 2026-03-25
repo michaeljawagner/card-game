@@ -368,6 +368,26 @@
     return "Standard Delivery";
   }
 
+  function currentLineupSlot() {
+    if (!state.lineup.length) return -1;
+    return state.batterIndex % state.lineup.length;
+  }
+
+  function basesText() {
+    const active = [];
+    if (state.bases[0]) active.push("1B");
+    if (state.bases[1]) active.push("2B");
+    if (state.bases[2]) active.push("3B");
+    return active.length ? active.join(" • ") : "Bases Empty";
+  }
+
+  function currentModifierLabel() {
+    const found = MODIFIERS.find(function (m) {
+      return m.id === state.modifier;
+    });
+    return found ? found.name : "Balanced Swing";
+  }
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
   }
@@ -546,6 +566,7 @@
 
   function renderLineup() {
     let html = '';
+    const activeSlot = currentLineupSlot();
 
     for (let i = 0; i < 6; i++) {
       const player = state.lineup[i] || null;
@@ -561,20 +582,24 @@
       const rarity = getPlayerRarity(player);
       const position = getPlayerPosition(player, i);
       const artClass = getPlayerArtClass(player);
+      const isActive = state.gameStarted && ! (state.inning > 9) && i === activeSlot;
 
       html += (
-        '<div class="bbg-board-slot">' +
+        '<div class="bbg-board-slot' + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '"></div>' +
             '<div class="bbg-player-info">' +
-              '<div class="bbg-player-position">' + position + '</div>' +
-              '<div class="bbg-player-rarity">' + rarity + '</div>' +
+              '<div class="bbg-player-topline">' +
+                '<div class="bbg-player-position">' + position + '</div>' +
+                '<div class="bbg-player-rarity">' + rarity + '</div>' +
+              '</div>' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
               '</div>' +
+              '<div class="bbg-player-tag">' + (isActive ? 'At Bat' : player.trait) + '</div>' +
             '</div>' +
           '</div>' +
         '</div>'
@@ -690,11 +715,16 @@
           '<div class="bbg-atbat-line">' + batterStats + '</div>' +
           '<div class="bbg-atbat-divider"></div>' +
           '<div class="bbg-atbat-today">' + batterToday + '</div>' +
+          '<div class="bbg-status-row">' +
+            '<div class="bbg-status-pill">IN ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
+            '<div class="bbg-status-pill">OUTS ' + state.outs + '</div>' +
+            '<div class="bbg-status-pill">' + basesText() + '</div>' +
+          '</div>' +
         '</div>' +
         '<div class="bbg-atbat-actions">' +
           '<div class="bbg-count-boxes">' +
-            '<div class="bbg-count-box"></div>' +
-            '<div class="bbg-count-box"></div>' +
+            '<div class="bbg-count-box">' + currentModifierLabel() + '</div>' +
+            '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
           '</div>' +
           '<div class="bbg-action-row">' + renderModifierButtons() + '</div>' +
           '<button class="bbg-result-btn" data-action="take-at-bat">' + resultText + '</button>' +
