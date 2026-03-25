@@ -124,6 +124,7 @@
     gameStarted: false,
     inning: 1,
     outs: 0,
+    arcadeScore: 0,
     score: 0,
     enemyScore: 0,
     bases: [false, false, false],
@@ -158,6 +159,21 @@
 
   function buildDraftPool() {
     return shuffle(PLAYERS.slice()).slice(0, Math.min(DRAFT_POOL_SIZE, PLAYERS.length));
+  }
+
+  function getArcadePoints(result, runs) {
+    let points = 0;
+
+    if (result === "walk") points = 75;
+    else if (result === "single") points = 125;
+    else if (result === "double") points = 225;
+    else if (result === "triple") points = 350;
+    else if (result === "homer") points = 500;
+    else if (result === "strikeout") points = 25;
+    else if (result === "out") points = 50;
+
+    points += (runs || 0) * 150;
+    return points;
   }
 
   function clamp(n, min, max) {
@@ -599,6 +615,7 @@
     state.gameStarted = false;
     state.inning = 1;
     state.outs = 0;
+    state.arcadeScore = 0;
     state.score = 0;
     state.enemyScore = 0;
     state.bases = [false, false, false];
@@ -681,16 +698,19 @@
     }
 
     state.score += advanced.runs;
+    state.arcadeScore += getArcadePoints(result, advanced.runs);
 
     if (result === "out" || result === "strikeout") {
       state.outs += 1;
     }
 
-    state.batterIndex += 1;
+        state.batterIndex += 1;
+    const arcadePoints = getArcadePoints(result, advanced.runs);
     state.lastOutcome = {
       batter: batter.name,
       text: advanced.text,
-      runs: advanced.runs
+      runs: advanced.runs,
+      points: arcadePoints
     };
     updatePlayerStatsForResult(batter.id, result, advanced.runs);
 
@@ -1015,7 +1035,7 @@
         '</div>' +
         '<div class="bbg-total-score">' +
           '<div class="bbg-total-label">Total Score</div>' +
-          '<div class="bbg-total-value">' + state.score.toLocaleString() + '</div>' +
+                    '<div class="bbg-total-value">' + state.arcadeScore.toLocaleString() + '</div>' +
         '</div>' +
         '<div class="bbg-mini-scoreboard">' +
           '<div class="bbg-mini-team"><span>LAD</span><strong>' + state.enemyScore + '</strong></div>' +
@@ -1031,7 +1051,7 @@
           '<div>' + baseEmoji(state.bases[2]) + '</div>' +
         '</div>' +
         '<div class="bbg-callout">' +
-          '<div class="bbg-callout-value">' + (state.lastOutcome && state.lastOutcome.runs ? state.lastOutcome.runs * 300 : 900) + '</div>' +
+                    '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : 900) + '</div>' +
                     '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : '3-Run Home Run') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
