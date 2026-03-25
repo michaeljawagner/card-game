@@ -954,24 +954,28 @@
       const overall = getOverall(player);
       const rarity = getPlayerRarity(player);
       const position = getPlayerPosition(player, index);
+      const artClass = getPlayerArtClass(player);
 
-      return ('<button class="bbg-draft-tile bbg-rarity-' + rarity.toLowerCase() + '" data-action="draft" data-id="' + player.id + '"' +'<button class="bbg-draft-tile" data-action="draft" data-id="' + player.id + '"' +
+      return (
+        '<button class="bbg-draft-card bbg-rarity-' + rarity.toLowerCase() + '" data-action="draft" data-id="' + player.id + '"' +
           (lineupPlayers().length >= 6 ? ' disabled' : '') +
         '>' +
-          '<div class="bbg-draft-top">' +
-            '<div>' +
-              '<div class="bbg-draft-name">' + player.name + '</div>' +
-              '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
+          '<div class="bbg-draft-card-inner">' +
+            '<div class="bbg-player-art ' + artClass + '"></div>' +
+            '<div class="bbg-player-info">' +
+              '<div class="bbg-player-topline">' +
+                '<div class="bbg-player-position">' + position + '</div>' +
+                '<div class="bbg-player-rarity">' + rarity + '</div>' +
+              '</div>' +
+              '<div class="bbg-player-board-name">' + player.name + '</div>' +
+              '<div class="bbg-player-pips">' +
+                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+              '</div>' +
+              '<div class="bbg-player-tag">' + player.trait + ' • OVR ' + overall + '</div>' +
             '</div>' +
-            '<div class="bbg-draft-ovr">OVR ' + overall + '</div>' +
           '</div>' +
-          '<div class="bbg-draft-stat-row">' +
-            '<div class="bbg-draft-stat-pill">CON ' + player.contact + '</div>' +
-            '<div class="bbg-draft-stat-pill">POW ' + player.power + '</div>' +
-            '<div class="bbg-draft-stat-pill">DIS ' + player.discipline + '</div>' +
-            '<div class="bbg-draft-stat-pill">SPD ' + player.speed + '</div>' +
-          '</div>' +
-          '<div class="bbg-draft-trait"><strong>' + player.trait + '</strong> • ' + player.traitText + '</div>' +
         '</button>'
       );
     })
@@ -1225,15 +1229,15 @@
           renderBuildScreen() +
           '<div class="bbg-build-modal-side">' +
             '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Draft Pool</div>' +
-              '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
+              '<div class="bbg-lineup-header">Gamebreakers</div>' +
+              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-bottom">' +
           '<div class="bbg-footer-box">' +
-            '<div class="bbg-lineup-header">Gamebreakers</div>' +
-            '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+            '<div class="bbg-lineup-header">Draft Pool</div>' +
+            '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
           '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
