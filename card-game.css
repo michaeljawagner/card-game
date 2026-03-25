@@ -206,7 +206,8 @@
 #card-game .bbg-btn:hover,
 #card-game .bbg-spin-btn:hover,
 #card-game .bbg-result-btn:hover,
-#card-game .bbg-action-chip:hover {
+#card-game .bbg-action-chip:hover,
+#card-game .bbg-power-slot:hover {
   transform: translate(-1px, -1px);
 }
 
@@ -214,7 +215,9 @@
 #card-game .bbg-btn:disabled,
 #card-game .bbg-spin-btn:disabled,
 #card-game .bbg-result-btn:disabled,
-#card-game .bbg-action-chip:disabled {
+#card-game .bbg-action-chip:disabled,
+#card-game .bbg-power-slot:disabled,
+#card-game .bbg-draft-tile:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
@@ -224,13 +227,13 @@
   background: #c8c0b3;
 }
 
-#card-game .bbg-btn-full {
-  width: 100%;
-  margin-top: 14px;
-}
-
+#card-game .bbg-btn-full,
 #card-game .bbg-menu-btn.is-half {
   width: 100%;
+}
+
+#card-game .bbg-btn-full {
+  margin-top: 14px;
 }
 
 #card-game .bbg-arcade-main {
@@ -292,18 +295,15 @@
   text-transform: uppercase;
 }
 
-#card-game .bbg-atbat-name.is-right {
+#card-game .bbg-atbat-name.is-right,
+#card-game .bbg-atbat-line.is-right,
+#card-game .bbg-atbat-today.is-right {
   text-align: right;
 }
 
 #card-game .bbg-atbat-line,
 #card-game .bbg-atbat-today {
   margin-top: 8px;
-}
-
-#card-game .bbg-atbat-line.is-right,
-#card-game .bbg-atbat-today.is-right {
-  text-align: right;
 }
 
 #card-game .bbg-status-row {
@@ -556,6 +556,15 @@
   align-items: start;
 }
 
+#card-game .bbg-build-panel .bbg-board-area {
+  box-shadow: 4px 4px 0 #111111;
+  border: 3px solid #111111;
+}
+
+#card-game .bbg-arcade-main > .bbg-build-panel .bbg-board-area {
+  background: #e7decf;
+}
+
 #card-game .bbg-lineup-grid {
   display: grid;
   grid-template-columns: repeat(6, minmax(0, 1fr));
@@ -566,54 +575,18 @@
   align-items: stretch;
 }
 
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 1) {
-  grid-column: 1;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 2) {
-  grid-column: 1;
-  grid-row: 2;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 3) {
-  grid-column: 2;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 4) {
-  grid-column: 2;
-  grid-row: 2;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 5) {
-  grid-column: 3;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 6) {
-  grid-column: 3;
-  grid-row: 2;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 7) {
-  grid-column: 4;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 8) {
-  grid-column: 4;
-  grid-row: 2;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 9) {
-  grid-column: 5;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 10) {
-  grid-column: 5;
-  grid-row: 2;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 11) {
-  grid-column: 6;
-  grid-row: 1;
-}
-#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 12) {
-  grid-column: 6;
-  grid-row: 2;
-}
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 1) { grid-column: 1; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 2) { grid-column: 1; grid-row: 2; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 3) { grid-column: 2; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 4) { grid-column: 2; grid-row: 2; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 5) { grid-column: 3; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 6) { grid-column: 3; grid-row: 2; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 7) { grid-column: 4; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 8) { grid-column: 4; grid-row: 2; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 9) { grid-column: 5; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 10) { grid-column: 5; grid-row: 2; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 11) { grid-column: 6; grid-row: 1; }
+#card-game .bbg-lineup-grid.is-setup-grid > *:nth-child(12n + 12) { grid-column: 6; grid-row: 2; }
 
 #card-game .bbg-board-slot,
 #card-game .bbg-side-perk {
@@ -627,27 +600,15 @@
   min-height: 104px;
   padding: 12px;
   text-align: left;
-  border: 3px solid #111111;
   border-radius: 0;
   background: #f8f3eb;
   color: #111111;
-  box-shadow: 4px 4px 0 #111111;
   display: flex;
   flex-direction: column;
   justify-content: flex-start;
   gap: 6px;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
-}
-
-#card-game .bbg-power-slot:hover {
-  transform: translate(-1px, -1px);
-}
-
-#card-game .bbg-power-slot:disabled {
-  opacity: 0.45;
-  cursor: not-allowed;
-  transform: none;
 }
 
 #card-game .bbg-power-slot.is-empty {
@@ -682,10 +643,6 @@
   flex-direction: column;
 }
 
-#card-game .bbg-bottom-row .bbg-spin-wrap {
-  align-items: stretch;
-}
-
 #card-game .bbg-player-art {
   height: 118px;
   border-width: 0 0 3px 0;
@@ -716,13 +673,17 @@
 }
 
 #card-game .bbg-player-position,
-#card-game .bbg-player-rarity {
+#card-game .bbg-player-rarity,
+#card-game .bbg-draft-trait,
+#card-game .bbg-power-slot-rarity,
+#card-game .bbg-power-slot-desc {
   color: #4f4a42;
 }
 
-#card-game .bbg-player-topline {
+#card-game .bbg-player-topline,
+#card-game .bbg-draft-top {
   display: flex;
-  align-items: center;
+  align-items: flex-start;
   justify-content: space-between;
   gap: 8px;
 }
@@ -742,7 +703,8 @@
 #card-game .bbg-side-perk-name,
 #card-game .bbg-queue-name,
 #card-game .bbg-draft-name,
-#card-game .bbg-perk-name {
+#card-game .bbg-perk-name,
+#card-game .bbg-power-slot-name {
   font-size: 16px;
   line-height: 1.02;
   font-weight: 900;
@@ -802,25 +764,21 @@
 }
 
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity,
-#card-game .bbg-power-slot.has-powerup .bbg-power-slot-desc {
+#card-game .bbg-power-slot.has-powerup .bbg-power-slot-desc,
+#card-game .bbg-perk-card.is-active .bbg-perk-rarity,
+#card-game .bbg-perk-card.is-active .bbg-perk-desc {
   color: #ddd3c4;
 }
 
 #card-game .bbg-power-slot-rarity,
-#card-game .bbg-power-slot-desc {
+#card-game .bbg-power-slot-desc,
+#card-game .bbg-draft-ovr,
+#card-game .bbg-draft-stat-pill {
   font-size: 10px;
-  line-height: 1.25;
+  line-height: 1.1;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
-  color: #4f4a42;
-}
-
-#card-game .bbg-power-slot-name {
-  font-size: 16px;
-  line-height: 1.02;
-  font-weight: 900;
-  text-transform: uppercase;
+  letter-spacing: 0.05em;
 }
 
 #card-game .bbg-perk-card {
@@ -841,14 +799,86 @@
   color: #f8f3eb;
 }
 
-#card-game .bbg-perk-card.is-active .bbg-perk-rarity,
-#card-game .bbg-perk-card.is-active .bbg-perk-desc {
-  color: #ddd3c4;
+#card-game .bbg-bottom-row,
+#card-game .bbg-footer-panels {
+  display: grid;
+  grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+#card-game .bbg-due-up,
+#card-game .bbg-spin-wrap {
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#card-game .bbg-spin-wrap,
+#card-game .bbg-bottom-row .bbg-spin-wrap {
+  justify-content: flex-end;
+  align-items: stretch;
+}
+
+#card-game .bbg-queue-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 10px;
+}
+
+#card-game .bbg-queue-card {
+  background: #f8f3eb;
+  min-height: 104px;
+  display: grid;
+  grid-template-columns: 68px minmax(0, 1fr);
+}
+
+#card-game .bbg-queue-art {
+  border-width: 0 3px 0 0;
+  min-height: 100%;
+  background: linear-gradient(180deg, #d6cdbf 0%, #aea392 100%);
+}
+
+#card-game .bbg-spin-btn {
+  width: 100%;
+  height: 100%;
+  min-height: 104px;
+  background: #f3b43b;
+  box-shadow: 4px 4px 0 #111111;
+  font-size: 34px;
+  letter-spacing: 0.14em;
+}
+
+#card-game .bbg-bottom-row .bbg-spin-btn {
+  min-height: 86px;
+}
+
+#card-game .bbg-footer-box {
+  background: #efe7db;
+  padding: 12px;
+  display: flex;
+  flex-direction: column;
+  gap: 10px;
+}
+
+#card-game .bbg-draft-grid,
+#card-game .bbg-perk-grid,
+#card-game .bbg-feed {
+  display: grid;
+  gap: 10px;
+}
+
+#card-game .bbg-draft-grid {
+  max-height: 420px;
+  overflow: auto;
 }
 
 #card-game .bbg-feed {
   max-height: 250px;
   overflow: auto;
+}
+
+#card-game .bbg-footer-panels .bbg-feed {
+  max-height: 220px;
 }
 
 #card-game .bbg-feed-row {
@@ -862,6 +892,52 @@
   letter-spacing: 0.05em;
 }
 
+#card-game .bbg-draft-tile {
+  appearance: none;
+  width: 100%;
+  text-align: left;
+  background: #f8f3eb;
+  padding: 8px;
+  display: flex;
+  flex-direction: column;
+  gap: 6px;
+  cursor: pointer;
+}
+
+#card-game .bbg-draft-ovr,
+#card-game .bbg-draft-stat-pill {
+  background: #ffffff;
+  border: 2px solid #111111;
+}
+
+#card-game .bbg-draft-ovr {
+  flex: 0 0 auto;
+  padding: 6px 8px;
+  line-height: 1;
+  letter-spacing: 0.08em;
+}
+
+#card-game .bbg-draft-stats,
+#card-game .bbg-draft-stat {
+  display: none;
+}
+
+#card-game .bbg-draft-trait {
+  font-size: 11px;
+  line-height: 1.25;
+}
+
+#card-game .bbg-draft-stat-row {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 4px;
+}
+
+#card-game .bbg-draft-stat-pill {
+  padding: 6px 4px;
+  text-align: center;
+}
+
 @media (max-width: 1200px) {
   #card-game .bbg-arcade-shell {
     grid-template-columns: 1fr;
@@ -870,49 +946,6 @@
   #card-game .bbg-left-rail {
     position: static;
   }
-
-  #card-game .bbg-bottom-row,
-  #card-game .bbg-footer-panels {
-    grid-template-columns: 1fr;
-  }
-
-  #card-game .bbg-footer-panels {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-}
-
-  #card-game .bbg-bottom-row {
-  display: grid;
-  grid-template-columns: 1fr;
-  gap: 12px;
-  align-items: stretch;
-}
-
-#card-game .bbg-feed {
-  max-height: 250px;
-  overflow: auto;
-}
-
-#card-game .bbg-power-slot-name {
-  font-size: 16px;
-  line-height: 1.02;
-  font-weight: 900;
-  text-transform: uppercase;
-}
-
-#card-game .bbg-build-panel .bbg-board-area {
-  box-shadow: 4px 4px 0 #111111;
-  border: 3px solid #111111;
-}
-
-#card-game .bbg-arcade-main > .bbg-build-panel .bbg-board-area {
-  background: #e7decf;
-}
-
-#card-game .bbg-footer-panels .bbg-feed {
-  max-height: 220px;
-}
 
   #card-game .bbg-lineup-grid,
   #card-game .bbg-lineup-grid.is-setup-grid {
@@ -955,8 +988,8 @@
 
   #card-game .bbg-draft-top,
   #card-game .bbg-menu-row {
-    grid-template-columns: 1fr;
     display: grid;
+    grid-template-columns: 1fr;
   }
 
   #card-game .bbg-draft-stats,
@@ -972,23 +1005,10 @@
     font-size: 28px;
   }
 
-  #card-game .bbg-spin-btn {
-  width: 100%;
-  height: 100%;
-  min-height: 104px;
-  background: #f3b43b;
-  box-shadow: 4px 4px 0 #111111;
-  font-size: 34px;
-  letter-spacing: 0.14em;
-}
-
-#card-game .bbg-bottom-row .bbg-spin-btn {
-  min-height: 86px;
-}
-
   #card-game .bbg-build-summary,
   #card-game .bbg-build-modal-top,
-  #card-game .bbg-build-modal-actions {
+  #card-game .bbg-build-modal-actions,
+  #card-game .bbg-build-panel-footer {
     flex-direction: column;
     align-items: stretch;
   }
@@ -1009,10 +1029,7 @@
     grid-template-columns: 1fr;
   }
 
-  #card-game .bbg-team-name {
-    font-size: 22px;
-  }
-
+  #card-game .bbg-team-name,
   #card-game .bbg-atbat-name {
     font-size: 22px;
   }
