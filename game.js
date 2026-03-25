@@ -999,7 +999,23 @@
   }
 
   function renderActiveBuild() {
-    return renderPowerups();
+    return POWERUPS
+      .slice(0, 3)
+      .map(function (powerup) {
+        const selected = state.selectedAssignPowerupId === powerup.id;
+        const assigned = state.lineupSlots.some(function (slot) {
+          return slot.powerupId === powerup.id;
+        });
+        return (
+          '<button class="bbg-perk-card ' + (selected ? 'is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
+            '<div class="bbg-perk-rarity">Gamebreaker</div>' +
+            '<div class="bbg-perk-name">' + powerup.name + '</div>' +
+            '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
+            '<div class="bbg-perk-desc">' + (assigned ? 'Assigned' : selected ? 'Selected — click a slot below a player' : 'Available') + '</div>' +
+          '</button>'
+        );
+      })
+      .join("");
   }
 
   function renderLog() {
@@ -1148,15 +1164,15 @@
           renderBuildTabs() +
           '<div class="bbg-build-modal-body">' +
             renderBuildScreen() +
-            '<div class="bbg-build-modal-side">' +
-              '<div class="bbg-footer-box">' +
-                '<div class="bbg-lineup-header">Draft Pool</div>' +
-                '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
-              '</div>' +
-              '<div class="bbg-footer-box">' +
-                '<div class="bbg-lineup-header">Gamebreakers</div>' +
-                '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-              '</div>' +
+          '</div>' +
+          '<div class="bbg-build-modal-bottom">' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Draft Pool</div>' +
+              '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
+            '</div>' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Gamebreakers</div>' +
+              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
             '</div>' +
           '</div>' +
           '<div class="bbg-build-modal-actions">' +
