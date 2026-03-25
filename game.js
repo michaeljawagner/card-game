@@ -955,8 +955,7 @@
       const rarity = getPlayerRarity(player);
       const position = getPlayerPosition(player, index);
 
-      return (
-        '<button class="bbg-draft-tile" data-action="draft" data-id="' + player.id + '"' +
+      return ('<button class="bbg-draft-tile bbg-rarity-' + rarity.toLowerCase() + '" data-action="draft" data-id="' + player.id + '"' +'<button class="bbg-draft-tile" data-action="draft" data-id="' + player.id + '"' +
           (lineupPlayers().length >= 6 ? ' disabled' : '') +
         '>' +
           '<div class="bbg-draft-top">' +
@@ -1025,7 +1024,7 @@
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
       html += (
-        '<div class="bbg-board-slot' + (isActive ? ' is-active' : '') + '">' +
+        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '>' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '"></div>' +
             '<div class="bbg-player-info">' +
@@ -1043,7 +1042,7 @@
             '</div>' +
           '</div>' +
         '</div>' +
-        '<button class="bbg-power-slot' + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '">' +
+        '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '">' +
           (powerup
             ? '<div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
             : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
@@ -1177,7 +1176,7 @@
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
       html += (
-        '<div class="bbg-board-slot' + (isActive ? ' is-active' : '') + '">' +
+        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '>' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '"></div>' +
             '<div class="bbg-player-info">' +
@@ -1196,8 +1195,8 @@
           '</div>' +
         '</div>' +
         (powerup
-          ? '<div class="bbg-power-slot has-powerup"><div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
-          : '<div class="bbg-power-slot"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
+  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
+  : '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + '"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
       );
     }
 
