@@ -740,41 +740,40 @@
   }
 
   function renderDraftPool() {
-    return state.draftPool
-      .filter(function (player) {
-        return !state.lineupSlots.some(function (slot) {
-          return slot.playerId === player.id;
-        });
-      })
-      .map(function (player, index) {
-        const overall = getOverall(player);
-        const rarity = getPlayerRarity(player);
-        const position = getPlayerPosition(player, index);
+  return state.draftPool
+    .filter(function (player) {
+      return !state.lineupSlots.some(function (slot) {
+        return slot.playerId === player.id;
+      });
+    })
+    .map(function (player, index) {
+      const overall = getOverall(player);
+      const rarity = getPlayerRarity(player);
+      const position = getPlayerPosition(player, index);
 
-        return (
-          '<div class="bbg-draft-tile">' +
-            '<div class="bbg-draft-top">' +
-              '<div>' +
-                '<div class="bbg-draft-name">' + player.name + '</div>' +
-                '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
-              '</div>' +
-              '<button class="bbg-btn" data-action="draft" data-id="' + player.id + '"' +
-                (lineupPlayers().length >= 6 ? ' disabled' : '') +
-              '>Add To Lineup</button>' +
+      return (
+        '<button class="bbg-draft-tile" data-action="draft" data-id="' + player.id + '"' +
+          (lineupPlayers().length >= 6 ? ' disabled' : '') +
+        '>' +
+          '<div class="bbg-draft-top">' +
+            '<div>' +
+              '<div class="bbg-draft-name">' + player.name + '</div>' +
+              '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
             '</div>' +
-            '<div class="bbg-draft-stats">' +
-              '<div class="bbg-draft-stat">CON <strong>' + player.contact + '</strong></div>' +
-              '<div class="bbg-draft-stat">POW <strong>' + player.power + '</strong></div>' +
-              '<div class="bbg-draft-stat">DIS <strong>' + player.discipline + '</strong></div>' +
-              '<div class="bbg-draft-stat">SPD <strong>' + player.speed + '</strong></div>' +
-              '<div class="bbg-draft-stat">OVR <strong>' + overall + '</strong></div>' +
-            '</div>' +
-            '<div class="bbg-draft-trait">' + player.trait + ' — ' + player.traitText + '</div>' +
-          '</div>'
-        );
-      })
-      .join("");
-  }
+            '<div class="bbg-draft-ovr">OVR ' + overall + '</div>' +
+          '</div>' +
+          '<div class="bbg-draft-stat-row">' +
+            '<div class="bbg-draft-stat-pill">CON ' + player.contact + '</div>' +
+            '<div class="bbg-draft-stat-pill">POW ' + player.power + '</div>' +
+            '<div class="bbg-draft-stat-pill">DIS ' + player.discipline + '</div>' +
+            '<div class="bbg-draft-stat-pill">SPD ' + player.speed + '</div>' +
+          '</div>' +
+          '<div class="bbg-draft-trait"><strong>' + player.trait + '</strong> • ' + player.traitText + '</div>' +
+        '</button>'
+      );
+    })
+    .join("");
+}
 
   function renderPowerups() {
     return POWERUPS
