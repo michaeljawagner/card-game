@@ -35,6 +35,7 @@
 #card-game .bbg-side-perk,
 #card-game .bbg-queue-card,
 #card-game .bbg-draft-tile,
+#card-game .bbg-draft-card,
 #card-game .bbg-power-slot {
   border: 3px solid #111111;
   box-shadow: 4px 4px 0 #111111;
@@ -370,7 +371,8 @@
 #card-game .bbg-result-btn:disabled,
 #card-game .bbg-action-chip:disabled,
 #card-game .bbg-power-slot:disabled,
-#card-game .bbg-draft-tile:disabled {
+#card-game .bbg-draft-tile:disabled,
+#card-game .bbg-draft-card:disabled {
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
@@ -700,18 +702,59 @@
 }
 
 
-#card-game .bbg-build-modal-bottom .bbg-perk-grid {
-  grid-template-columns: repeat(3, minmax(0, 1fr));
+#card-game .bbg-build-modal-side .bbg-perk-grid {
+  grid-template-columns: 1fr;
   align-items: stretch;
 }
 
-#card-game .bbg-build-modal-bottom .bbg-perk-card {
-  min-height: 100%;
-}
 
 #card-game .bbg-build-modal-side {
   display: grid;
   gap: 14px;
+}
+
+#card-game .bbg-build-modal-bottom .bbg-footer-box {
+  overflow: hidden;
+}
+
+#card-game .bbg-draft-scroll {
+  display: grid;
+  grid-auto-flow: column;
+  grid-auto-columns: minmax(180px, 220px);
+  gap: 12px;
+  overflow-x: auto;
+  overflow-y: hidden;
+  padding-bottom: 6px;
+}
+
+#card-game .bbg-draft-card {
+  appearance: none;
+  width: 100%;
+  min-height: 100%;
+  text-align: left;
+  background: #ffffff;
+  padding: 0;
+  cursor: pointer;
+  flex: 0 0 auto;
+}
+
+#card-game .bbg-draft-card-inner {
+  height: 100%;
+  display: flex;
+  flex-direction: column;
+}
+
+#card-game .bbg-draft-scroll::-webkit-scrollbar {
+  height: 10px;
+}
+
+#card-game .bbg-draft-scroll::-webkit-scrollbar-thumb {
+  background: #111111;
+  border-radius: 999px;
+}
+
+#card-game .bbg-draft-scroll::-webkit-scrollbar-track {
+  background: #f3f4f6;
 }
 
 #card-game .bbg-build-modal-actions {
@@ -771,42 +814,49 @@
 
 #card-game .bbg-board-slot.bbg-rarity-common,
 #card-game .bbg-draft-tile.bbg-rarity-common,
+#card-game .bbg-draft-card.bbg-rarity-common,
 #card-game .bbg-power-slot.bbg-rarity-common {
   border-color: #111111;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare,
 #card-game .bbg-draft-tile.bbg-rarity-rare,
+#card-game .bbg-draft-card.bbg-rarity-rare,
 #card-game .bbg-power-slot.bbg-rarity-rare {
   box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #9ca3af;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary,
 #card-game .bbg-draft-tile.bbg-rarity-legendary,
+#card-game .bbg-draft-card.bbg-rarity-legendary,
 #card-game .bbg-power-slot.bbg-rarity-legendary {
   box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #f3b43b;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-meta,
+#card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-rare .bbg-power-slot-rarity {
   color: #6b7280;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-meta,
+#card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-legendary .bbg-power-slot-rarity {
   color: #b7791f;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-ovr,
+#card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-rare:not(.has-powerup) {
   background: #f3f4f6;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-ovr,
+#card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-legendary:not(.has-powerup) {
   background: #fff7df;
 }
@@ -1171,11 +1221,6 @@
   #card-game .bbg-build-modal-body {
     grid-template-columns: 1fr;
   }
-
-
-  #card-game .bbg-build-modal-bottom .bbg-perk-grid {
-    grid-template-columns: repeat(3, minmax(0, 1fr));
-  }
 }
 
 @media (max-width: 991px) {
@@ -1251,10 +1296,6 @@
   #card-game .bbg-build-modal {
     max-height: calc(100vh - 24px);
     padding: 14px;
-  }
-
-  #card-game .bbg-build-modal-bottom .bbg-perk-grid {
-    grid-template-columns: 1fr;
   }
 }
 
