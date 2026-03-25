@@ -128,6 +128,8 @@
     enemyScore: 0,
     bases: [false, false, false],
     batterIndex: 0,
+    runStats: {},
+    gameStats: {},
     modifier: "normal",
     log: ["Draft up to 6 hitters and assign gamebreakers under each card."],
     lastOutcome: null,
@@ -183,6 +185,100 @@
     return POWERUPS.find(function (powerup) {
       return powerup.id === id;
     }) || null;
+  }
+
+    function createEmptyPlayerStats() {
+    return {
+      atBats: 0,
+      hits: 0,
+      singles: 0,
+      doubles: 0,
+      triples: 0,
+      homeRuns: 0,
+      walks: 0,
+      strikeouts: 0,
+      outs: 0,
+      rbi: 0
+    };
+  }
+
+  function ensurePlayerStats(store, playerId) {
+    if (!store[playerId]) {
+      store[playerId] = createEmptyPlayerStats();
+    }
+    return store[playerId];
+  }
+
+  function updatePlayerStatsForResult(playerId, result, rbi) {
+    const stores = [
+      ensurePlayerStats(state.runStats, playerId),
+      ensurePlayerStats(state.gameStats, playerId)
+    ];
+
+    for (let i = 0; i < stores.length; i++) {
+      const stats = stores[i];
+      stats.rbi += rbi || 0;
+
+      if (result === "walk") {
+        stats.walks += 1;
+        continue;
+      }
+
+      stats.atBats += 1;
+
+      if (result === "single") {
+        stats.hits += 1;
+        stats.singles += 1;
+      } else if (result === "double") {
+        stats.hits += 1;
+        stats.doubles += 1;
+      } else if (result === "triple") {
+        stats.hits += 1;
+        stats.triples += 1;
+      } else if (result === "homer") {
+        stats.hits += 1;
+        stats.homeRuns += 1;
+      } else if (result === "strikeout") {
+        stats.strikeouts += 1;
+        stats.outs += 1;
+      } else if (result === "out") {
+        stats.outs += 1;
+      }
+    }
+  }
+
+  function getRunStatsForPlayer(playerId) {
+    return ensurePlayerStats(state.runStats, playerId);
+  }
+
+  function getGameStatsForPlayer(playerId) {
+    return ensurePlayerStats(state.gameStats, playerId);
+  }
+
+  function formatAvg(stats) {
+    if (!stats.atBats) return ".000";
+    return "." + String(Math.round((stats.hits / stats.atBats) * 1000)).padStart(3, "0");
+  }
+
+  function formatRunStatLine(playerId) {
+    const stats = getRunStatsForPlayer(playerId);
+    return formatAvg(stats) + " AVG / " + stats.rbi + " RBI";
+  }
+
+  function formatGameStatLine(playerId) {
+    const stats = getGameStatsForPlayer(playerId);
+    const parts = [];
+
+    if (stats.singles) parts.push(stats.singles + " 1B");
+    if (stats.doubles) parts.push(stats.doubles + " 2B");
+    if (stats.triples) parts.push(stats.triples + " 3B");
+    if (stats.homeRuns) parts.push(stats.homeRuns + " HR");
+    if (stats.walks) parts.push(stats.walks + " BB");
+    if (stats.strikeouts) parts.push(stats.strikeouts + " K");
+    if (stats.rbi) parts.push(stats.rbi + " RBI");
+
+    if (!parts.length) return "No game stats yet";
+    return parts.join(" • ");
   }
 
   function lineupPlayers() {
@@ -507,6 +603,8 @@
     state.enemyScore = 0;
     state.bases = [false, false, false];
     state.batterIndex = 0;
+    state.runStats = {};
+    state.gameStats = {};
     state.modifier = "normal";
     state.log = ["New run started. Draft up to 6 hitters and assign gamebreakers under each card."];
     state.lastOutcome = null;
@@ -594,6 +692,7 @@
       text: advanced.text,
       runs: advanced.runs
     };
+    updatePlayerStatsForResult(batter.id, result, advanced.runs);
 
     addLog(
       batter.name +
@@ -712,7 +811,7 @@
                 '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
               '</div>' +
-              '<div class="bbg-player-tag">' + (isActive ? 'At Bat' : player.trait) + '</div>' +
+              '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -848,7 +947,7 @@
                 '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
               '</div>' +
-              '<div class="bbg-player-tag">' + (isActive ? 'At Bat' : player.trait) + '</div>' +
+                '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -933,7 +1032,7 @@
         '</div>' +
         '<div class="bbg-callout">' +
           '<div class="bbg-callout-value">' + (state.lastOutcome && state.lastOutcome.runs ? state.lastOutcome.runs * 300 : 900) + '</div>' +
-          '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.text : '3-Run Home Run') + '</div>' +
+                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : '3-Run Home Run') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
         '<button class="bbg-menu-btn">Gamebreakers (' + assignedPowerupCount() + ')</button>' +
@@ -950,10 +1049,10 @@
     const batter = currentBatter();
     const resultText = state.lastOutcome ? state.lastOutcome.text : 'Spin For Result';
     const batterStats = batter
-      ? ('.' + String(Math.max(200, batter.contact + batter.power)).padStart(3, '0') + ' AVG / ' + Math.max(1, Math.round((batter.power + batter.contact) / 25)) + ' RBI')
+      ? formatRunStatLine(batter.id)
       : 'Set your lineup to begin';
-    const batterToday = state.lastOutcome
-      ? (state.lastOutcome.runs ? '1-1 Today, ' + state.lastOutcome.text + ', ' + state.lastOutcome.runs + ' RBI' : '0-1 Today, ' + state.lastOutcome.text)
+    const batterToday = batter
+      ? formatGameStatLine(batter.id)
       : 'No plate appearance yet';
 
     return (
