@@ -2,7 +2,7 @@
   const root = document.getElementById("card-game");
   if (!root) return;
 
-  const PLAYERS = [
+  const DEFAULT_PLAYERS = [
     {
       id: 1,
       name: "Leadoff Spark",
@@ -65,6 +65,12 @@
     }
   ];
 
+  const PLAYERS = Array.isArray(window.BASEBALL_CARD_PLAYERS) && window.BASEBALL_CARD_PLAYERS.length
+    ? window.BASEBALL_CARD_PLAYERS
+    : DEFAULT_PLAYERS;
+
+  const DRAFT_POOL_SIZE = 12;
+
   const POWERUPS = [
     {
       id: "moneyball",
@@ -107,7 +113,7 @@
   ];
 
   const state = {
-    draftPool: shuffle(PLAYERS.slice()),
+    draftPool: buildDraftPool(),
     lineupSlots: Array.from({ length: 6 }, function () {
       return { playerId: null, powerupId: null };
     }),
@@ -146,6 +152,10 @@
       copy[j] = temp;
     }
     return copy;
+  }
+
+  function buildDraftPool() {
+    return shuffle(PLAYERS.slice()).slice(0, Math.min(DRAFT_POOL_SIZE, PLAYERS.length));
   }
 
   function clamp(n, min, max) {
@@ -482,7 +492,7 @@
   }
 
   function resetRun() {
-    state.draftPool = shuffle(PLAYERS.slice());
+    state.draftPool = buildDraftPool();
     state.lineupSlots = Array.from({ length: 6 }, function () {
       return { playerId: null, powerupId: null };
     });
