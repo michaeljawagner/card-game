@@ -757,12 +757,12 @@
   function renderScorebugInning() {
     const inningLabel = state.inning > 9 ? 'F' : state.inning;
     return (
-      '<div class="bbg-scorebug-inning">' +
-        '<div class="bbg-scorebug-arrow is-muted">▲</div>' +
-        '<div class="bbg-scorebug-inning-value">' + inningLabel + '</div>' +
-        '<div class="bbg-scorebug-arrow is-active">▼</div>' +
-      '</div>'
-    );
+        '<div class="bbg-scorebug-inning">' +
+            '<div class="bbg-scorebug-arrow is-active">▲</div>' +
+            '<div class="bbg-scorebug-inning-value">' + inningLabel + '</div>' +
+            '<div class="bbg-scorebug-arrow is-muted">▼</div>' +
+        '</div>'
+        );
   }
 
   function renderScorebugBases() {
@@ -853,7 +853,7 @@
     if (lineupPlayers().length < 4) return;
     state.gameStarted = true;
     state.currentView = "play";
-    addLog("Game start. Bottom 1st.");
+    addLog("Game start. Top 1st.");
     render();
   }
 
@@ -866,7 +866,7 @@
     if (roll > 0.98) opponentRuns = 3;
 
     state.enemyScore += opponentRuns;
-    addLog("Top " + state.inning + ": opponent scores " + opponentRuns + ".");
+    addLog("Bottom " + state.inning + ": opponent scores " + opponentRuns + ".");
     state.inning += 1;
     state.outs = 0;
     state.bases = [false, false, false];
@@ -1260,7 +1260,7 @@
         renderScorebug() +
         '<div class="bbg-callout">' +
                     '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : '') + '</div>' +
-                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text + (state.lastOutcome.combo >= 2 ? ' • Combo x' + state.lastOutcome.combo : '') : !state.gameStarted ? 'Set your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
+                    '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text + (state.lastOutcome.combo >= 2 ? ' • Combo x' + state.lastOutcome.combo : '') : !state.gameStarted ? 'Set your lineup to start' : state.outs === 0 ? 'Top ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
         '<button class="bbg-menu-btn">Gamebreakers (' + assignedPowerupCount() + ')</button>' +
@@ -1292,7 +1292,7 @@
           '<div class="bbg-atbat-divider"></div>' +
           '<div class="bbg-atbat-today">' + batterToday + '</div>' +
           '<div class="bbg-status-row">' +
-            '<div class="bbg-status-pill">IN ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
+            '<div class="bbg-status-pill">TOP ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
             '<div class="bbg-status-pill">OUTS ' + state.outs + '</div>' +
             '<div class="bbg-status-pill">' + basesText() + '</div>' +
           '</div>' +
