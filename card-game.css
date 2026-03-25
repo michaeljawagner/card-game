@@ -408,6 +408,138 @@
   box-shadow: 3px 3px 0 #111111;
 }
 
+#card-game .bbg-build-summary {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 14px;
+  background: #efe7db;
+  border: 3px solid #111111;
+  box-shadow: 4px 4px 0 #111111;
+}
+
+#card-game .bbg-build-summary-copy {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+#card-game .bbg-build-summary-title,
+#card-game .bbg-build-panel-title,
+#card-game .bbg-build-modal-title {
+  font-size: 18px;
+  line-height: 1.02;
+  font-weight: 900;
+  text-transform: uppercase;
+}
+
+#card-game .bbg-build-summary-text,
+#card-game .bbg-build-panel-copy,
+#card-game .bbg-build-modal-kicker {
+  font-size: 11px;
+  line-height: 1.3;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  color: #4f4a42;
+}
+
+#card-game .bbg-build-tabs {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 10px;
+}
+
+#card-game .bbg-build-tab {
+  appearance: none;
+  border: 3px solid #111111;
+  border-radius: 0;
+  background: #f8f3eb;
+  color: #111111;
+  padding: 10px 14px;
+  font-size: 11px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  cursor: pointer;
+  box-shadow: 3px 3px 0 #111111;
+  transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+#card-game .bbg-build-tab:hover {
+  transform: translate(-1px, -1px);
+}
+
+#card-game .bbg-build-tab.is-active {
+  background: #111111;
+  color: #f8f3eb;
+}
+
+#card-game .bbg-build-panel {
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+#card-game .bbg-build-panel-header,
+#card-game .bbg-build-panel-footer {
+  padding: 12px 14px;
+  background: #efe7db;
+  border: 3px solid #111111;
+  box-shadow: 4px 4px 0 #111111;
+}
+
+#card-game .bbg-build-modal-backdrop {
+  position: fixed;
+  inset: 0;
+  background: rgba(17, 17, 17, 0.7);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  padding: 24px;
+  z-index: 9999;
+}
+
+#card-game .bbg-build-modal {
+  width: min(1400px, 100%);
+  max-height: calc(100vh - 48px);
+  overflow: auto;
+  background: #d9d0c3;
+  border: 4px solid #111111;
+  box-shadow: 8px 8px 0 #111111;
+  padding: 18px;
+  display: flex;
+  flex-direction: column;
+  gap: 14px;
+}
+
+#card-game .bbg-build-modal-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 12px;
+}
+
+#card-game .bbg-build-modal-body {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 360px;
+  gap: 14px;
+  align-items: start;
+}
+
+#card-game .bbg-build-modal-side {
+  display: grid;
+  gap: 14px;
+}
+
+#card-game .bbg-build-modal-actions {
+  display: flex;
+  justify-content: flex-end;
+  gap: 12px;
+  align-items: center;
+}
+
 #card-game .bbg-board-area {
   background: #efe7db;
   padding: 14px;
@@ -508,6 +640,10 @@
   opacity: 0.45;
   cursor: not-allowed;
   transform: none;
+}
+
+#card-game .bbg-power-slot.is-empty {
+  pointer-events: none;
 }
 
 #card-game .bbg-board-slot.is-empty,
@@ -737,6 +873,10 @@
     grid-column: auto !important;
     grid-row: auto !important;
   }
+
+  #card-game .bbg-build-modal-body {
+    grid-template-columns: 1fr;
+  }
 }
 
 @media (max-width: 991px) {
@@ -780,6 +920,22 @@
   #card-game .bbg-spin-btn {
     min-height: 96px;
     font-size: 28px;
+  }
+
+  #card-game .bbg-build-summary,
+  #card-game .bbg-build-modal-top,
+  #card-game .bbg-build-modal-actions {
+    flex-direction: column;
+    align-items: stretch;
+  }
+
+  #card-game .bbg-build-modal-backdrop {
+    padding: 12px;
+  }
+
+  #card-game .bbg-build-modal {
+    max-height: calc(100vh - 24px);
+    padding: 14px;
   }
 }
 
