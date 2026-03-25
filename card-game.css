@@ -1,7 +1,7 @@
 /* Cleaned and deduplicated CSS for #card-game */
 #card-game {
   width: 100%;
-  background: #d9d0c3;
+  background: #ffffff;
 }
 
 #card-game * {
@@ -40,7 +40,7 @@
 }
 
 #card-game .bbg-left-rail {
-  background: #efe7db;
+  background: #ffffff;
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -69,11 +69,11 @@
   font-size: 12px;
   text-transform: uppercase;
   letter-spacing: 0.1em;
-  color: #d8cfbf;
+  color: #ffffff;
 }
 
 #card-game .bbg-total-score {
-  background: #f8f3eb;
+  background: #ffffff;
   padding: 16px 14px;
 }
 
@@ -101,7 +101,7 @@
 }
 
 #card-game .bbg-mini-scoreboard {
-  background: #f8f3eb;
+  background: #ffffff;
   padding: 12px;
   display: grid;
   gap: 8px;
@@ -244,7 +244,7 @@
 }
 
 #card-game .bbg-atbat-panel {
-  background: #efe7db;
+  background: #ffffff;
   min-height: 220px;
   padding: 16px;
   display: grid;
@@ -263,21 +263,21 @@
 
 #card-game .bbg-atbat-art {
   min-height: 100%;
-  background: linear-gradient(180deg, #d7d2ca 0%, #b3aa9c 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-atbat-art.is-batter {
-  background: linear-gradient(180deg, #e5ddd0 0%, #b8b09f 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-atbat-art.is-pitcher {
-  background: linear-gradient(180deg, #cbc2b4 0%, #978d7f 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-atbat-center,
 #card-game .bbg-atbat-right,
 #card-game .bbg-atbat-actions {
-  background: #f8f3eb;
+  background: #ffffff;
   border: 3px solid #111111;
   padding: 12px;
 }
@@ -317,7 +317,7 @@
 #card-game .bbg-status-pill {
   padding: 7px 10px;
   border: 2px solid #111111;
-  background: #e6ddd0;
+  background: #ffffff;
   font-size: 10px;
   line-height: 1;
   font-weight: 900;
@@ -347,7 +347,7 @@
 #card-game .bbg-count-box {
   min-height: 46px;
   border: 3px solid #111111;
-  background: #ddd3c4;
+  background: #ffffff;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -368,7 +368,7 @@
 #card-game .bbg-action-chip {
   padding: 12px 10px;
   font-size: 11px;
-  background: #f8f3eb;
+  background: #ffffff;
   box-shadow: 3px 3px 0 #111111;
 }
 
@@ -390,7 +390,7 @@
   margin-top: 14px;
   padding: 10px 12px;
   border: 3px solid #111111;
-  background: #d9d0c3;
+  background: #ffffff;
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -415,7 +415,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px;
-  background: #efe7db;
+  background: #ffffff;
   border: 3px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
@@ -443,7 +443,7 @@
   font-weight: 800;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #4f4a42;
+  color: #111111;
 }
 
 #card-game .bbg-build-tabs {
@@ -486,7 +486,7 @@
 #card-game .bbg-build-panel-header,
 #card-game .bbg-build-panel-footer {
   padding: 12px 14px;
-  background: #efe7db;
+  background: #ffffff;
   border: 3px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
@@ -513,7 +513,7 @@
   width: min(1400px, 100%);
   max-height: calc(100vh - 48px);
   overflow: auto;
-  background: #d9d0c3;
+  background: #ffffff;
   border: 4px solid #111111;
   box-shadow: 8px 8px 0 #111111;
   padding: 18px;
@@ -570,7 +570,7 @@
 }
 
 #card-game .bbg-board-area {
-  background: #efe7db;
+  background: #ffffff;
   padding: 14px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -584,7 +584,7 @@
 }
 
 #card-game .bbg-arcade-main > .bbg-build-panel .bbg-board-area {
-  background: #e7decf;
+  background: #ffffff;
 }
 
 #card-game .bbg-lineup-grid {
@@ -612,7 +612,7 @@
 
 #card-game .bbg-board-slot,
 #card-game .bbg-side-perk {
-  background: #f8f3eb;
+  background: #ffffff;
   min-height: 230px;
 }
 
@@ -623,7 +623,7 @@
   padding: 12px;
   text-align: left;
   border-radius: 0;
-  background: #f8f3eb;
+  background: #ffffff;
   color: #111111;
   display: flex;
   flex-direction: column;
@@ -643,13 +643,7 @@
   display: flex;
   align-items: center;
   justify-content: center;
-  background: repeating-linear-gradient(
-    45deg,
-    #f3ece1,
-    #f3ece1 14px,
-    #ebe2d4 14px,
-    #ebe2d4 28px
-  );
+  background: #ffffff;
 }
 
 #card-game .bbg-empty-plus {
@@ -668,23 +662,23 @@
 #card-game .bbg-player-art {
   height: 118px;
   border-width: 0 0 3px 0;
-  background: linear-gradient(180deg, #d9d0c3 0%, #b7ac9d 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-player-art.is-slugger {
-  background: linear-gradient(180deg, #bdb5a8 0%, #7f766a 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-player-art.is-speed {
-  background: linear-gradient(180deg, #dfd7ca 0%, #9f9586 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-player-art.is-contact {
-  background: linear-gradient(180deg, #ece4d9 0%, #b9af9f 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-player-art.is-balanced {
-  background: linear-gradient(180deg, #d8cfbf 0%, #aaa08f 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-player-info {
@@ -699,7 +693,7 @@
 #card-game .bbg-draft-trait,
 #card-game .bbg-power-slot-rarity,
 #card-game .bbg-power-slot-desc {
-  color: #4f4a42;
+  color: #111111;
 }
 
 #card-game .bbg-player-topline,
@@ -718,7 +712,7 @@
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
-  color: #4f4a42;
+  color: #111111;
 }
 
 #card-game .bbg-player-board-name,
@@ -760,7 +754,7 @@
   min-width: 10px;
   height: 8px;
   border: 2px solid #111111;
-  background: #efe7db;
+  background: #ffffff;
 }
 
 #card-game .bbg-pip.is-on {
@@ -782,14 +776,14 @@
 
 #card-game .bbg-power-slot.has-powerup {
   background: #111111;
-  color: #f8f3eb;
+  color: #ffffff;
 }
 
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity,
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-desc,
 #card-game .bbg-perk-card.is-active .bbg-perk-rarity,
 #card-game .bbg-perk-card.is-active .bbg-perk-desc {
-  color: #ddd3c4;
+  color: #ffffff;
 }
 
 #card-game .bbg-power-slot-rarity,
@@ -808,12 +802,12 @@
   text-align: left;
   padding: 12px;
   box-shadow: 3px 3px 0 #111111;
-  background: #f8f3eb;
+  background: #ffffff;
 }
 
 #card-game .bbg-perk-card.is-assigned {
   border-color: #111111;
-  background: #ddd3c4;
+  background: #ffffff;
 }
 
 #card-game .bbg-perk-card.is-active {
@@ -848,7 +842,7 @@
 }
 
 #card-game .bbg-queue-card {
-  background: #f8f3eb;
+  background: #ffffff;
   min-height: 104px;
   display: grid;
   grid-template-columns: 68px minmax(0, 1fr);
@@ -857,7 +851,7 @@
 #card-game .bbg-queue-art {
   border-width: 0 3px 0 0;
   min-height: 100%;
-  background: linear-gradient(180deg, #d6cdbf 0%, #aea392 100%);
+  background: #ffffff;
 }
 
 #card-game .bbg-spin-btn {
@@ -875,7 +869,7 @@
 }
 
 #card-game .bbg-footer-box {
-  background: #efe7db;
+  background: #ffffff;
   padding: 12px;
   display: flex;
   flex-direction: column;
@@ -904,7 +898,7 @@
 }
 
 #card-game .bbg-feed-row {
-  background: #f8f3eb;
+  background: #ffffff;
   border: 3px solid #111111;
   box-shadow: 3px 3px 0 #111111;
   padding: 10px;
