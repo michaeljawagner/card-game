@@ -1149,40 +1149,42 @@
   }
 
   function renderBuildModal() {
-    if (!state.isBuildModalOpen) return '';
+  if (!state.isBuildModalOpen) return '';
 
-    return (
-      '<div class="bbg-build-modal-backdrop" data-action="close-build-modal">' +
-        '<div class="bbg-build-modal" data-modal-root="true">' +
-          '<div class="bbg-build-modal-top">' +
-            '<div>' +
-              '<div class="bbg-build-modal-kicker">Build Mode</div>' +
-              '<div class="bbg-build-modal-title">Create Your Lineup</div>' +
-            '</div>' +
-            '<button class="bbg-btn" data-action="close-build-modal">Done</button>' +
+  return (
+    '<div class="bbg-build-modal-backdrop" data-action="close-build-modal">' +
+      '<div class="bbg-build-modal" data-modal-root="true">' +
+        '<div class="bbg-build-modal-top">' +
+          '<div>' +
+            '<div class="bbg-build-modal-kicker">Build Mode</div>' +
+            '<div class="bbg-build-modal-title">Create Your Lineup</div>' +
           '</div>' +
-          renderBuildTabs() +
-          '<div class="bbg-build-modal-body">' +
-            renderBuildScreen() +
-          '</div>' +
-          '<div class="bbg-build-modal-bottom">' +
+          '<button class="bbg-btn" data-action="close-build-modal">Done</button>' +
+        '</div>' +
+        renderBuildTabs() +
+        '<div class="bbg-build-modal-body">' +
+          renderBuildScreen() +
+          '<div class="bbg-build-modal-side">' +
             '<div class="bbg-footer-box">' +
               '<div class="bbg-lineup-header">Draft Pool</div>' +
               '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
             '</div>' +
-            '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Gamebreakers</div>' +
-              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-            '</div>' +
-          '</div>' +
-          '<div class="bbg-build-modal-actions">' +
-            '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
-            '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 4 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
           '</div>' +
         '</div>' +
-      '</div>'
-    );
-  }
+        '<div class="bbg-build-modal-bottom">' +
+          '<div class="bbg-footer-box">' +
+            '<div class="bbg-lineup-header">Gamebreakers</div>' +
+            '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bbg-build-modal-actions">' +
+          '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
+          '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 4 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
 
   function renderScorePanel() {
     return (
