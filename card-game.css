@@ -1,7 +1,8 @@
 /* Cleaned and deduplicated CSS for #card-game */
 #card-game {
+  --bbg-soft-bg: #f3f4f6;
   width: 100%;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
 }
 
 #card-game * {
@@ -40,7 +41,7 @@
 }
 
 #card-game .bbg-left-rail {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -73,7 +74,7 @@
 }
 
 #card-game .bbg-total-score {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   padding: 16px 14px;
 }
 
@@ -395,7 +396,7 @@
 }
 
 #card-game .bbg-atbat-panel {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   min-height: 220px;
   padding: 16px;
   display: grid;
@@ -428,7 +429,7 @@
 #card-game .bbg-atbat-center,
 #card-game .bbg-atbat-right,
 #card-game .bbg-atbat-actions {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   border: 3px solid #111111;
   padding: 12px;
 }
@@ -468,7 +469,7 @@
 #card-game .bbg-status-pill {
   padding: 7px 10px;
   border: 2px solid #111111;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   font-size: 10px;
   line-height: 1;
   font-weight: 900;
@@ -498,7 +499,7 @@
 #card-game .bbg-count-box {
   min-height: 46px;
   border: 3px solid #111111;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   display: flex;
   align-items: center;
   justify-content: center;
@@ -541,7 +542,7 @@
   margin-top: 14px;
   padding: 10px 12px;
   border: 3px solid #111111;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   font-size: 11px;
   font-weight: 800;
   text-transform: uppercase;
@@ -566,7 +567,7 @@
   justify-content: space-between;
   gap: 12px;
   padding: 14px;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   border: 3px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
@@ -637,7 +638,7 @@
 #card-game .bbg-build-panel-header,
 #card-game .bbg-build-panel-footer {
   padding: 12px 14px;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   border: 3px solid #111111;
   box-shadow: 4px 4px 0 #111111;
 }
@@ -664,7 +665,7 @@
   width: min(1400px, 100%);
   max-height: calc(100vh - 48px);
   overflow: auto;
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   border: 4px solid #111111;
   box-shadow: 8px 8px 0 #111111;
   padding: 18px;
@@ -721,7 +722,7 @@
 }
 
 #card-game .bbg-board-area {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   padding: 14px;
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -735,7 +736,7 @@
 }
 
 #card-game .bbg-arcade-main > .bbg-build-panel .bbg-board-area {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
 }
 
 #card-game .bbg-lineup-grid {
@@ -1020,7 +1021,7 @@
 }
 
 #card-game .bbg-footer-box {
-  background: #ffffff;
+  background: var(--bbg-soft-bg);
   padding: 12px;
   display: flex;
   flex-direction: column;
