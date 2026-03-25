@@ -52,7 +52,7 @@
 
 #card-game .bbg-team-panel {
   background: #111111;
-  color: #f4efe7;
+  color: #ffffff;
   padding: 14px;
 }
 
@@ -188,7 +188,7 @@
   appearance: none;
   border: 3px solid #111111;
   border-radius: 0;
-  background: #f8f3eb;
+  background: #ffffff;
   color: #111111;
   font-weight: 900;
   text-transform: uppercase;
@@ -225,7 +225,7 @@
 }
 
 #card-game .bbg-btn.is-muted {
-  background: #c8c0b3;
+  background: #ffffff;
 }
 
 #card-game .bbg-btn-full,
@@ -374,7 +374,7 @@
 
 #card-game .bbg-action-chip.is-active {
   background: #111111;
-  color: #f8f3eb;
+  color: #ffffff;
 }
 
 #card-game .bbg-result-btn {
@@ -404,7 +404,7 @@
   width: fit-content;
   padding: 8px 12px;
   background: #111111;
-  color: #f8f3eb;
+  color: #ffffff;
   border: 3px solid #111111;
   box-shadow: 3px 3px 0 #111111;
 }
@@ -456,7 +456,7 @@
   appearance: none;
   border: 3px solid #111111;
   border-radius: 0;
-  background: #f8f3eb;
+  background: #ffffff;
   color: #111111;
   padding: 10px 14px;
   font-size: 11px;
@@ -474,7 +474,7 @@
 
 #card-game .bbg-build-tab.is-active {
   background: #111111;
-  color: #f8f3eb;
+  color: #ffffff;
 }
 
 #card-game .bbg-build-panel {
@@ -812,7 +812,7 @@
 
 #card-game .bbg-perk-card.is-active {
   background: #111111;
-  color: #f8f3eb;
+  color: #ffffff;
 }
 
 #card-game .bbg-bottom-row,
@@ -912,7 +912,7 @@
   appearance: none;
   width: 100%;
   text-align: left;
-  background: #f8f3eb;
+  background: #ffffff;
   padding: 8px;
   display: flex;
   flex-direction: column;
