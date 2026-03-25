@@ -1028,7 +1028,7 @@
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
       html += (
-        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '>' +
+        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '"></div>' +
             '<div class="bbg-player-info">' +
@@ -1180,7 +1180,7 @@
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
       html += (
-        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '>' +
+        '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '"></div>' +
             '<div class="bbg-player-info">' +
