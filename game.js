@@ -734,8 +734,70 @@
     render();
   }
 
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
+  }
+
+  function renderScorebugTeams() {
+    return (
+      '<div class="bbg-scorebug-teams">' +
+        '<div class="bbg-scorebug-team-row">' +
+          '<div class="bbg-scorebug-logo">LA</div>' +
+          '<div class="bbg-scorebug-team-name">LAD</div>' +
+          '<div class="bbg-scorebug-team-score">' + state.enemyScore + '</div>' +
+        '</div>' +
+        '<div class="bbg-scorebug-team-row">' +
+          '<div class="bbg-scorebug-logo">CLE</div>' +
+          '<div class="bbg-scorebug-team-name">CLE</div>' +
+          '<div class="bbg-scorebug-team-score">' + state.score + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderScorebugInning() {
+    const inningLabel = state.inning > 9 ? 'F' : state.inning;
+    return (
+      '<div class="bbg-scorebug-inning">' +
+        '<div class="bbg-scorebug-arrow is-muted">▲</div>' +
+        '<div class="bbg-scorebug-inning-value">' + inningLabel + '</div>' +
+        '<div class="bbg-scorebug-arrow is-active">▼</div>' +
+      '</div>'
+    );
+  }
+
+  function renderScorebugBases() {
+    return (
+      '<div class="bbg-scorebug-bases">' +
+        '<div class="bbg-scorebug-base bbg-scorebug-base-2 ' + (state.bases[1] ? 'is-on' : '') + '"></div>' +
+        '<div class="bbg-scorebug-base bbg-scorebug-base-3 ' + (state.bases[2] ? 'is-on' : '') + '"></div>' +
+        '<div class="bbg-scorebug-base bbg-scorebug-base-1 ' + (state.bases[0] ? 'is-on' : '') + '"></div>' +
+      '</div>'
+    );
+  }
+
+  function renderScorebugOuts() {
+    let html = '';
+    for (let i = 0; i < 3; i++) {
+      html += '<span class="bbg-scorebug-out ' + (i < state.outs ? 'is-on' : '') + '"></span>';
+    }
+    return '<div class="bbg-scorebug-outs">' + html + '</div>';
+  }
+
+  function renderScorebug() {
+    return (
+      '<div class="bbg-scorebug">' +
+        renderScorebugTeams() +
+        '<div class="bbg-scorebug-state">' +
+          renderScorebugInning() +
+          '<div class="bbg-scorebug-diamond-wrap">' +
+            renderScorebugBases() +
+            renderScorebugOuts() +
+          '</div>' +
+        '</div>' +
+      '</div>'
+    );
   }
 
   function resetRun() {
@@ -1197,19 +1259,7 @@
           '<div class="bbg-total-label">Total Score</div>' +
                     '<div class="bbg-total-value">' + state.arcadeScore.toLocaleString() + '</div>' +
         '</div>' +
-        '<div class="bbg-mini-scoreboard">' +
-          '<div class="bbg-mini-team"><span>LAD</span><strong>' + state.enemyScore + '</strong></div>' +
-          '<div class="bbg-mini-team"><span>CLE</span><strong>' + state.score + '</strong></div>' +
-          '<div class="bbg-mini-meta">' +
-            '<div>IN ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
-            '<div>OUTS ' + state.outs + '</div>' +
-          '</div>' +
-        '</div>' +
-        '<div class="bbg-bases-box">' +
-          '<div>' + baseEmoji(state.bases[0]) + '</div>' +
-          '<div>' + baseEmoji(state.bases[1]) + '</div>' +
-          '<div>' + baseEmoji(state.bases[2]) + '</div>' +
-        '</div>' +
+        renderScorebug() +
         '<div class="bbg-callout">' +
                     '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : '') + '</div>' +
                     '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text + (state.lastOutcome.combo >= 2 ? ' • Combo x' + state.lastOutcome.combo : '') : !state.gameStarted ? 'Set your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
