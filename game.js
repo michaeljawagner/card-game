@@ -804,6 +804,70 @@
     );
   }
 
+  function renderLineupPreview() {
+    let html = '';
+    const activeSlot = currentLineupSlot();
+
+    for (let i = 0; i < 6; i++) {
+      const slot = state.lineupSlots[i];
+      const player = slot.playerId ? getPlayerById(slot.playerId) : null;
+      const powerup = slot.powerupId ? getPowerupById(slot.powerupId) : null;
+
+      if (!player) {
+        html += (
+          '<div class="bbg-board-slot is-empty">' +
+            '<div class="bbg-empty-plus">+</div>' +
+          '</div>' +
+          '<div class="bbg-power-slot is-empty">' +
+            '<div class="bbg-empty-plus">+</div>' +
+          '</div>'
+        );
+        continue;
+      }
+
+      const rarity = getPlayerRarity(player);
+      const position = getPlayerPosition(player, i);
+      const artClass = getPlayerArtClass(player);
+      const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
+
+      html += (
+        '<div class="bbg-board-slot' + (isActive ? ' is-active' : '') + '">' +
+          '<div class="bbg-player-board-card">' +
+            '<div class="bbg-player-art ' + artClass + '"></div>' +
+            '<div class="bbg-player-info">' +
+              '<div class="bbg-player-topline">' +
+                '<div class="bbg-player-position">' + position + '</div>' +
+                '<div class="bbg-player-rarity">' + rarity + '</div>' +
+              '</div>' +
+              '<div class="bbg-player-board-name">' + player.name + '</div>' +
+              '<div class="bbg-player-pips">' +
+                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+              '</div>' +
+              '<div class="bbg-player-tag">' + (isActive ? 'At Bat' : player.trait) + '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+        (powerup
+          ? '<div class="bbg-power-slot has-powerup"><div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
+          : '<div class="bbg-power-slot"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
+      );
+    }
+
+    return (
+      '<div class="bbg-build-panel">' +
+        '<div class="bbg-build-panel-header">' +
+          '<div class="bbg-build-panel-title">Lineup Preview</div>' +
+          '<div class="bbg-build-panel-copy">Your active roster stays visible on the game screen.</div>' +
+        '</div>' +
+        '<div class="bbg-board-area">' +
+          '<div class="bbg-lineup-grid is-setup-grid">' + html + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
   function renderBuildModal() {
     if (!state.isBuildModalOpen) return '';
 
@@ -950,6 +1014,7 @@
             renderAtBatPanel() +
           '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
           renderBuildSummary() +
+          renderLineupPreview() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-due-up">' +
               '<div class="bbg-lineup-header">DUE UP FOR Dodgers</div>' +
@@ -976,20 +1041,23 @@
   function bindEvents() {
     const actionEls = root.querySelectorAll("[data-action]");
     for (let i = 0; i < actionEls.length; i++) {
-      actionEls[i].addEventListener("click", function () {
+      actionEls[i].addEventListener("click", function (event) {
         const action = this.getAttribute("data-action");
         const id = this.getAttribute("data-id");
         const slotIndex = this.getAttribute("data-slot-index");
         const screen = this.getAttribute("data-screen");
         const isModalRoot = this.getAttribute("data-modal-root");
 
-        if (action === "new-run") resetRun();
-        if (action === "switch-build-screen") switchBuildScreen(screen);
-                if (action === "open-build-modal") openBuildModal();
         if (action === "close-build-modal") {
           if (isModalRoot) return;
+          if (this.classList.contains("bbg-build-modal-backdrop") && event.target !== this) return;
           closeBuildModal();
+          return;
         }
+
+        if (action === "new-run") resetRun();
+        if (action === "switch-build-screen") switchBuildScreen(screen);
+        if (action === "open-build-modal") openBuildModal();
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
         if (action === "assign-powerup-slot") {
@@ -1001,7 +1069,7 @@
           }
           render();
         }
-                if (action === "start-game") {
+        if (action === "start-game") {
           startGame();
           if (state.gameStarted) closeBuildModal();
         }
