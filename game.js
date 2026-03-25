@@ -108,8 +108,11 @@
 
   const state = {
     draftPool: shuffle(PLAYERS.slice()),
-    lineup: [],
-    selectedPowerups: [],
+    lineupSlots: Array.from({ length: 6 }, function () {
+      return { playerId: null, powerupId: null };
+    }),
+    selectedAssignPowerupId: null,
+    currentView: "build",
     gameStarted: false,
     inning: 1,
     outs: 0,
@@ -118,7 +121,7 @@
     bases: [false, false, false],
     batterIndex: 0,
     modifier: "normal",
-    log: ["Draft 4 hitters and choose up to 2 power-ups."],
+    log: ["Draft up to 6 hitters and assign gamebreakers under each card."],
     lastOutcome: null,
     teamName: "Indians",
     matchup: "Game 2 vs Dodgers",
@@ -158,13 +161,37 @@
     return weights[weights.length - 1].key;
   }
 
-  function currentBatter() {
-    if (!state.lineup.length) return null;
-    return state.lineup[state.batterIndex % state.lineup.length];
+  function getPlayerById(id) {
+    return PLAYERS.find(function (player) {
+      return player.id === id;
+    }) || null;
   }
 
-  function hasPowerup(id) {
-    return state.selectedPowerups.indexOf(id) > -1;
+  function getPowerupById(id) {
+    return POWERUPS.find(function (powerup) {
+      return powerup.id === id;
+    }) || null;
+  }
+
+  function lineupPlayers() {
+    return state.lineupSlots
+      .map(function (slot, slotIndex) {
+        if (!slot.playerId) return null;
+        const player = getPlayerById(slot.playerId);
+        if (!player) return null;
+        return {
+          slotIndex: slotIndex,
+          player: player,
+          powerupId: slot.powerupId || null
+        };
+      })
+      .filter(Boolean);
+  }
+
+  function currentBatter() {
+    const players = lineupPlayers();
+    if (!players.length) return null;
+    return players[state.batterIndex % players.length].player;
   }
 
   function buildOutcomeWeights(player, modifierId, bases, inning) {
@@ -368,9 +395,21 @@
     return "Standard Delivery";
   }
 
+  function currentBatterPowerupId() {
+    const players = lineupPlayers();
+    if (!players.length) return null;
+    const active = players[state.batterIndex % players.length];
+    return active ? active.powerupId : null;
+  }
+
+  function hasPowerup(id) {
+    return currentBatterPowerupId() === id;
+  }
+
   function currentLineupSlot() {
-    if (!state.lineup.length) return -1;
-    return state.batterIndex % state.lineup.length;
+    const players = lineupPlayers();
+    if (!players.length) return -1;
+    return players[state.batterIndex % players.length].slotIndex;
   }
 
   function basesText() {
@@ -388,14 +427,43 @@
     return found ? found.name : "Balanced Swing";
   }
 
+  function assignedPowerupCount() {
+    return state.lineupSlots.filter(function (slot) {
+      return !!slot.powerupId;
+    }).length;
+  }
+
+  function powerupAssignedToAnotherSlot(powerupId, slotIndex) {
+    return state.lineupSlots.some(function (slot, index) {
+      return index !== slotIndex && slot.powerupId === powerupId;
+    });
+  }
+
+  function assignSelectedPowerupToSlot(slotIndex) {
+    const slot = state.lineupSlots[slotIndex];
+    if (!slot || !slot.playerId || !state.selectedAssignPowerupId) return;
+    if (powerupAssignedToAnotherSlot(state.selectedAssignPowerupId, slotIndex)) return;
+    slot.powerupId = state.selectedAssignPowerupId;
+    state.selectedAssignPowerupId = null;
+  }
+
+  function clearPowerupFromSlot(slotIndex) {
+    const slot = state.lineupSlots[slotIndex];
+    if (!slot) return;
+    slot.powerupId = null;
+  }
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
   }
 
   function resetRun() {
     state.draftPool = shuffle(PLAYERS.slice());
-    state.lineup = [];
-    state.selectedPowerups = [];
+    state.lineupSlots = Array.from({ length: 6 }, function () {
+      return { playerId: null, powerupId: null };
+    });
+    state.selectedAssignPowerupId = null;
+    state.currentView = "build";
     state.gameStarted = false;
     state.inning = 1;
     state.outs = 0;
@@ -404,7 +472,7 @@
     state.bases = [false, false, false];
     state.batterIndex = 0;
     state.modifier = "normal";
-    state.log = ["New run started. Draft 4 hitters and choose up to 2 power-ups."];
+    state.log = ["New run started. Draft up to 6 hitters and assign gamebreakers under each card."];
     state.lastOutcome = null;
     render();
   }
@@ -415,32 +483,29 @@
   }
 
   function addToLineup(playerId) {
-    if (state.lineup.length >= 4) return;
-    for (let i = 0; i < state.lineup.length; i++) {
-      if (state.lineup[i].id === playerId) return;
-    }
-    const player = state.draftPool.find(function (p) {
-      return p.id === playerId;
+    const alreadyInLineup = state.lineupSlots.some(function (slot) {
+      return slot.playerId === playerId;
     });
-    if (!player) return;
-    state.lineup.push(player);
+    if (alreadyInLineup) return;
+
+    const emptySlot = state.lineupSlots.find(function (slot) {
+      return !slot.playerId;
+    });
+    if (!emptySlot) return;
+
+    emptySlot.playerId = playerId;
     render();
   }
 
   function togglePowerup(id) {
-    const index = state.selectedPowerups.indexOf(id);
-    if (index > -1) {
-      state.selectedPowerups.splice(index, 1);
-    } else {
-      if (state.selectedPowerups.length >= 2) return;
-      state.selectedPowerups.push(id);
-    }
+    state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
     render();
   }
 
   function startGame() {
-    if (state.lineup.length !== 4) return;
+    if (lineupPlayers().length < 4) return;
     state.gameStarted = true;
+    state.currentView = "play";
     addLog("Game start. Bottom 1st.");
     render();
   }
@@ -517,8 +582,8 @@
   function renderDraftPool() {
     return state.draftPool
       .map(function (player, index) {
-        const drafted = state.lineup.some(function (p) {
-          return p.id === player.id;
+        const drafted = state.lineupSlots.some(function (slot) {
+          return slot.playerId === player.id;
         });
         const overall = getOverall(player);
         const rarity = getPlayerRarity(player);
@@ -532,7 +597,7 @@
                 '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
               '</div>' +
               '<button class="bbg-btn ' + (drafted ? "is-muted" : "") + '" data-action="draft" data-id="' + player.id + '"' +
-                (drafted || state.lineup.length >= 4 ? ' disabled' : '') +
+                (drafted || lineupPlayers().length >= 6 ? ' disabled' : '') +
               '>' + (drafted ? 'Drafted' : 'Add To Lineup') + '</button>' +
             '</div>' +
             '<div class="bbg-draft-stats">' +
@@ -552,12 +617,16 @@
   function renderPowerups() {
     return POWERUPS
       .map(function (powerup) {
-        const active = state.selectedPowerups.indexOf(powerup.id) > -1;
+        const selected = state.selectedAssignPowerupId === powerup.id;
+        const assigned = state.lineupSlots.some(function (slot) {
+          return slot.powerupId === powerup.id;
+        });
         return (
-          '<button class="bbg-perk-card ' + (active ? 'is-active' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
+          '<button class="bbg-perk-card ' + (selected ? 'is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
             '<div class="bbg-perk-rarity">Gamebreaker</div>' +
             '<div class="bbg-perk-name">' + powerup.name + '</div>' +
             '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
+            '<div class="bbg-perk-desc">' + (assigned ? 'Assigned' : selected ? 'Selected — click a slot below a player' : 'Available') + '</div>' +
           '</button>'
         );
       })
@@ -569,12 +638,18 @@
     const activeSlot = currentLineupSlot();
 
     for (let i = 0; i < 6; i++) {
-      const player = state.lineup[i] || null;
+      const slot = state.lineupSlots[i];
+      const player = slot.playerId ? getPlayerById(slot.playerId) : null;
+      const powerup = slot.powerupId ? getPowerupById(slot.powerupId) : null;
+
       if (!player) {
         html += (
           '<div class="bbg-board-slot is-empty">' +
             '<div class="bbg-empty-plus">+</div>' +
-          '</div>'
+          '</div>' +
+          '<button class="bbg-power-slot is-empty" data-action="assign-powerup-slot" data-slot-index="' + i + '" disabled>' +
+            '<div class="bbg-empty-plus">+</div>' +
+          '</button>'
         );
         continue;
       }
@@ -582,7 +657,7 @@
       const rarity = getPlayerRarity(player);
       const position = getPlayerPosition(player, i);
       const artClass = getPlayerArtClass(player);
-      const isActive = state.gameStarted && ! (state.inning > 9) && i === activeSlot;
+      const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
       html += (
         '<div class="bbg-board-slot' + (isActive ? ' is-active' : '') + '">' +
@@ -602,7 +677,12 @@
               '<div class="bbg-player-tag">' + (isActive ? 'At Bat' : player.trait) + '</div>' +
             '</div>' +
           '</div>' +
-        '</div>'
+        '</div>' +
+        '<button class="bbg-power-slot' + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '">' +
+          (powerup
+            ? '<div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
+            : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
+        '</button>'
       );
     }
 
@@ -623,30 +703,7 @@
   }
 
   function renderActiveBuild() {
-    let html = '';
-
-    for (let i = 0; i < 3; i++) {
-      const id = state.selectedPowerups[i];
-      if (!id) {
-        html += '<div class="bbg-side-perk is-empty"><div class="bbg-empty-plus">+</div></div>';
-        continue;
-      }
-
-      const p = POWERUPS.find(function (item) {
-        return item.id === id;
-      });
-      if (!p) continue;
-
-      html += (
-        '<div class="bbg-side-perk">' +
-          '<div class="bbg-perk-rarity">Uncommon</div>' +
-          '<div class="bbg-side-perk-name">' + p.name + '</div>' +
-          '<div class="bbg-side-perk-desc">' + p.desc + '</div>' +
-        '</div>'
-      );
-    }
-
-    return html;
+    return renderPowerups();
   }
 
   function renderLog() {
@@ -687,7 +744,7 @@
           '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.text : '3-Run Home Run') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
-        '<button class="bbg-menu-btn">Gamebreakers (' + state.selectedPowerups.length + ')</button>' +
+        '<button class="bbg-menu-btn">Gamebreakers (' + assignedPowerupCount() + ')</button>' +
         '<button class="bbg-menu-btn">View Box Score</button>' +
         '<div class="bbg-menu-row">' +
           '<button class="bbg-menu-btn is-half">Stats</button>' +
@@ -702,7 +759,7 @@
     const resultText = state.lastOutcome ? state.lastOutcome.text : 'Spin For Result';
     const batterStats = batter
       ? ('.' + String(Math.max(200, batter.contact + batter.power)).padStart(3, '0') + ' AVG / ' + Math.max(1, Math.round((batter.power + batter.contact) / 25)) + ' RBI')
-      : 'Draft lineup to begin';
+      : 'Set your lineup to begin';
     const batterToday = state.lastOutcome
       ? (state.lastOutcome.runs ? '1-1 Today, ' + state.lastOutcome.text + ', ' + state.lastOutcome.runs + ' RBI' : '0-1 Today, ' + state.lastOutcome.text)
       : 'No plate appearance yet';
@@ -727,7 +784,7 @@
             '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
           '</div>' +
           '<div class="bbg-action-row">' + renderModifierButtons() + '</div>' +
-          '<button class="bbg-result-btn" data-action="take-at-bat">' + resultText + '</button>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? resultText : 'Start Run') + '</button>' +
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
@@ -759,7 +816,7 @@
 
   function render() {
     const gameOver = state.inning > 9;
-    const canStart = state.lineup.length === 4;
+    const canStart = lineupPlayers().length >= 4;
 
     root.innerHTML =
       '<div class="bbg-arcade-shell">' +
@@ -768,8 +825,7 @@
           renderAtBatPanel() +
           '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
           '<div class="bbg-board-area">' +
-            '<div class="bbg-lineup-grid">' + renderLineup() + '</div>' +
-            '<div class="bbg-side-perks">' + renderActiveBuild() + '</div>' +
+            '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
           '</div>' +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-due-up">' +
@@ -787,7 +843,7 @@
             '</div>' +
             '<div class="bbg-footer-box">' +
               '<div class="bbg-lineup-header">Gamebreakers</div>' +
-              '<div class="bbg-perk-grid">' + renderPowerups() + '</div>' +
+              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
               '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (canStart && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
             '</div>' +
             '<div class="bbg-footer-box">' +
@@ -808,17 +864,27 @@
       actionEls[i].addEventListener("click", function () {
         const action = this.getAttribute("data-action");
         const id = this.getAttribute("data-id");
+        const slotIndex = this.getAttribute("data-slot-index");
 
         if (action === "new-run") resetRun();
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
+        if (action === "assign-powerup-slot") {
+          const parsedSlotIndex = Number(slotIndex);
+          if (state.selectedAssignPowerupId) {
+            assignSelectedPowerupToSlot(parsedSlotIndex);
+          } else {
+            clearPowerupFromSlot(parsedSlotIndex);
+          }
+          render();
+        }
         if (action === "start-game") startGame();
         if (action === "modifier") {
           state.modifier = id;
           render();
         }
         if (action === "take-at-bat") {
-          if (!state.gameStarted && state.lineup.length === 4) {
+          if (!state.gameStarted && lineupPlayers().length >= 4) {
             startGame();
             takeAtBat();
             return;
