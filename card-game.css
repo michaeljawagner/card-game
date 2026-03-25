@@ -101,10 +101,7 @@
 }
 
 #card-game .bbg-mini-scoreboard {
-  background: #ffffff;
-  padding: 12px;
-  display: grid;
-  gap: 8px;
+  display: none;
 }
 
 #card-game .bbg-mini-team {
@@ -142,9 +139,7 @@
 }
 
 #card-game .bbg-bases-box {
-  display: grid;
-  grid-template-columns: repeat(3, minmax(0, 1fr));
-  gap: 8px;
+  display: none;
 }
 
 #card-game .bbg-bases-box div {
@@ -172,6 +167,167 @@
 
 #card-game .bbg-callout-text {
   margin-top: 6px;
+}
+
+#card-game .bbg-scorebug {
+  display: grid;
+  grid-template-columns: minmax(0, 1fr) 92px;
+  background: #ffffff;
+  border: 3px solid #111111;
+  box-shadow: 4px 4px 0 #111111;
+  overflow: hidden;
+}
+
+#card-game .bbg-scorebug-teams {
+  display: grid;
+  grid-template-rows: repeat(2, minmax(0, 1fr));
+}
+
+#card-game .bbg-scorebug-team-row {
+  display: grid;
+  grid-template-columns: 58px minmax(0, 1fr) 72px;
+  min-height: 42px;
+}
+
+#card-game .bbg-scorebug-team-row + .bbg-scorebug-team-row {
+  border-top: 3px solid #111111;
+}
+
+#card-game .bbg-scorebug-logo,
+#card-game .bbg-scorebug-team-name,
+#card-game .bbg-scorebug-team-score,
+#card-game .bbg-scorebug-inning {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 0;
+}
+
+#card-game .bbg-scorebug-logo {
+  border-right: 3px solid #111111;
+  font-size: 14px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.04em;
+}
+
+#card-game .bbg-scorebug-team-name {
+  justify-content: flex-start;
+  padding: 0 12px;
+  font-size: 16px;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.06em;
+}
+
+#card-game .bbg-scorebug-team-score {
+  border-left: 3px solid #111111;
+  font-size: 30px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+#card-game .bbg-scorebug-state {
+  border-left: 3px solid #111111;
+  display: grid;
+  grid-template-rows: 1fr;
+  align-items: stretch;
+}
+
+#card-game .bbg-scorebug-inning {
+  min-height: 84px;
+  display: grid;
+  grid-template-columns: 28px 1fr 34px;
+  background: #ffffff;
+}
+
+#card-game .bbg-scorebug-arrow {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 12px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+#card-game .bbg-scorebug-arrow.is-muted {
+  opacity: 0.2;
+}
+
+#card-game .bbg-scorebug-arrow.is-active {
+  opacity: 1;
+}
+
+#card-game .bbg-scorebug-inning-value {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 28px;
+  line-height: 1;
+  font-weight: 900;
+}
+
+#card-game .bbg-scorebug-diamond-wrap {
+  position: relative;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+}
+
+#card-game .bbg-scorebug-bases {
+  position: relative;
+  width: 34px;
+  height: 34px;
+}
+
+#card-game .bbg-scorebug-base {
+  position: absolute;
+  width: 14px;
+  height: 14px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  transform: rotate(45deg);
+}
+
+#card-game .bbg-scorebug-base.is-on {
+  background: #111111;
+}
+
+#card-game .bbg-scorebug-base-2 {
+  top: 0;
+  left: 10px;
+}
+
+#card-game .bbg-scorebug-base-3 {
+  top: 10px;
+  left: 0;
+}
+
+#card-game .bbg-scorebug-base-1 {
+  top: 10px;
+  right: 0;
+}
+
+#card-game .bbg-scorebug-outs {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
+#card-game .bbg-scorebug-out {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #ffffff;
+  border: 2px solid #111111;
+}
+
+#card-game .bbg-scorebug-out.is-on {
+  background: #111111;
 }
 
 #card-game .bbg-menu-row {
@@ -1024,6 +1180,24 @@
   #card-game .bbg-spin-btn {
     min-height: 96px;
     font-size: 28px;
+  }
+
+  #card-game .bbg-scorebug {
+    grid-template-columns: minmax(0, 1fr) 84px;
+  }
+
+  #card-game .bbg-scorebug-team-row {
+    grid-template-columns: 50px minmax(0, 1fr) 58px;
+  }
+
+  #card-game .bbg-scorebug-team-name {
+    padding: 0 10px;
+    font-size: 14px;
+  }
+
+  #card-game .bbg-scorebug-team-score,
+  #card-game .bbg-scorebug-inning-value {
+    font-size: 24px;
   }
 
   #card-game .bbg-build-summary,
