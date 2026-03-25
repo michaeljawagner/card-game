@@ -715,17 +715,8 @@
     return html;
   }
 
-  function renderModifierButtons() {
-    return MODIFIERS
-      .map(function (m) {
-        const active = state.modifier === m.id;
-        return (
-          '<button class="bbg-action-chip ' + (active ? 'is-active' : '') + '" data-action="modifier" data-id="' + m.id + '">' +
-            '<span>' + m.name + '</span>' +
-          '</button>'
-        );
-      })
-      .join("");
+    function renderModifierButtons() {
+    return '';
   }
 
   function renderActiveBuild() {
@@ -969,11 +960,10 @@
         '</div>' +
         '<div class="bbg-atbat-actions">' +
           '<div class="bbg-count-boxes">' +
-            '<div class="bbg-count-box">' + currentModifierLabel() + '</div>' +
+            '<div class="bbg-count-box">Spin Mode</div>' +
             '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
           '</div>' +
-          '<div class="bbg-action-row">' + renderModifierButtons() + '</div>' +
-          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? resultText : 'Start Run') + '</button>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : 'Start Run') + '</button>' +
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
@@ -987,20 +977,8 @@
     );
   }
 
-  function renderOpponentQueue() {
-    return state.opponentQueue
-      .map(function (player) {
-        return (
-          '<div class="bbg-queue-card">' +
-            '<div class="bbg-queue-art"></div>' +
-            '<div class="bbg-queue-copy">' +
-              '<div class="bbg-queue-name">' + player.name + '</div>' +
-              '<div class="bbg-queue-line">' + player.line + '</div>' +
-            '</div>' +
-          '</div>'
-        );
-      })
-      .join('');
+    function renderOpponentQueue() {
+    return '';
   }
 
   function render() {
@@ -1015,11 +993,7 @@
           '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
           renderBuildSummary() +
           renderLineupPreview() +
-          '<div class="bbg-bottom-row">' +
-            '<div class="bbg-due-up">' +
-              '<div class="bbg-lineup-header">DUE UP FOR Dodgers</div>' +
-              '<div class="bbg-queue-grid">' + renderOpponentQueue() + '</div>' +
-            '</div>' +
+                    '<div class="bbg-bottom-row">' +
             '<div class="bbg-spin-wrap">' +
               '<button class="bbg-spin-btn" data-action="take-at-bat"' + (!state.gameStarted || gameOver ? ' disabled' : '') + '>SPIN</button>' +
             '</div>' +
@@ -1074,7 +1048,6 @@
           if (state.gameStarted) closeBuildModal();
         }
         if (action === "modifier") {
-          state.modifier = id;
           render();
         }
         if (action === "take-at-bat") {
