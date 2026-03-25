@@ -119,7 +119,17 @@
     batterIndex: 0,
     modifier: "normal",
     log: ["Draft 4 hitters and choose up to 2 power-ups."],
-    lastOutcome: null
+    lastOutcome: null,
+    teamName: "Indians",
+    matchup: "Game 2 vs Dodgers",
+    opponentName: "Clayton Kershaw",
+    opponentStatLine: "3.45 ERA / 23 K",
+    opponentToday: "3 ER, 4 K Today",
+    opponentQueue: [
+      { name: "Kike Hernandez", line: "1-1, HR, RBI" },
+      { name: "Mookie Betts", line: "0-1" },
+      { name: "Shohei Ohtani", line: "BB" }
+    ]
   };
 
   function shuffle(arr) {
@@ -323,6 +333,41 @@
     return Math.round((player.contact + player.power + player.discipline + player.speed) / 4);
   }
 
+  function getPlayerRarity(player) {
+    const overall = getOverall(player);
+    if (overall >= 68) return "Legendary";
+    if (overall >= 62) return "Rare";
+    return "Common";
+  }
+
+  function getPlayerPosition(player, index) {
+    const positions = ["INF", "OF", "C", "FLEX"];
+    return positions[index] || "UTIL";
+  }
+
+  function getPlayerArtClass(player) {
+    if (player.power >= 80) return "is-slugger";
+    if (player.speed >= 85) return "is-speed";
+    if (player.contact >= 75) return "is-contact";
+    return "is-balanced";
+  }
+
+  function statPips(value) {
+    const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
+    let html = "";
+    for (let i = 0; i < 5; i++) {
+      html += '<span class="bbg-pip ' + (i < filled ? 'is-on' : '') + '"></span>';
+    }
+    return html;
+  }
+
+  function currentPitcherChallenge() {
+    if (hasPowerup("launch-angle")) return "Fastball Elevated";
+    if (hasPowerup("moneyball")) return "Working The Count";
+    if (hasPowerup("small-ball")) return "Infield In";
+    return "Standard Delivery";
+  }
+
   function baseEmoji(on) {
     return on ? "🟦" : "⬜";
   }
@@ -451,31 +496,34 @@
 
   function renderDraftPool() {
     return state.draftPool
-      .map(function (player) {
+      .map(function (player, index) {
         const drafted = state.lineup.some(function (p) {
           return p.id === player.id;
         });
+        const overall = getOverall(player);
+        const rarity = getPlayerRarity(player);
+        const position = getPlayerPosition(player, index);
 
         return (
-          '<div class="bbg-player-card">' +
-            '<div class="bbg-player-top">' +
+          '<div class="bbg-draft-tile">' +
+            '<div class="bbg-draft-top">' +
               '<div>' +
-                '<div class="bbg-player-name">' + player.name + '</div>' +
-                '<div class="bbg-player-trait">' + player.trait + " • " + player.traitText + "</div>" +
-              "</div>" +
+                '<div class="bbg-draft-name">' + player.name + '</div>' +
+                '<div class="bbg-draft-meta">' + rarity + ' • ' + position + '</div>' +
+              '</div>' +
               '<button class="bbg-btn ' + (drafted ? "is-muted" : "") + '" data-action="draft" data-id="' + player.id + '"' +
-                (drafted || state.lineup.length >= 4 ? " disabled" : "") +
-              ">" +
-                (drafted ? "Drafted" : "Draft") +
-              "</button>" +
-            "</div>" +
-            '<div class="bbg-stat-grid">' +
-              '<div class="bbg-stat-box">Contact <strong>' + player.contact + "</strong></div>" +
-              '<div class="bbg-stat-box">Power <strong>' + player.power + "</strong></div>" +
-              '<div class="bbg-stat-box">Discipline <strong>' + player.discipline + "</strong></div>" +
-              '<div class="bbg-stat-box">Speed <strong>' + player.speed + "</strong></div>" +
-            "</div>" +
-          "</div>"
+                (drafted || state.lineup.length >= 4 ? ' disabled' : '') +
+              '>' + (drafted ? 'Drafted' : 'Add To Lineup') + '</button>' +
+            '</div>' +
+            '<div class="bbg-draft-stats">' +
+              '<div class="bbg-draft-stat">CON <strong>' + player.contact + '</strong></div>' +
+              '<div class="bbg-draft-stat">POW <strong>' + player.power + '</strong></div>' +
+              '<div class="bbg-draft-stat">DIS <strong>' + player.discipline + '</strong></div>' +
+              '<div class="bbg-draft-stat">SPD <strong>' + player.speed + '</strong></div>' +
+              '<div class="bbg-draft-stat">OVR <strong>' + overall + '</strong></div>' +
+            '</div>' +
+            '<div class="bbg-draft-trait">' + player.trait + ' — ' + player.traitText + '</div>' +
+          '</div>'
         );
       })
       .join("");
@@ -486,33 +534,54 @@
       .map(function (powerup) {
         const active = state.selectedPowerups.indexOf(powerup.id) > -1;
         return (
-          '<button class="bbg-powerup ' + (active ? "is-active" : "") + '" data-action="powerup" data-id="' + powerup.id + '">' +
-            '<div class="bbg-powerup-name">' + powerup.name + "</div>" +
-            '<div class="bbg-powerup-desc">' + powerup.desc + "</div>" +
-          "</button>"
+          '<button class="bbg-perk-card ' + (active ? 'is-active' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
+            '<div class="bbg-perk-rarity">Gamebreaker</div>' +
+            '<div class="bbg-perk-name">' + powerup.name + '</div>' +
+            '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
+          '</button>'
         );
       })
       .join("");
   }
 
   function renderLineup() {
-    if (!state.lineup.length) {
-      return '<div class="bbg-empty">No hitters drafted yet.</div>';
+    let html = '';
+
+    for (let i = 0; i < 6; i++) {
+      const player = state.lineup[i] || null;
+      if (!player) {
+        html += (
+          '<div class="bbg-board-slot is-empty">' +
+            '<div class="bbg-empty-plus">+</div>' +
+          '</div>'
+        );
+        continue;
+      }
+
+      const rarity = getPlayerRarity(player);
+      const position = getPlayerPosition(player, i);
+      const artClass = getPlayerArtClass(player);
+
+      html += (
+        '<div class="bbg-board-slot">' +
+          '<div class="bbg-player-board-card">' +
+            '<div class="bbg-player-art ' + artClass + '"></div>' +
+            '<div class="bbg-player-info">' +
+              '<div class="bbg-player-position">' + position + '</div>' +
+              '<div class="bbg-player-rarity">' + rarity + '</div>' +
+              '<div class="bbg-player-board-name">' + player.name + '</div>' +
+              '<div class="bbg-player-pips">' +
+                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+              '</div>' +
+            '</div>' +
+          '</div>' +
+        '</div>'
+      );
     }
 
-    return state.lineup
-      .map(function (player, i) {
-        return (
-          '<div class="bbg-lineup-row">' +
-            '<div>' +
-              '<div class="bbg-lineup-name">' + (i + 1) + ". " + player.name + "</div>" +
-              '<div class="bbg-lineup-trait">' + player.trait + "</div>" +
-            "</div>" +
-            '<div class="bbg-badge">OVR ' + getOverall(player) + "</div>" +
-          "</div>"
-        );
-      })
-      .join("");
+    return html;
   }
 
   function renderModifierButtons() {
@@ -520,145 +589,185 @@
       .map(function (m) {
         const active = state.modifier === m.id;
         return (
-          '<button class="bbg-modifier ' + (active ? "is-active" : "") + '" data-action="modifier" data-id="' + m.id + '">' +
-            '<div class="bbg-modifier-name">' + m.name + "</div>" +
-            '<div class="bbg-modifier-desc">' + m.desc + "</div>" +
-          "</button>"
+          '<button class="bbg-action-chip ' + (active ? 'is-active' : '') + '" data-action="modifier" data-id="' + m.id + '">' +
+            '<span>' + m.name + '</span>' +
+          '</button>'
         );
       })
       .join("");
   }
 
   function renderActiveBuild() {
-    if (!state.selectedPowerups.length) {
-      return '<div class="bbg-empty">No power-ups selected yet.</div>';
+    let html = '';
+
+    for (let i = 0; i < 3; i++) {
+      const id = state.selectedPowerups[i];
+      if (!id) {
+        html += '<div class="bbg-side-perk is-empty"><div class="bbg-empty-plus">+</div></div>';
+        continue;
+      }
+
+      const p = POWERUPS.find(function (item) {
+        return item.id === id;
+      });
+      if (!p) continue;
+
+      html += (
+        '<div class="bbg-side-perk">' +
+          '<div class="bbg-perk-rarity">Uncommon</div>' +
+          '<div class="bbg-side-perk-name">' + p.name + '</div>' +
+          '<div class="bbg-side-perk-desc">' + p.desc + '</div>' +
+        '</div>'
+      );
     }
 
-    return state.selectedPowerups
-      .map(function (id) {
-        const p = POWERUPS.find(function (item) {
-          return item.id === id;
-        });
-        if (!p) return "";
-        return (
-          '<div class="bbg-build-card">' +
-            '<div class="bbg-build-name">' + p.name + "</div>" +
-            '<div class="bbg-build-desc">' + p.desc + "</div>" +
-          "</div>"
-        );
-      })
-      .join("");
+    return html;
   }
 
   function renderLog() {
     return state.log
+      .slice(0, 6)
       .map(function (entry) {
-        return '<div class="bbg-log-row">' + entry + "</div>";
+        return '<div class="bbg-feed-row">' + entry + '</div>';
       })
       .join("");
   }
 
-  function render() {
+  function renderScorePanel() {
+    return (
+      '<div class="bbg-left-rail">' +
+        '<div class="bbg-team-panel">' +
+          '<div class="bbg-team-name">' + state.teamName + '</div>' +
+          '<div class="bbg-team-matchup">' + state.matchup + '</div>' +
+        '</div>' +
+        '<div class="bbg-total-score">' +
+          '<div class="bbg-total-label">Total Score</div>' +
+          '<div class="bbg-total-value">' + state.score.toLocaleString() + '</div>' +
+        '</div>' +
+        '<div class="bbg-mini-scoreboard">' +
+          '<div class="bbg-mini-team"><span>LAD</span><strong>' + state.enemyScore + '</strong></div>' +
+          '<div class="bbg-mini-team"><span>CLE</span><strong>' + state.score + '</strong></div>' +
+          '<div class="bbg-mini-meta">' +
+            '<div>IN ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
+            '<div>OUTS ' + state.outs + '</div>' +
+          '</div>' +
+        '</div>' +
+        '<div class="bbg-bases-box">' +
+          '<div>' + baseEmoji(state.bases[0]) + '</div>' +
+          '<div>' + baseEmoji(state.bases[1]) + '</div>' +
+          '<div>' + baseEmoji(state.bases[2]) + '</div>' +
+        '</div>' +
+        '<div class="bbg-callout">' +
+          '<div class="bbg-callout-value">' + (state.lastOutcome && state.lastOutcome.runs ? state.lastOutcome.runs * 300 : 900) + '</div>' +
+          '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.text : '3-Run Home Run') + '</div>' +
+        '</div>' +
+        '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
+        '<button class="bbg-menu-btn">Gamebreakers (' + state.selectedPowerups.length + ')</button>' +
+        '<button class="bbg-menu-btn">View Box Score</button>' +
+        '<div class="bbg-menu-row">' +
+          '<button class="bbg-menu-btn is-half">Stats</button>' +
+          '<button class="bbg-menu-btn is-half">Options</button>' +
+        '</div>' +
+      '</div>'
+    );
+  }
+
+  function renderAtBatPanel() {
     const batter = currentBatter();
+    const resultText = state.lastOutcome ? state.lastOutcome.text : 'Spin For Result';
+    const batterStats = batter
+      ? ('.' + String(Math.max(200, batter.contact + batter.power)).padStart(3, '0') + ' AVG / ' + Math.max(1, Math.round((batter.power + batter.contact) / 25)) + ' RBI')
+      : 'Draft lineup to begin';
+    const batterToday = state.lastOutcome
+      ? (state.lastOutcome.runs ? '1-1 Today, ' + state.lastOutcome.text + ', ' + state.lastOutcome.runs + ' RBI' : '0-1 Today, ' + state.lastOutcome.text)
+      : 'No plate appearance yet';
+
+    return (
+      '<div class="bbg-atbat-panel">' +
+        '<div class="bbg-atbat-art is-batter"></div>' +
+        '<div class="bbg-atbat-center">' +
+          '<div class="bbg-atbat-name">' + (batter ? batter.name : 'No Batter') + '</div>' +
+          '<div class="bbg-atbat-line">' + batterStats + '</div>' +
+          '<div class="bbg-atbat-divider"></div>' +
+          '<div class="bbg-atbat-today">' + batterToday + '</div>' +
+        '</div>' +
+        '<div class="bbg-atbat-actions">' +
+          '<div class="bbg-count-boxes">' +
+            '<div class="bbg-count-box"></div>' +
+            '<div class="bbg-count-box"></div>' +
+          '</div>' +
+          '<div class="bbg-action-row">' + renderModifierButtons() + '</div>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + resultText + '</button>' +
+        '</div>' +
+        '<div class="bbg-atbat-right">' +
+          '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
+          '<div class="bbg-atbat-line is-right">' + state.opponentStatLine + '</div>' +
+          '<div class="bbg-atbat-divider"></div>' +
+          '<div class="bbg-atbat-today is-right">' + state.opponentToday + '</div>' +
+          '<div class="bbg-pitcher-challenge">' + currentPitcherChallenge() + '</div>' +
+        '</div>' +
+        '<div class="bbg-atbat-art is-pitcher"></div>' +
+      '</div>'
+    );
+  }
+
+  function renderOpponentQueue() {
+    return state.opponentQueue
+      .map(function (player) {
+        return (
+          '<div class="bbg-queue-card">' +
+            '<div class="bbg-queue-art"></div>' +
+            '<div class="bbg-queue-copy">' +
+              '<div class="bbg-queue-name">' + player.name + '</div>' +
+              '<div class="bbg-queue-line">' + player.line + '</div>' +
+            '</div>' +
+          '</div>'
+        );
+      })
+      .join('');
+  }
+
+  function render() {
     const gameOver = state.inning > 9;
     const canStart = state.lineup.length === 4;
 
     root.innerHTML =
-      '<div class="bbg-shell">' +
-        '<div class="bbg-main">' +
-          '<div class="bbg-section">' +
-            '<div class="bbg-header">' +
-              '<div>' +
-                '<div class="bbg-kicker">Baseball Roguelike Prototype</div>' +
-                '<h2 class="bbg-title">Balatro-Style Baseball Card Game</h2>' +
-                '<p class="bbg-subtitle">Draft hitters, lock in power-ups, and play through a 9 inning run.</p>' +
-              "</div>" +
-              '<button class="bbg-btn" data-action="new-run">New Run</button>' +
-            "</div>" +
-          "</div>" +
-
-          '<div class="bbg-grid">' +
-            '<div class="bbg-left">' +
-              '<div class="bbg-section">' +
-                '<div class="bbg-section-title">Draft Pool</div>' +
-                '<div class="bbg-stack">' + renderDraftPool() + "</div>" +
-              "</div>" +
-            "</div>" +
-
-            '<div class="bbg-right">' +
-              '<div class="bbg-section">' +
-                '<div class="bbg-section-title">Power-Ups</div>' +
-                '<div class="bbg-stack">' + renderPowerups() + '</div>' +
-                '<div class="bbg-note">Choose up to 2.</div>' +
-              "</div>" +
-
-              '<div class="bbg-section">' +
-                '<div class="bbg-section-title">Your Lineup</div>' +
-                '<div class="bbg-stack">' + renderLineup() + "</div>" +
-                '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (canStart && !state.gameStarted ? "" : " disabled") + '>Start 9 Inning Run</button>' +
-              "</div>" +
-            "</div>" +
-          "</div>" +
-        "</div>" +
-
-        '<div class="bbg-sidebar">' +
-          '<div class="bbg-section">' +
-            '<div class="bbg-section-title">Game Board</div>' +
-            '<div class="bbg-mini-grid">' +
-              '<div class="bbg-mini-card">' +
-                '<div class="bbg-mini-label">Inning</div>' +
-                '<div class="bbg-mini-value">' + (gameOver ? "Final" : state.inning) + "</div>" +
-              "</div>" +
-              '<div class="bbg-mini-card">' +
-                '<div class="bbg-mini-label">Outs</div>' +
-                '<div class="bbg-mini-value">' + state.outs + "</div>" +
-              "</div>" +
-            "</div>" +
-
-            '<div class="bbg-scoreboard">' +
-              '<div class="bbg-score-label">Score</div>' +
-              '<div class="bbg-score-value">You ' + state.score + " - " + state.enemyScore + " CPU</div>" +
-              '<div class="bbg-bases">' +
-                '<div class="bbg-base">1B ' + baseEmoji(state.bases[0]) + "</div>" +
-                '<div class="bbg-base">2B ' + baseEmoji(state.bases[1]) + "</div>" +
-                '<div class="bbg-base">3B ' + baseEmoji(state.bases[2]) + "</div>" +
-              "</div>" +
-            "</div>" +
-
-            (!state.gameStarted
-              ? '<div class="bbg-empty-card">Draft 4 hitters and start the run.</div>'
-              : gameOver
-                ? '<div class="bbg-result-card"><div class="bbg-result-kicker">Run Complete</div><div class="bbg-result-text">' + gameResultText() + "</div></div>"
-                : batter
-                  ? '<div class="bbg-batter-card">' +
-                      '<div class="bbg-mini-label">Current Batter</div>' +
-                      '<div class="bbg-batter-name">' + batter.name + "</div>" +
-                      '<div class="bbg-batter-trait">' + batter.traitText + "</div>" +
-                      '<div class="bbg-modifier-grid">' + renderModifierButtons() + "</div>" +
-                      '<button class="bbg-btn bbg-btn-full" data-action="take-at-bat">Take At-Bat</button>' +
-                    "</div>"
-                  : "") +
-
-            (state.lastOutcome
-              ? '<div class="bbg-last-play">' +
-                  '<div class="bbg-mini-label">Last play</div>' +
-                  '<div class="bbg-last-name">' + state.lastOutcome.batter + "</div>" +
-                  '<div class="bbg-last-text">' + state.lastOutcome.text + (state.lastOutcome.runs ? " • " + state.lastOutcome.runs + " run" + (state.lastOutcome.runs > 1 ? "s" : "") : "") + "</div>" +
-                "</div>"
-              : "") +
-          "</div>" +
-
-          '<div class="bbg-section">' +
-            '<div class="bbg-section-title">Active Build</div>' +
-            '<div class="bbg-stack">' + renderActiveBuild() + "</div>" +
-          "</div>" +
-
-          '<div class="bbg-section">' +
-            '<div class="bbg-section-title">Play Log</div>' +
-            '<div class="bbg-log">' + renderLog() + "</div>" +
-          "</div>" +
-        "</div>" +
-      "</div>";
+      '<div class="bbg-arcade-shell">' +
+        renderScorePanel() +
+        '<div class="bbg-arcade-main">' +
+          renderAtBatPanel() +
+          '<div class="bbg-lineup-header">YOUR LINEUP</div>' +
+          '<div class="bbg-board-area">' +
+            '<div class="bbg-lineup-grid">' + renderLineup() + '</div>' +
+            '<div class="bbg-side-perks">' + renderActiveBuild() + '</div>' +
+          '</div>' +
+          '<div class="bbg-bottom-row">' +
+            '<div class="bbg-due-up">' +
+              '<div class="bbg-lineup-header">DUE UP FOR Dodgers</div>' +
+              '<div class="bbg-queue-grid">' + renderOpponentQueue() + '</div>' +
+            '</div>' +
+            '<div class="bbg-spin-wrap">' +
+              '<button class="bbg-spin-btn" data-action="take-at-bat"' + (!state.gameStarted || gameOver ? ' disabled' : '') + '>SPIN</button>' +
+            '</div>' +
+          '</div>' +
+          '<div class="bbg-footer-panels">' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Draft Pool</div>' +
+              '<div class="bbg-draft-grid">' + renderDraftPool() + '</div>' +
+            '</div>' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Gamebreakers</div>' +
+              '<div class="bbg-perk-grid">' + renderPowerups() + '</div>' +
+              '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (canStart && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
+            '</div>' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Feed</div>' +
+              '<div class="bbg-feed">' + renderLog() + '</div>' +
+              '<button class="bbg-btn bbg-btn-full" data-action="new-run">New Run</button>' +
+            '</div>' +
+          '</div>' +
+        '</div>' +
+      '</div>';
 
     bindEvents();
   }
@@ -678,7 +787,14 @@
           state.modifier = id;
           render();
         }
-        if (action === "take-at-bat") takeAtBat();
+        if (action === "take-at-bat") {
+          if (!state.gameStarted && state.lineup.length === 4) {
+            startGame();
+            takeAtBat();
+            return;
+          }
+          takeAtBat();
+        }
       });
     }
   }
