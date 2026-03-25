@@ -1050,7 +1050,7 @@
           '<div>' + baseEmoji(state.bases[2]) + '</div>' +
         '</div>' +
         '<div class="bbg-callout">' +
-                    '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : 900) + '</div>' +
+                    '<div class="bbg-callout-value">' + (state.lastOutcome && typeof state.lastOutcome.points === "number" ? state.lastOutcome.points : '') + '</div>' +
                     '<div class="bbg-callout-text">' + (state.lastOutcome ? state.lastOutcome.batter + ' • ' + state.lastOutcome.text : !state.gameStarted ? 'Build your lineup to start' : state.outs === 0 ? 'Bottom ' + state.inning + ' • ' + basesText() : 'Next batter up') + '</div>' +
         '</div>' +
         '<button class="bbg-menu-btn">Buy Packs ($25)</button>' +
