@@ -158,20 +158,20 @@
   }
 
   function buildOutcomeWeights(player, modifierId, bases, inning) {
-    let walk = 6 + (player.discipline - 50) * 0.18;
-    let single = 24 + (player.contact - 50) * 0.22;
-    let double = 8 + player.power * 0.06 + player.contact * 0.04;
-    let triple = 1.5 + player.speed * 0.04;
-    let homer = 4 + (player.power - 50) * 0.22;
-    let strikeout = 22 - (player.contact - 50) * 0.12 - (player.discipline - 50) * 0.05;
-    let out = 28;
+    let walk = 5 + (player.discipline - 50) * 0.16;
+    let single = 18 + (player.contact - 50) * 0.18;
+    let double = 6 + player.power * 0.05 + player.contact * 0.03;
+    let triple = 1 + player.speed * 0.03;
+    let homer = 2.5 + (player.power - 50) * 0.16;
+    let strikeout = 24 - (player.contact - 50) * 0.1 - (player.discipline - 50) * 0.04;
+    let out = 36;
 
     const runnersOn = bases[0] || bases[1] || bases[2];
     const basesEmpty = !bases[0] && !bases[1] && !bases[2];
 
-    if (player.trait === "Table Setter" && basesEmpty) single += 8;
-    if (player.trait === "Rally Bat" && runnersOn) double += 10;
-    if (player.trait === "Professional AB") walk += 10;
+    if (player.trait === "Table Setter" && basesEmpty) single += 5;
+    if (player.trait === "Rally Bat" && runnersOn) double += 6;
+    if (player.trait === "Professional AB") walk += 7;
     if (player.trait === "Pressure") {
       single += 5;
       triple += 3;
@@ -180,17 +180,17 @@
     if (player.trait === "Moonshot" && modifierId === "aggressive") homer += 12;
 
     if (modifierId === "aggressive") {
-      homer += 12;
-      strikeout += 8;
-      walk -= 8;
-      single -= 2;
+      homer += 8;
+      strikeout += 10;
+      walk -= 6;
+      single -= 3;
     }
 
     if (modifierId === "patient") {
-      walk += 12;
-      single += 6;
-      homer -= 10;
-      strikeout -= 5;
+      walk += 10;
+      single += 4;
+      homer -= 8;
+      strikeout -= 4;
     }
 
     if (modifierId === "bunt") {
@@ -203,28 +203,28 @@
       out = 48;
     }
 
-    if (hasPowerup("moneyball")) walk += 8;
+    if (hasPowerup("moneyball")) walk += 6;
     if (hasPowerup("launch-angle")) {
-      homer += 10;
-      single -= 6;
+      homer += 7;
+      single -= 4;
     }
     if (hasPowerup("small-ball")) {
-      single += 10;
-      double += 2;
+      single += 6;
+      double += 1;
     }
 
     if (inning >= 8 && runnersOn) {
-      single += 3;
-      homer += 3;
+      single += 2;
+      homer += 2;
     }
 
-    walk = clamp(walk, 1, 35);
-    single = clamp(single, 1, 40);
-    double = clamp(double, 0.5, 20);
-    triple = clamp(triple, 0.2, 8);
-    homer = clamp(homer, 0.2, 30);
-    strikeout = clamp(strikeout, 5, 40);
-    out = clamp(out, 10, 45);
+    walk = clamp(walk, 1, 28);
+    single = clamp(single, 1, 32);
+    double = clamp(double, 0.5, 16);
+    triple = clamp(triple, 0.2, 6);
+    homer = clamp(homer, 0.2, 18);
+    strikeout = clamp(strikeout, 8, 42);
+    out = clamp(out, 18, 52);
 
     return [
       { key: "walk", weight: walk },
@@ -257,30 +257,34 @@
     }
 
     if (result === "single") {
-      if (third) runs += 1;
-      if (second) runs += 1;
+      const hadFirst = first;
+      const hadSecond = second;
+      const hadThird = third;
 
-      if (first && smallBallBoost) {
-        third = true;
-        second = false;
-      } else {
-        third = !!first;
-      }
+      if (hadThird) runs += 1;
+      if (hadSecond && smallBallBoost) runs += 1;
 
-      second = smallBallBoost;
       first = true;
-      text = smallBallBoost ? "Single — runners push aggressively" : "Single";
+      second = hadFirst;
+      third = hadSecond && !smallBallBoost;
+
+      text = smallBallBoost ? "Single — pressure on the bases" : "Single";
       return { bases: [first, second, third], runs: runs, text: text };
     }
 
     if (result === "double") {
-      if (third) runs += 1;
-      if (second) runs += 1;
-      if (first) runs += 1;
+      const hadFirst = first;
+      const hadSecond = second;
+      const hadThird = third;
+
+      if (hadThird) runs += 1;
+      if (hadSecond) runs += 1;
+
       first = false;
       second = true;
-      third = false;
-      text = "Double";
+      third = hadFirst;
+
+      text = hadFirst ? "Double — runner to third" : "Double";
       return { bases: [first, second, third], runs: runs, text: text };
     }
 
@@ -377,7 +381,13 @@
   }
 
   function nextInning() {
-    const opponentRuns = Math.floor(Math.random() * 3);
+    const roll = Math.random();
+    let opponentRuns = 0;
+
+    if (roll > 0.65) opponentRuns = 1;
+    if (roll > 0.9) opponentRuns = 2;
+    if (roll > 0.98) opponentRuns = 3;
+
     state.enemyScore += opponentRuns;
     addLog("Top " + state.inning + ": opponent scores " + opponentRuns + ".");
     state.inning += 1;
