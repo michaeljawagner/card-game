@@ -185,7 +185,7 @@
 
 #card-game .bbg-scorebug-team-row {
   display: grid;
-  grid-template-columns: 58px minmax(0, 1fr) 72px;
+  grid-template-columns: 58px minmax(0, 1fr);
   min-height: 42px;
 }
 
@@ -194,7 +194,6 @@
 }
 
 #card-game .bbg-scorebug-logo,
-#card-game .bbg-scorebug-team-name,
 #card-game .bbg-scorebug-team-score,
 #card-game .bbg-scorebug-inning {
   display: flex;
@@ -211,14 +210,7 @@
   letter-spacing: 0.04em;
 }
 
-#card-game .bbg-scorebug-team-name {
-  justify-content: flex-start;
-  padding: 0 12px;
-  font-size: 16px;
-  font-weight: 900;
-  text-transform: uppercase;
-  letter-spacing: 0.06em;
-}
+
 
 #card-game .bbg-scorebug-team-score {
   border-left: 3px solid #111111;
@@ -232,6 +224,7 @@
   display: grid;
   grid-template-rows: 1fr;
   align-items: stretch;
+  padding: 6px 6px 8px;
 }
 
 #card-game .bbg-scorebug-inning {
@@ -239,6 +232,7 @@
   display: grid;
   grid-template-columns: 28px 1fr 34px;
   background: #ffffff;
+  padding-top: 2px;
 }
 
 #card-game .bbg-scorebug-arrow {
@@ -275,6 +269,7 @@
   align-items: center;
   justify-content: center;
   gap: 8px;
+  padding: 6px 4px 2px;
 }
 
 #card-game .bbg-scorebug-bases {
@@ -1187,13 +1182,10 @@
   }
 
   #card-game .bbg-scorebug-team-row {
-    grid-template-columns: 50px minmax(0, 1fr) 58px;
+    grid-template-columns: 50px minmax(0, 1fr);
   }
 
-  #card-game .bbg-scorebug-team-name {
-    padding: 0 10px;
-    font-size: 14px;
-  }
+
 
   #card-game .bbg-scorebug-team-score,
   #card-game .bbg-scorebug-inning-value {
