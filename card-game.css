@@ -1157,7 +1157,7 @@
 
 #card-game .bbg-perk-card {
   width: 100%;
-  min-height: 150px;
+  min-height: 180px;
   text-align: left;
   padding: 12px;
   box-shadow: 3px 3px 0 #111111;
@@ -1168,6 +1168,68 @@
   gap: 8px;
 }
 
+#card-game .bbg-perk-card-top {
+  display: flex;
+  align-items: flex-start;
+  justify-content: space-between;
+  gap: 8px;
+}
+
+#card-game .bbg-perk-icon {
+  width: 40px;
+  height: 40px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111111;
+  background: #ffffff;
+  font-size: 20px;
+  line-height: 1;
+  box-shadow: 2px 2px 0 #111111;
+}
+
+#card-game .bbg-perk-status {
+  margin-top: auto;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+}
+
+#card-game .bbg-perk-card.bbg-rarity-common .bbg-perk-rarity,
+#card-game .bbg-perk-card.bbg-rarity-common .bbg-perk-status {
+  color: #111111;
+}
+
+#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-icon,
+#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-rarity,
+#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-status {
+  background: #22c55e;
+  color: #ffffff;
+}
+
+#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-icon,
+#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-rarity,
+#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-status {
+  background: #3b82f6;
+  color: #ffffff;
+}
+
+#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-icon,
+#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-rarity,
+#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-status {
+  background: #a855f7;
+  color: #ffffff;
+}
+
+#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-icon,
+#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-rarity,
+#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-status {
+  background: #f59e0b;
+  color: #111111;
+}
+
 #card-game .bbg-perk-card.is-assigned {
   border-color: #111111;
   background: #ffffff;
@@ -1176,6 +1238,7 @@
 #card-game .bbg-perk-card.is-active {
   background: #111111;
   color: #ffffff;
+  transform: translate(-1px, -1px);
 }
 
 #card-game .bbg-bottom-row {
