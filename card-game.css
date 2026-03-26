@@ -1157,10 +1157,15 @@
 
 #card-game .bbg-perk-card {
   width: 100%;
+  min-height: 150px;
   text-align: left;
   padding: 12px;
   box-shadow: 3px 3px 0 #111111;
   background: #ffffff;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 8px;
 }
 
 #card-game .bbg-perk-card.is-assigned {
@@ -1240,10 +1245,16 @@
 }
 
 #card-game .bbg-draft-grid,
-#card-game .bbg-perk-grid,
 #card-game .bbg-feed {
   display: grid;
   gap: 10px;
+}
+
+#card-game .bbg-perk-grid {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 12px;
+  align-items: start;
 }
 
 #card-game .bbg-draft-grid {
@@ -1412,6 +1423,10 @@
   #card-game .bbg-build-modal-body.is-fullwidth-step {
     grid-template-columns: 1fr;
   }
+  
+  #card-game .bbg-perk-grid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
 }
 
 @media (max-width: 991px) {
@@ -1434,6 +1449,10 @@
   }
 
   #card-game .bbg-footer-panels {
+    grid-template-columns: 1fr;
+  }
+
+  #card-game .bbg-perk-grid {
     grid-template-columns: 1fr;
   }
 
