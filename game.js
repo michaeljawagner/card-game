@@ -1136,12 +1136,10 @@ function updateLegendaryDraftState() {
           (lineupPlayers().length >= 6 ? ' disabled' : '') +
         '>' +
           '<div class="bbg-draft-card-inner">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
-            '<div class="bbg-player-info">' +
-              '<div class="bbg-player-topline">' +
-                '<div class="bbg-player-position">' + position + '</div>' +
-                '<div class="bbg-player-rarity">' + rarity + '</div>' +
-              '</div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
+  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+'</div>' +
+'<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
@@ -1205,12 +1203,10 @@ function updateLegendaryDraftState() {
       html += (
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
-            '<div class="bbg-player-info">' +
-              '<div class="bbg-player-topline">' +
-                '<div class="bbg-player-position">' + position + '</div>' +
-                '<div class="bbg-player-rarity">' + rarity + '</div>' +
-              '</div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
+  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+'</div>' +
+'<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
@@ -1357,12 +1353,10 @@ function updateLegendaryDraftState() {
       html += (
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
-            '<div class="bbg-player-info">' +
-              '<div class="bbg-player-topline">' +
-                '<div class="bbg-player-position">' + position + '</div>' +
-                '<div class="bbg-player-rarity">' + rarity + '</div>' +
-              '</div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
+  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+'</div>' +
+'<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
