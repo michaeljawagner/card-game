@@ -1326,7 +1326,7 @@ render();
 
   if (state.buildScreen === 'assign') {
     return (
-      '<div class="bbg-build-panel">' +
+      '<div class="bbg-build-panel is-fullwidth-build-panel">' +
         '<div class="bbg-build-panel-header">' +
           '<div class="bbg-build-panel-title">Step 2: Assign Gamebreakers</div>' +
           '<div class="bbg-build-panel-copy">Your lineup is locked in. Select a gamebreaker below, then click the slot beneath a player card to attach it.</div>' +
@@ -1334,19 +1334,21 @@ render();
         '<div class="bbg-board-area">' +
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
         '</div>' +
-        '<div class="bbg-build-panel-footer">' +
+        '<div class="bbg-footer-box is-inline-build-section">' +
+          '<div class="bbg-lineup-header">Gamebreakers</div>' +
           '<div class="bbg-build-panel-copy">' +
             (state.selectedAssignPowerupId
               ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
-              : 'No gamebreaker selected. Click one in the Gamebreakers panel below.') +
+              : 'No gamebreaker selected. Click one below, then click a slot beneath a player card.') +
           '</div>' +
+          '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
         '</div>' +
       '</div>'
     );
   }
 
   return (
-    '<div class="bbg-build-panel">' +
+    '<div class="bbg-build-panel is-fullwidth-build-panel">' +
       '<div class="bbg-build-panel-header">' +
         '<div class="bbg-build-panel-title">Step 1: Draft Players</div>' +
         '<div class="bbg-build-panel-copy">Fill all 6 lineup slots from your 10-card draft pack before moving to gamebreakers.</div>' +
@@ -1359,6 +1361,10 @@ render();
         (lineupFull
           ? '<button class="bbg-btn" data-action="go-to-gamebreaker-step">Continue To Gamebreakers</button>'
           : '<div class="bbg-build-panel-copy">Draft all 6 players to unlock Step 2.</div>') +
+      '</div>' +
+      '<div class="bbg-footer-box is-inline-build-section">' +
+        '<div class="bbg-lineup-header">Draft Pack • 10 Cards</div>' +
+        '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
       '</div>' +
     '</div>'
   );
@@ -1434,50 +1440,30 @@ render();
   }
 
   function renderBuildModal() {
-    if (!state.isBuildModalOpen) return '';
+  if (!state.isBuildModalOpen) return '';
 
-    return (
-      '<div class="bbg-build-modal-backdrop" data-action="close-build-modal">' +
-        '<div class="bbg-build-modal" data-modal-root="true">' +
-          '<div class="bbg-build-modal-top">' +
-            '<div>' +
-              '<div class="bbg-build-modal-kicker">Build Mode</div>' +
-              '<div class="bbg-build-modal-title">Create Your Lineup</div>' +
-            '</div>' +
-            '<button class="bbg-btn" data-action="close-build-modal">Done</button>' +
+  return (
+    '<div class="bbg-build-modal-backdrop" data-action="close-build-modal">' +
+      '<div class="bbg-build-modal" data-modal-root="true">' +
+        '<div class="bbg-build-modal-top">' +
+          '<div>' +
+            '<div class="bbg-build-modal-kicker">Build Mode</div>' +
+            '<div class="bbg-build-modal-title">Create Your Lineup</div>' +
           '</div>' +
-          renderBuildTabs() +
-
-          (state.buildScreen === 'draft'
-            ? '<div class="bbg-build-modal-body is-draft-step">' +
-                renderBuildScreen() +
-              '</div>' +
-              '<div class="bbg-build-modal-bottom">' +
-                '<div class="bbg-footer-box">' +
-                  '<div class="bbg-lineup-header">Draft Pack • 10 Cards</div>' +
-                  '<div class="bbg-build-panel-copy">Legendary cards are rare pulls. Some runs will not have one.</div>' +
-                  '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
-                '</div>' +
-              '</div>'
-            : '<div class="bbg-build-modal-body">' +
-                renderBuildScreen() +
-                '<div class="bbg-build-modal-side">' +
-                  '<div class="bbg-footer-box is-gamebreaker-step">' +
-                    '<div class="bbg-lineup-header">Gamebreakers</div>' +
-                    '<div class="bbg-build-panel-copy">Your lineup is locked. Assign one gamebreaker per player.</div>' +
-                    '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-                  '</div>' +
-                '</div>' +
-              '</div>') +
-
-          '<div class="bbg-build-modal-actions">' +
-            '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
-            '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 6 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
-          '</div>' +
+          '<button class="bbg-btn" data-action="close-build-modal">Done</button>' +
         '</div>' +
-      '</div>'
-    );
-  }
+        renderBuildTabs() +
+        '<div class="bbg-build-modal-body is-fullwidth-step">' +
+          renderBuildScreen() +
+        '</div>' +
+        '<div class="bbg-build-modal-actions">' +
+          '<button class="bbg-btn" data-action="close-build-modal">Close</button>' +
+          '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 6 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
+        '</div>' +
+      '</div>' +
+    '</div>'
+  );
+}
 
   function renderScorePanel() {
     return (
