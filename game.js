@@ -202,6 +202,7 @@ const LEGENDARY_PITY_CAP = 8;
     isBuildModalOpen: true,
     currentView: "build",
     buildScreen: "draft",
+    buildStepComplete: false,
     gameStarted: false,
     inning: 1,
     outs: 0,
@@ -887,9 +888,17 @@ function updateLegendaryDraftState() {
   }
 
     function switchBuildScreen(screen) {
-    state.buildScreen = screen;
-    render();
-  }
+  if (screen === "assign" && lineupPlayers().length < 6) return;
+  state.buildScreen = screen;
+  render();
+}
+
+function goToGamebreakerStep() {
+  if (lineupPlayers().length < 6) return;
+  state.buildStepComplete = true;
+  state.buildScreen = "assign";
+  render();
+}
 
   function selectedPowerupAssignedSlotIndex() {
     if (!state.selectedAssignPowerupId) return -1;
@@ -988,6 +997,7 @@ function updateLegendaryDraftState() {
     state.isBuildModalOpen = true;
     state.currentView = "build";
     state.buildScreen = "draft";
+    state.buildStepComplete = false;
     state.gameStarted = false;
     state.inning = 1;
     state.outs = 0;
@@ -1228,7 +1238,7 @@ render();
             '</div>' +
           '</div>' +
         '</div>' +
-        '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '">' +
+        '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId && state.buildScreen === 'assign' ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '"' + (state.buildScreen === 'assign' ? '' : ' disabled') + '>' +
           (powerup
             ? '<div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
             : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
@@ -1319,62 +1329,67 @@ render();
 }
 
     function renderBuildTabs() {
-    return (
-      '<div class="bbg-build-tabs">' +
-        '<button class="bbg-build-tab ' + (state.buildScreen === 'draft' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="draft">Draft Players</button>' +
-        '<button class="bbg-build-tab ' + (state.buildScreen === 'assign' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="assign">Assign Gamebreakers</button>' +
-      '</div>'
-    );
-  }
+  const lineupFull = lineupPlayers().length >= 6;
+
+  return (
+    '<div class="bbg-build-tabs">' +
+      '<button class="bbg-build-tab ' + (state.buildScreen === 'draft' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="draft">1. Draft Players</button>' +
+      '<button class="bbg-build-tab ' + (state.buildScreen === 'assign' ? 'is-active' : '') + '" data-action="switch-build-screen" data-screen="assign"' + (lineupFull ? '' : ' disabled') + '>2. Assign Gamebreakers</button>' +
+    '</div>'
+  );
+}
 
   function renderBuildScreen() {
-    const playerCount = lineupPlayers().length;
-    const selectedAssignedSlot = selectedPowerupAssignedSlotIndex();
+  const playerCount = lineupPlayers().length;
+  const selectedAssignedSlot = selectedPowerupAssignedSlotIndex();
+  const lineupFull = playerCount >= 6;
 
-    if (state.buildScreen === 'assign') {
-      return (
-        '<div class="bbg-build-panel">' +
-          '<div class="bbg-build-panel-header">' +
-            '<div class="bbg-build-panel-title">Assign Gamebreakers</div>' +
-            '<div class="bbg-build-panel-copy">Select a gamebreaker below, then click the slot beneath a player card to attach it.</div>' +
-          '</div>' +
-          '<div class="bbg-board-area">' +
-            '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
-          '</div>' +
-          '<div class="bbg-build-panel-footer">' +
-            '<div class="bbg-build-panel-copy">' +
-              (state.selectedAssignPowerupId
-                ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
-                : 'No gamebreaker selected. Click one in the Gamebreakers panel below.') +
-            '</div>' +
-          '</div>' +
-        '</div>'
-      );
-    }
-
+  if (state.buildScreen === 'assign') {
     return (
       '<div class="bbg-build-panel">' +
         '<div class="bbg-build-panel-header">' +
-          '<div class="bbg-build-panel-title">Draft Players</div>' +
-          '<div class="bbg-build-panel-copy">Fill up to 6 lineup slots from your 10-card draft pack. You need at least 6 hitters before you can start the run.</div>' +
+          '<div class="bbg-build-panel-title">Step 2: Assign Gamebreakers</div>' +
+          '<div class="bbg-build-panel-copy">Your lineup is locked in. Select a gamebreaker below, then click the slot beneath a player card to attach it.</div>' +
         '</div>' +
         '<div class="bbg-board-area">' +
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
         '</div>' +
         '<div class="bbg-build-panel-footer">' +
-          '<div class="bbg-build-panel-copy">Current lineup: ' + playerCount + ' / 6 players</div>' +
+          '<div class="bbg-build-panel-copy">' +
+            (state.selectedAssignPowerupId
+              ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
+              : 'No gamebreaker selected. Click one in the Gamebreakers panel below.') +
+          '</div>' +
         '</div>' +
       '</div>'
     );
   }
+
+  return (
+    '<div class="bbg-build-panel">' +
+      '<div class="bbg-build-panel-header">' +
+        '<div class="bbg-build-panel-title">Step 1: Draft Players</div>' +
+        '<div class="bbg-build-panel-copy">Fill all 6 lineup slots from your 10-card draft pack before moving to gamebreakers.</div>' +
+      '</div>' +
+      '<div class="bbg-board-area">' +
+        '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
+      '</div>' +
+      '<div class="bbg-build-panel-footer">' +
+        '<div class="bbg-build-panel-copy">Current lineup: ' + playerCount + ' / 6 players</div>' +
+        (lineupFull
+          ? '<button class="bbg-btn" data-action="go-to-gamebreaker-step">Continue To Gamebreakers</button>'
+          : '<div class="bbg-build-panel-copy">Draft all 6 players to unlock Step 2.</div>') +
+      '</div>' +
+    '</div>'
+  );
+}
 
     function renderBuildSummary() {
     const playerCount = lineupPlayers().length;
     return (
       '<div class="bbg-build-summary">' +
         '<div class="bbg-build-summary-copy">' +
-          '<div class="bbg-build-summary-title">Set Lineup</div>' +
-          '<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached</div>' +
+          '<div class="bbg-build-summary-title">Set Lineup</div>' +'<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +'<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached</div>' +
         '</div>' +
         (state.gameStarted ? '' : '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>') +
       '</div>'
@@ -1454,18 +1469,17 @@ render();
         '<div class="bbg-build-modal-body">' +
           renderBuildScreen() +
           '<div class="bbg-build-modal-side">' +
-            '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Gamebreakers</div>' +
-              '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-            '</div>' +
+            (state.buildScreen === 'draft'
+              ? '<div class="bbg-footer-box">' +
+                  '<div class="bbg-lineup-header">Draft Pack • 10 Cards</div>' +
+                  '<div class="bbg-build-panel-copy">Legendary cards are rare pulls. Some runs will not have one.</div>' +
+                  '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
+                '</div>'
+              : '<div class="bbg-footer-box">' +
+                  '<div class="bbg-lineup-header">Gamebreakers</div>' +
+                  '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+                '</div>') +
           '</div>' +
-        '</div>' +
-        '<div class="bbg-build-modal-bottom">' +
-          '<div class="bbg-footer-box">' +
-            '<div class="bbg-lineup-header">Draft Pack • 10 Cards</div>' +
-            '<div class="bbg-build-panel-copy">Legendary cards are rare pulls. Some runs will not have one.</div>' +
-            '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
-            '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
           '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
@@ -1609,6 +1623,7 @@ render();
 
         if (action === "new-run") resetRun();
         if (action === "switch-build-screen") switchBuildScreen(screen);
+        if (action === "go-to-gamebreaker-step") goToGamebreakerStep();
         if (action === "open-build-modal") openBuildModal();
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
