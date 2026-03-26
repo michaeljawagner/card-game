@@ -192,7 +192,7 @@ const LEGENDARY_PITY_CAP = 8;
   ];
 
   const state = {
-    draftPool: buildDraftPool(),
+    draftPool: [],
     lineupSlots: Array.from({ length: 6 }, function () {
       return { playerId: null, powerupId: null };
     }),
@@ -235,31 +235,29 @@ const LEGENDARY_PITY_CAP = 8;
   }
 
   function getTierWeightTable() {
-  const weights = {
-    Common: DRAFT_TIER_WEIGHTS.Common,
-    Uncommon: DRAFT_TIER_WEIGHTS.Uncommon,
-    Rare: DRAFT_TIER_WEIGHTS.Rare,
-    Epic: DRAFT_TIER_WEIGHTS.Epic,
-    Legendary: DRAFT_TIER_WEIGHTS.Legendary
-  };
+    const weights = {
+      Common: DRAFT_TIER_WEIGHTS.Common,
+      Uncommon: DRAFT_TIER_WEIGHTS.Uncommon,
+      Rare: DRAFT_TIER_WEIGHTS.Rare,
+      Epic: DRAFT_TIER_WEIGHTS.Epic,
+      Legendary: DRAFT_TIER_WEIGHTS.Legendary
+    };
 
-  const runsWithoutLegendary = (typeof state !== "undefined" && state && typeof state.runsWithoutLegendary === "number")
-  ? state.runsWithoutLegendary
-  : 0;
+    const runsWithoutLegendary = state.runsWithoutLegendary || 0;
 
-if (runsWithoutLegendary >= LEGENDARY_PITY_START) {
-    const pitySteps = Math.min(
-      runsWithoutLegendary - LEGENDARY_PITY_START + 1,
-      LEGENDARY_PITY_CAP - LEGENDARY_PITY_START + 1
-    );
+    if (runsWithoutLegendary >= LEGENDARY_PITY_START) {
+      const pitySteps = Math.min(
+        runsWithoutLegendary - LEGENDARY_PITY_START + 1,
+        LEGENDARY_PITY_CAP - LEGENDARY_PITY_START + 1
+      );
 
-    weights.Legendary += pitySteps * 2;
-    weights.Common = Math.max(34, weights.Common - pitySteps);
-    weights.Uncommon = Math.max(18, weights.Uncommon - pitySteps);
+      weights.Legendary += pitySteps * 2;
+      weights.Common = Math.max(34, weights.Common - pitySteps);
+      weights.Uncommon = Math.max(18, weights.Uncommon - pitySteps);
+    }
+
+    return weights;
   }
-
-  return weights;
-}
 
 function getPlayersByTier() {
   const buckets = {
@@ -1578,6 +1576,7 @@ function updateLegendaryDraftState() {
     }
   }
 
+  state.draftPool = buildDraftPool();
   updateLegendaryDraftState();
-render();
+  render();
 })();
