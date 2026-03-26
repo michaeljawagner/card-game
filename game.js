@@ -897,6 +897,7 @@ function goToGamebreakerStep() {
   if (lineupPlayers().length < 6) return;
   state.buildStepComplete = true;
   state.buildScreen = "assign";
+  state.draftPool = [];
   render();
 }
 
@@ -1475,10 +1476,11 @@ render();
                   '<div class="bbg-build-panel-copy">Legendary cards are rare pulls. Some runs will not have one.</div>' +
                   '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
                 '</div>'
-              : '<div class="bbg-footer-box">' +
-                  '<div class="bbg-lineup-header">Gamebreakers</div>' +
-                  '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-                '</div>') +
+              : '<div class="bbg-footer-box is-gamebreaker-step">' +
+    '<div class="bbg-lineup-header">Gamebreakers</div>' +
+    '<div class="bbg-build-panel-copy">Your lineup is locked. Assign one gamebreaker per player.</div>' +
+    '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+  '</div>') +
           '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
