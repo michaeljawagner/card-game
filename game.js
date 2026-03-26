@@ -69,7 +69,18 @@
     ? window.BASEBALL_CARD_PLAYERS
     : DEFAULT_PLAYERS;
 
-  const DRAFT_POOL_SIZE = 12;
+  const DRAFT_POOL_SIZE = 10;
+
+  const DRAFT_TIER_WEIGHTS = {
+  Common: 50,
+  Uncommon: 27,
+  Rare: 15,
+  Epic: 7,
+  Legendary: 1
+};
+
+const LEGENDARY_PITY_START = 5;
+const LEGENDARY_PITY_CAP = 8;
 
     const POWERUPS = [
     {
@@ -186,6 +197,7 @@
       return { playerId: null, powerupId: null };
     }),
     selectedAssignPowerupId: null,
+    runsWithoutLegendary: 0,
     isBuildModalOpen: true,
     currentView: "build",
     buildScreen: "draft",
@@ -208,11 +220,7 @@
     opponentName: "Clayton Kershaw",
     opponentStatLine: "3.45 ERA / 23 K",
     opponentToday: "3 ER, 4 K Today",
-    opponentQueue: [
-      { name: "Kike Hernandez", line: "1-1, HR, RBI" },
-      { name: "Mookie Betts", line: "0-1" },
-      { name: "Shohei Ohtani", line: "BB" }
-    ]
+    draftPackLabel: "Standard Pack"
   };
 
   function shuffle(arr) {
@@ -226,9 +234,108 @@
     return copy;
   }
 
-  function buildDraftPool() {
-    return shuffle(PLAYERS.slice()).slice(0, Math.min(DRAFT_POOL_SIZE, PLAYERS.length));
+  function getTierWeightTable() {
+  const weights = {
+    Common: DRAFT_TIER_WEIGHTS.Common,
+    Uncommon: DRAFT_TIER_WEIGHTS.Uncommon,
+    Rare: DRAFT_TIER_WEIGHTS.Rare,
+    Epic: DRAFT_TIER_WEIGHTS.Epic,
+    Legendary: DRAFT_TIER_WEIGHTS.Legendary
+  };
+
+  const runsWithoutLegendary = (typeof state !== "undefined" && state && typeof state.runsWithoutLegendary === "number")
+  ? state.runsWithoutLegendary
+  : 0;
+
+if (runsWithoutLegendary >= LEGENDARY_PITY_START) {
+    const pitySteps = Math.min(
+      runsWithoutLegendary - LEGENDARY_PITY_START + 1,
+      LEGENDARY_PITY_CAP - LEGENDARY_PITY_START + 1
+    );
+
+    weights.Legendary += pitySteps * 2;
+    weights.Common = Math.max(34, weights.Common - pitySteps);
+    weights.Uncommon = Math.max(18, weights.Uncommon - pitySteps);
   }
+
+  return weights;
+}
+
+function getPlayersByTier() {
+  const buckets = {
+    Common: [],
+    Uncommon: [],
+    Rare: [],
+    Epic: [],
+    Legendary: []
+  };
+
+  for (let i = 0; i < PLAYERS.length; i++) {
+    const player = PLAYERS[i];
+    const tier = getPlayerRarity(player);
+    if (!buckets[tier]) buckets[tier] = [];
+    buckets[tier].push(player);
+  }
+
+  return buckets;
+}
+
+function pickTierFromWeights(weights, availableBuckets) {
+  const weighted = [];
+  const order = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
+
+  for (let i = 0; i < order.length; i++) {
+    const tier = order[i];
+    if (availableBuckets[tier] && availableBuckets[tier].length) {
+      weighted.push({ key: tier, weight: weights[tier] || 0 });
+    }
+  }
+
+  if (!weighted.length) return null;
+  return pickWeighted(weighted);
+}
+
+function removeRandomPlayerFromBucket(bucket) {
+  if (!bucket || !bucket.length) return null;
+  const index = Math.floor(Math.random() * bucket.length);
+  const picked = bucket[index];
+  bucket.splice(index, 1);
+  return picked;
+}
+
+function buildDraftPool() {
+  const buckets = getPlayersByTier();
+  const weights = getTierWeightTable();
+  const pack = [];
+
+  for (let i = 0; i < DRAFT_POOL_SIZE; i++) {
+    const tier = pickTierFromWeights(weights, buckets);
+    if (!tier) break;
+
+    const player = removeRandomPlayerFromBucket(buckets[tier]);
+    if (!player) continue;
+    pack.push(player);
+  }
+
+  return shuffle(pack);
+}
+
+function updateLegendaryDraftState() {
+  let hasLegendary = false;
+
+  for (let i = 0; i < state.draftPool.length; i++) {
+    if (getPlayerRarity(state.draftPool[i]) === "Legendary") {
+      hasLegendary = true;
+      break;
+    }
+  }
+
+  if (hasLegendary) {
+    state.runsWithoutLegendary = 0;
+  } else {
+    state.runsWithoutLegendary += 1;
+  }
+}
 
   function getArcadePoints(result, runs, combo) {
     let points = 0;
@@ -868,6 +975,7 @@
 
   function resetRun() {
     state.draftPool = buildDraftPool();
+    updateLegendaryDraftState();
     state.lineupSlots = Array.from({ length: 6 }, function () {
       return { playerId: null, powerupId: null };
     });
@@ -887,7 +995,7 @@
     state.runStats = {};
     state.gameStats = {};
     state.modifier = "normal";
-    state.log = ["New run started. Draft up to 6 hitters and assign gamebreakers under each card."];
+    state.log = ["New run started. Opened a 10-card draft pack. Draft up to 6 hitters and assign gamebreakers under each card."];
     state.lastOutcome = null;
     render();
   }
@@ -1192,7 +1300,7 @@
       '<div class="bbg-build-panel">' +
         '<div class="bbg-build-panel-header">' +
           '<div class="bbg-build-panel-title">Draft Players</div>' +
-          '<div class="bbg-build-panel-copy">Fill up to 6 lineup slots. You need at least 4 hitters before you can start the run.</div>' +
+          '<div class="bbg-build-panel-copy">Fill up to 6 lineup slots from your 10-card draft pack. You need at least 6 hitters before you can start the run.</div>' +
         '</div>' +
         '<div class="bbg-board-area">' +
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
@@ -1300,9 +1408,10 @@
         '</div>' +
         '<div class="bbg-build-modal-bottom">' +
           '<div class="bbg-footer-box">' +
-            '<div class="bbg-lineup-header">Draft Pool</div>' +
+            '<div class="bbg-lineup-header">Draft Pack • 10 Cards</div>' +
+            '<div class="bbg-build-panel-copy">Legendary cards are rare pulls. Some runs will not have one.</div>' +
             '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
-          '</div>' +
+            '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
           '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
@@ -1469,5 +1578,6 @@
     }
   }
 
-  render();
+  updateLegendaryDraftState();
+render();
 })();
