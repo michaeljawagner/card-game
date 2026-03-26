@@ -1018,10 +1018,10 @@
 }
 
 #card-game .bbg-player-info {
-  padding: 10px;
+  padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 6px;
+  gap: 4px;
 }
 
 #card-game .bbg-player-position,
@@ -1039,12 +1039,12 @@
 
 #card-game .bbg-player-tag {
   margin-top: auto;
-  padding-top: 2px;
-  font-size: 10px;
-  line-height: 1.2;
+  padding-top: 0;
+  font-size: 9px;
+  line-height: 1.15;
   font-weight: 900;
   text-transform: uppercase;
-  letter-spacing: 0.08em;
+  letter-spacing: 0.06em;
   color: #111111;
 }
 
@@ -1054,8 +1054,8 @@
 #card-game .bbg-draft-name,
 #card-game .bbg-perk-name,
 #card-game .bbg-power-slot-name {
-  font-size: 16px;
-  line-height: 1.02;
+  font-size: 15px;
+  line-height: 1;
   font-weight: 900;
   text-transform: uppercase;
 }
@@ -1063,18 +1063,18 @@
 #card-game .bbg-player-pips {
   display: flex;
   flex-direction: column;
-  gap: 5px;
+  gap: 4px;
 }
 
 #card-game .bbg-pip-row {
   display: grid;
-  grid-template-columns: 28px 1fr;
-  gap: 6px;
+  grid-template-columns: 24px 1fr;
+  gap: 5px;
   align-items: center;
-  font-size: 9px;
+  font-size: 8px;
   font-weight: 800;
   text-transform: uppercase;
-  letter-spacing: 0.1em;
+  letter-spacing: 0.08em;
 }
 
 #card-game .bbg-pip-row > div {
@@ -1084,8 +1084,8 @@
 
 #card-game .bbg-pip {
   width: 100%;
-  min-width: 10px;
-  height: 8px;
+  min-width: 8px;
+  height: 7px;
   border: 2px solid #111111;
   background: #ffffff;
 }
