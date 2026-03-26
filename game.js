@@ -82,10 +82,12 @@
 const LEGENDARY_PITY_START = 5;
 const LEGENDARY_PITY_CAP = 8;
 
-const POWERUPS = [
+  const POWERUPS = [
     {
       id: "moneyball",
       name: "Moneyball",
+      rarity: "Rare",
+      icon: "📈",
       desc: "+8 walk chance for every hitter",
       modifyWeights: function (weights) {
         weights.walk += 6;
@@ -94,6 +96,8 @@ const POWERUPS = [
     {
       id: "launch-angle",
       name: "Launch Angle Revolution",
+      rarity: "Epic",
+      icon: "🚀",
       desc: "+10 HR chance, -6 single chance",
       modifyWeights: function (weights) {
         weights.homer += 7;
@@ -103,6 +107,8 @@ const POWERUPS = [
     {
       id: "small-ball",
       name: "Small Ball",
+      rarity: "Common",
+      icon: "⚾",
       desc: "+10 single chance, singles push runners harder",
       modifyWeights: function (weights) {
         weights.single += 6;
@@ -112,6 +118,8 @@ const POWERUPS = [
     {
       id: "green-light",
       name: "Green Light",
+      rarity: "Rare",
+      icon: "💨",
       desc: "+speed pressure, extra triples and singles",
       modifyWeights: function (weights, context) {
         weights.single += 3;
@@ -124,6 +132,8 @@ const POWERUPS = [
     {
       id: "two-strike",
       name: "Two-Strike Approach",
+      rarity: "Common",
+      icon: "🛡️",
       desc: "Fewer strikeouts, more contact",
       modifyWeights: function (weights) {
         weights.strikeout -= 8;
@@ -134,6 +144,8 @@ const POWERUPS = [
     {
       id: "gap-hunting",
       name: "Gap Hunting",
+      rarity: "Uncommon",
+      icon: "🎯",
       desc: "Extra doubles and triples into the alleys",
       modifyWeights: function (weights) {
         weights.double += 6;
@@ -144,6 +156,8 @@ const POWERUPS = [
     {
       id: "rally-time",
       name: "Rally Time",
+      rarity: "Epic",
+      icon: "🔥",
       desc: "Big boost with runners on base",
       modifyWeights: function (weights, context) {
         if (context.bases[0] || context.bases[1] || context.bases[2]) {
@@ -156,6 +170,8 @@ const POWERUPS = [
     {
       id: "first-pitch",
       name: "First Pitch Hunter",
+      rarity: "Uncommon",
+      icon: "💥",
       desc: "Aggressive ambush power",
       modifyWeights: function (weights, context) {
         if (context.modifierId === "aggressive") {
@@ -167,6 +183,8 @@ const POWERUPS = [
       }
     }
   ];
+
+  const GAMEBREAKER_POOL_SIZE = 2;
 
   const MODIFIERS = [
     {
@@ -197,6 +215,7 @@ const POWERUPS = [
       return { playerId: null, powerupId: null };
     }),
     selectedAssignPowerupId: null,
+    availablePowerups: [],
     runsWithoutLegendary: 0,
     buildModalScrollTop: 0,
     isBuildModalOpen: true,
@@ -410,10 +429,23 @@ function updateLegendaryDraftState() {
     }) || null;
   }
 
+
   function getPowerupById(id) {
     return POWERUPS.find(function (powerup) {
       return powerup.id === id;
     }) || null;
+  }
+
+  function getPowerupRarity(powerup) {
+    return powerup && powerup.rarity ? powerup.rarity : "Common";
+  }
+
+  function getPowerupIcon(powerup) {
+    return powerup && powerup.icon ? powerup.icon : "★";
+  }
+
+  function buildPowerupPool() {
+    return shuffle(POWERUPS.slice()).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, POWERUPS.length));
   }
 
     function createEmptyPlayerStats() {
@@ -986,6 +1018,7 @@ function goToGamebreakerStep() {
       return { playerId: null, powerupId: null };
     });
     state.selectedAssignPowerupId = null;
+    state.availablePowerups = buildPowerupPool();
     state.isBuildModalOpen = true;
     state.currentView = "build";
     state.buildScreen = "draft";
@@ -1161,18 +1194,24 @@ render();
 }
 
   function renderPowerups() {
-    return POWERUPS
+    return state.availablePowerups
       .map(function (powerup) {
         const selected = state.selectedAssignPowerupId === powerup.id;
         const assigned = state.lineupSlots.some(function (slot) {
           return slot.powerupId === powerup.id;
         });
+        const rarity = getPowerupRarity(powerup).toLowerCase();
+        const icon = getPowerupIcon(powerup);
+
         return (
-          '<button class="bbg-perk-card ' + (selected ? 'is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
-            '<div class="bbg-perk-rarity">Gamebreaker</div>' +
+          '<button class="bbg-perk-card bbg-rarity-' + rarity + (selected ? ' is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
+            '<div class="bbg-perk-card-top">' +
+              '<div class="bbg-perk-icon">' + icon + '</div>' +
+              '<div class="bbg-perk-rarity">' + getPowerupRarity(powerup) + '</div>' +
+            '</div>' +
             '<div class="bbg-perk-name">' + powerup.name + '</div>' +
             '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
-            '<div class="bbg-perk-desc">' + (assigned ? 'Assigned' : selected ? 'Selected — click a slot below a player' : 'Available') + '</div>' +
+            '<div class="bbg-perk-status">' + (assigned ? 'Assigned' : selected ? 'Selected' : 'Available') + '</div>' +
           '</button>'
         );
       })
@@ -1234,23 +1273,7 @@ render();
   }
 
   function renderActiveBuild() {
-    return POWERUPS
-      .slice(0, 3)
-      .map(function (powerup) {
-        const selected = state.selectedAssignPowerupId === powerup.id;
-        const assigned = state.lineupSlots.some(function (slot) {
-          return slot.powerupId === powerup.id;
-        });
-        return (
-          '<button class="bbg-perk-card ' + (selected ? 'is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
-            '<div class="bbg-perk-rarity">Gamebreaker</div>' +
-            '<div class="bbg-perk-name">' + powerup.name + '</div>' +
-            '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
-            '<div class="bbg-perk-desc">' + (assigned ? 'Assigned' : selected ? 'Selected — click a slot below a player' : 'Available') + '</div>' +
-          '</button>'
-        );
-      })
-      .join("");
+    return renderPowerups();
   }
 
   function renderLog() {
@@ -1335,7 +1358,7 @@ render();
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
         '</div>' +
         '<div class="bbg-footer-box is-inline-build-section">' +
-          '<div class="bbg-lineup-header">Gamebreakers</div>' +
+          '<div class="bbg-lineup-header">Gamebreakers • ' + state.availablePowerups.length + ' Available</div>' +
           '<div class="bbg-build-panel-copy">' +
             (state.selectedAssignPowerupId
               ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
@@ -1635,6 +1658,7 @@ if (state.isBuildModalOpen) {
   }
 
   state.draftPool = buildDraftPool();
+  state.availablePowerups = buildPowerupPool();
   updateLegendaryDraftState();
   render();
 })();
