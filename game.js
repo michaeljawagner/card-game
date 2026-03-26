@@ -817,7 +817,7 @@ function updateLegendaryDraftState() {
 
   function getPlayerImageStyle(player) {
     if (!player || !player.image) return "";
-    return 'background-image:url("' + player.image + '");background-size:cover;background-position:center;';
+    return "background-image:url('" + player.image + "');background-size:cover;background-position:center;";
   }
 
   function currentPitcherChallenge() {
