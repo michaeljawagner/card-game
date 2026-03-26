@@ -198,6 +198,7 @@ const LEGENDARY_PITY_CAP = 8;
     }),
     selectedAssignPowerupId: null,
     runsWithoutLegendary: 0,
+    buildModalScrollTop: 0,
     isBuildModalOpen: true,
     currentView: "build",
     buildScreen: "draft",
@@ -903,9 +904,13 @@ function updateLegendaryDraftState() {
   }
 
   function closeBuildModal() {
-    state.isBuildModalOpen = false;
-    render();
+  const modal = root.querySelector('.bbg-build-modal');
+  if (modal) {
+    state.buildModalScrollTop = modal.scrollTop || 0;
   }
+  state.isBuildModalOpen = false;
+  render();
+}
 
 
   function baseEmoji(on) {
@@ -1017,16 +1022,25 @@ function updateLegendaryDraftState() {
     if (!emptySlot) return;
 
     emptySlot.playerId = playerId;
-    render();
+
+const modal = root.querySelector('.bbg-build-modal');
+if (modal) {
+  state.buildModalScrollTop = modal.scrollTop || 0;
+}
+render();
   }
 
   function togglePowerup(id) {
-    state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
-    render();
+  state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
+  const modal = root.querySelector('.bbg-build-modal');
+  if (modal) {
+    state.buildModalScrollTop = modal.scrollTop || 0;
   }
+  render();
+}
 
   function startGame() {
-    if (lineupPlayers().length < 4) return;
+    if (lineupPlayers().length < 6) return;
     state.gameStarted = true;
     state.currentView = "play";
     addLog("Game start. Top 1st.");
@@ -1258,6 +1272,52 @@ function updateLegendaryDraftState() {
       .join("");
   }
 
+  function renderStatsTable() {
+  const players = lineupPlayers();
+
+  if (!players.length) {
+    return '<div class="bbg-feed-row">No lineup stats yet.</div>';
+  }
+
+  let rows = '';
+
+  for (let i = 0; i < players.length; i++) {
+    const player = players[i].player;
+    const stats = getGameStatsForPlayer(player.id);
+
+    rows += (
+      '<tr>' +
+        '<td>' + player.name + '</td>' +
+        '<td>' + stats.atBats + '</td>' +
+        '<td>' + stats.hits + '</td>' +
+        '<td>' + stats.rbi + '</td>' +
+        '<td>' + stats.walks + '</td>' +
+        '<td>' + stats.strikeouts + '</td>' +
+        '<td>' + formatAvg(stats) + '</td>' +
+      '</tr>'
+    );
+  }
+
+  return (
+    '<div class="bbg-stats-table-wrap">' +
+      '<table class="bbg-stats-table">' +
+        '<thead>' +
+          '<tr>' +
+            '<th>Player</th>' +
+            '<th>AB</th>' +
+            '<th>H</th>' +
+            '<th>RBI</th>' +
+            '<th>BB</th>' +
+            '<th>K</th>' +
+            '<th>AVG</th>' +
+          '</tr>' +
+        '</thead>' +
+        '<tbody>' + rows + '</tbody>' +
+      '</table>' +
+    '</div>'
+  );
+}
+
     function renderBuildTabs() {
     return (
       '<div class="bbg-build-tabs">' +
@@ -1409,7 +1469,7 @@ function updateLegendaryDraftState() {
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
           '<button class="bbg-btn" data-action="close-build-modal">Close Builder</button>' +
-          '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 4 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
+          '<button class="bbg-btn bbg-btn-full" data-action="start-game"' + (lineupPlayers().length >= 6 && !state.gameStarted ? '' : ' disabled') + '>Start Game</button>' +
         '</div>' +
       '</div>' +
     '</div>'
@@ -1472,7 +1532,7 @@ function updateLegendaryDraftState() {
             '<div class="bbg-count-box">Spin Mode</div>' +
             '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
           '</div>' +
-          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : lineupPlayers().length >= 4 ? 'Start Run' : 'Set Lineup') + '</button>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : lineupPlayers().length >= 6 ? 'Start Run' : 'Set Lineup') + '</button>' +
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
@@ -1492,7 +1552,7 @@ function updateLegendaryDraftState() {
 
   function render() {
     const gameOver = state.inning > 9;
-    const canStart = lineupPlayers().length >= 4;
+    const canStart = lineupPlayers().length >= 6;
 
     root.innerHTML =
       '<div class="bbg-arcade-shell">' +
@@ -1506,17 +1566,28 @@ function updateLegendaryDraftState() {
             '</div>' +
           '</div>' +
             '<div class="bbg-footer-panels">' +
-            '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Feed</div>' +
-              '<div class="bbg-feed">' + renderLog() + '</div>' +
-              '<button class="bbg-btn bbg-btn-full" data-action="new-run">New Run</button>' +
-            '</div>' +
-          '</div>' +
+  '<div class="bbg-footer-box">' +
+    '<div class="bbg-lineup-header">Feed</div>' +
+    '<div class="bbg-feed">' + renderLog() + '</div>' +
+    '<button class="bbg-btn bbg-btn-full" data-action="new-run">New Run</button>' +
+  '</div>' +
+  '<div class="bbg-footer-box">' +
+    '<div class="bbg-lineup-header">Box Score</div>' +
+    renderStatsTable() +
+  '</div>' +
+'</div>' +
           renderBuildModal() +
         '</div>' +
       '</div>';
 
     bindEvents();
+    
+    if (state.isBuildModalOpen) {
+  const modal = root.querySelector('.bbg-build-modal');
+  if (modal) {
+    modal.scrollTop = state.buildModalScrollTop || 0;
+  }
+}
   }
 
   function bindEvents() {
@@ -1542,14 +1613,18 @@ function updateLegendaryDraftState() {
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
         if (action === "assign-powerup-slot") {
-          const parsedSlotIndex = Number(slotIndex);
-          if (state.selectedAssignPowerupId) {
-            assignSelectedPowerupToSlot(parsedSlotIndex);
-          } else {
-            clearPowerupFromSlot(parsedSlotIndex);
-          }
-          render();
-        }
+  const parsedSlotIndex = Number(slotIndex);
+  if (state.selectedAssignPowerupId) {
+    assignSelectedPowerupToSlot(parsedSlotIndex);
+  } else {
+    clearPowerupFromSlot(parsedSlotIndex);
+  }
+  const modal = root.querySelector('.bbg-build-modal');
+  if (modal) {
+    state.buildModalScrollTop = modal.scrollTop || 0;
+  }
+  render();
+}
         if (action === "start-game") {
           startGame();
           if (state.gameStarted) closeBuildModal();
@@ -1559,7 +1634,7 @@ function updateLegendaryDraftState() {
         }
         if (action === "take-at-bat") {
           if (!state.gameStarted) {
-            if (lineupPlayers().length >= 4) {
+            if (lineupPlayers().length >= 6) {
               startGame();
             } else {
               openBuildModal();
