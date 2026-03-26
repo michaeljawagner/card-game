@@ -815,6 +815,11 @@ function updateLegendaryDraftState() {
     return html;
   }
 
+  function getPlayerImageStyle(player) {
+    if (!player || !player.image) return "";
+    return 'background-image:url("' + player.image + '");background-size:cover;background-position:center;';
+  }
+
   function currentPitcherChallenge() {
     if (hasPowerup("launch-angle")) return "Fastball Elevated";
     if (hasPowerup("moneyball")) return "Working The Count";
@@ -1131,7 +1136,7 @@ function updateLegendaryDraftState() {
           (lineupPlayers().length >= 6 ? ' disabled' : '') +
         '>' +
           '<div class="bbg-draft-card-inner">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + (player.image ? 'background-image:url(\\'' + player.image + '\\');background-size:cover;background-position:center;' : '') + '"></div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
             '<div class="bbg-player-info">' +
               '<div class="bbg-player-topline">' +
                 '<div class="bbg-player-position">' + position + '</div>' +
@@ -1200,7 +1205,7 @@ function updateLegendaryDraftState() {
       html += (
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + (player.image ? 'background-image:url(\\'' + player.image + '\\');background-size:cover;background-position:center;' : '') + '"></div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
             '<div class="bbg-player-info">' +
               '<div class="bbg-player-topline">' +
                 '<div class="bbg-player-position">' + position + '</div>' +
@@ -1352,7 +1357,7 @@ function updateLegendaryDraftState() {
       html += (
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
-            '<div class="bbg-player-art ' + artClass + '" style="' + (player.image ? 'background-image:url(\\'' + player.image + '\\');background-size:cover;background-position:center;' : '') + '"></div>' +
+            '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '"></div>' +
             '<div class="bbg-player-info">' +
               '<div class="bbg-player-topline">' +
                 '<div class="bbg-player-position">' + position + '</div>' +
@@ -1459,7 +1464,7 @@ function updateLegendaryDraftState() {
 
     return (
       '<div class="bbg-atbat-panel">' +
-        '<div class="bbg-atbat-art is-batter" style="' + (batter && batter.image ? 'background-image:url(\\'' + batter.image + '\\');background-size:cover;background-position:center;' : '') + '"></div>' +
+        '<div class="bbg-atbat-art is-batter" style="' + getPlayerImageStyle(batter) + '"></div>' +
         '<div class="bbg-atbat-center">' +
           '<div class="bbg-atbat-name">' + (batter ? batter.name : 'No Batter') + '</div>' +
           '<div class="bbg-atbat-line">' + batterStats + '</div>' +
