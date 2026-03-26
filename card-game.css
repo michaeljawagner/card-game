@@ -1149,10 +1149,15 @@
   color: #ffffff;
 }
 
-#card-game .bbg-bottom-row,
-#card-game .bbg-footer-panels {
+#card-game .bbg-bottom-row {
   display: grid;
   grid-template-columns: 1fr;
+  gap: 12px;
+}
+
+#card-game .bbg-footer-panels {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
   gap: 12px;
 }
 
@@ -1225,6 +1230,39 @@
 #card-game .bbg-feed {
   max-height: 250px;
   overflow: auto;
+}
+
+#card-game .bbg-stats-table-wrap {
+  max-height: 320px;
+  overflow: auto;
+}
+
+#card-game .bbg-stats-table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 11px;
+  line-height: 1.25;
+  text-transform: uppercase;
+}
+
+#card-game .bbg-stats-table th,
+#card-game .bbg-stats-table td {
+  border: 2px solid #111111;
+  padding: 8px 6px;
+  text-align: center;
+  background: #ffffff;
+}
+
+#card-game .bbg-stats-table th:first-child,
+#card-game .bbg-stats-table td:first-child {
+  text-align: left;
+}
+
+#card-game .bbg-stats-table th {
+  background: #111111;
+  color: #ffffff;
+  font-weight: 900;
+  letter-spacing: 0.08em;
 }
 
 #card-game .bbg-footer-panels .bbg-feed {
@@ -1368,6 +1406,10 @@
 @media (max-width: 767px) {
   #card-game .bbg-arcade-shell {
     padding: 16px;
+  }
+
+  #card-game .bbg-footer-panels {
+    grid-template-columns: 1fr;
   }
 
   #card-game .bbg-lineup-grid,
