@@ -679,6 +679,10 @@
   }
 
   function getPlayerRarity(player) {
+    if (player && typeof player.tier === "string" && player.tier.trim()) {
+      return player.tier.trim();
+    }
+
     const overall = getOverall(player);
     if (overall >= 68) return "Legendary";
     if (overall >= 62) return "Rare";
