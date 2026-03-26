@@ -1287,6 +1287,34 @@
   text-align: center;
 }
 
+#card-game .bbg-player-ovr-badge {
+  position: absolute;
+  bottom: 10px;
+  right: 10px;
+  z-index: 2;
+  min-width: 36px;
+  height: 36px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111111;
+  background: #111111;
+  color: #ffffff;
+  font-size: 14px;
+  font-weight: 900;
+  box-shadow: 2px 2px 0 #111111;
+}
+
+.bbg-rarity-legendary .bbg-player-ovr-badge {
+  background: #f3b43b;
+  color: #111111;
+}
+
+.bbg-rarity-epic .bbg-player-ovr-badge {
+  background: #6d28d9;
+  color: #ffffff;
+}
+
 @media (max-width: 1200px) {
   #card-game .bbg-arcade-shell {
     grid-template-columns: 1fr;
