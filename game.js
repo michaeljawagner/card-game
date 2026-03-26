@@ -82,7 +82,7 @@
 const LEGENDARY_PITY_START = 5;
 const LEGENDARY_PITY_CAP = 8;
 
-    const POWERUPS = [
+const POWERUPS = [
     {
       id: "moneyball",
       name: "Moneyball",
@@ -202,7 +202,6 @@ const LEGENDARY_PITY_CAP = 8;
     isBuildModalOpen: true,
     currentView: "build",
     buildScreen: "draft",
-    buildStepComplete: false,
     gameStarted: false,
     inning: 1,
     outs: 0,
@@ -854,13 +853,6 @@ function updateLegendaryDraftState() {
     return active.length ? active.join(" • ") : "Bases Empty";
   }
 
-  function currentModifierLabel() {
-    const found = MODIFIERS.find(function (m) {
-      return m.id === state.modifier;
-    });
-    return found ? found.name : "Balanced Swing";
-  }
-
   function assignedPowerupCount() {
     return state.lineupSlots.filter(function (slot) {
       return !!slot.powerupId;
@@ -895,7 +887,6 @@ function updateLegendaryDraftState() {
 
 function goToGamebreakerStep() {
   if (lineupPlayers().length < 6) return;
-  state.buildStepComplete = true;
   state.buildScreen = "assign";
   state.draftPool = [];
   render();
@@ -909,9 +900,9 @@ function goToGamebreakerStep() {
   }
 
     function openBuildModal() {
-    state.isBuildModalOpen = true;
-    render();
-  }
+  state.isBuildModalOpen = true;
+  render();
+}
 
   function closeBuildModal() {
   const modal = root.querySelector('.bbg-build-modal');
@@ -998,7 +989,6 @@ function goToGamebreakerStep() {
     state.isBuildModalOpen = true;
     state.currentView = "build";
     state.buildScreen = "draft";
-    state.buildStepComplete = false;
     state.gameStarted = false;
     state.inning = 1;
     state.outs = 0;
@@ -1134,12 +1124,6 @@ render();
     render();
   }
 
-  function gameResultText() {
-    if (state.score > state.enemyScore) return "You win the series opener.";
-    if (state.score === state.enemyScore) return "Tie game. Extra innings can come later.";
-    return "Tough loss. Reload the roster.";
-  }
-
   function renderDraftPool() {
   return state.draftPool
     .filter(function (player) {
@@ -1147,7 +1131,7 @@ render();
         return slot.playerId === player.id;
       });
     })
-    .map(function (player, index) {
+    .map(function (player) {
       const overall = getOverall(player);
       const rarity = getPlayerRarity(player);
       const artClass = getPlayerArtClass(player);
@@ -1168,7 +1152,6 @@ render();
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-              '' +
             '</div>' +
           '</div>' +
         '</button>'
@@ -1248,10 +1231,6 @@ render();
     }
 
     return html;
-  }
-
-    function renderModifierButtons() {
-    return '';
   }
 
   function renderActiveBuild() {
@@ -1386,16 +1365,17 @@ render();
 }
 
     function renderBuildSummary() {
-    const playerCount = lineupPlayers().length;
-    return (
-      '<div class="bbg-build-summary">' +
-        '<div class="bbg-build-summary-copy">' +
-          '<div class="bbg-build-summary-title">Set Lineup</div>' +'<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +'<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached</div>' +
-        '</div>' +
-        (state.gameStarted ? '' : '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>') +
-      '</div>'
-    );
-  }
+  const playerCount = lineupPlayers().length;
+  return (
+    '<div class="bbg-build-summary">' +
+      '<div class="bbg-build-summary-copy">' +
+        '<div class="bbg-build-summary-title">Set Lineup</div>' +
+        '<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +
+      '</div>' +
+      (state.gameStarted ? '' : '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>') +
+    '</div>'
+  );
+}
 
   function renderLineupPreview() {
     let html = '';
@@ -1477,10 +1457,10 @@ render();
                   '<div class="bbg-draft-scroll">' + renderDraftPool() + '</div>' +
                 '</div>'
               : '<div class="bbg-footer-box is-gamebreaker-step">' +
-    '<div class="bbg-lineup-header">Gamebreakers</div>' +
-    '<div class="bbg-build-panel-copy">Your lineup is locked. Assign one gamebreaker per player.</div>' +
-    '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
-  '</div>') +
+                  '<div class="bbg-lineup-header">Gamebreakers</div>' +
+                  '<div class="bbg-build-panel-copy">Your lineup is locked. Assign one gamebreaker per player.</div>' +
+                  '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
+                '</div>') +
           '</div>' +
         '</div>' +
         '<div class="bbg-build-modal-actions">' +
@@ -1562,10 +1542,6 @@ render();
     );
   }
 
-    function renderOpponentQueue() {
-    return '';
-  }
-
   function render() {
     const gameOver = state.inning > 9;
     const canStart = lineupPlayers().length >= 6;
@@ -1575,7 +1551,8 @@ render();
         renderScorePanel() +
         '<div class="bbg-arcade-main">' +
             renderAtBatPanel() +
-          renderLineupPreview() +
+            renderBuildSummary() +
+        renderLineupPreview() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-spin-wrap">' +
               '<button class="bbg-spin-btn" data-action="take-at-bat"' + (gameOver ? ' disabled' : '') + '>' + (state.gameStarted ? 'SPIN' : canStart ? 'START RUN' : 'SET LINEUP') + '</button>' +
@@ -1597,8 +1574,8 @@ render();
       '</div>';
 
     bindEvents();
-    
-    if (state.isBuildModalOpen) {
+
+if (state.isBuildModalOpen) {
   const modal = root.querySelector('.bbg-build-modal');
   if (modal) {
     modal.scrollTop = state.buildModalScrollTop || 0;
