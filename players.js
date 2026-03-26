@@ -11,7 +11,7 @@ window.BASEBALL_CARD_PLAYERS = [
     speed: 80,
     fielding: 99,
     overall: 99,
-    image: "https://cdn.prod.website-files.com/643f11c744b77e8b853602bd/69c49a80585af5992e13d17d_kenny.webp",
+    image: "https://cdn.prod.website-files.com/643f11c744b77e8b853602bd/69c49a8073784081877a0391_pablo.webp",
     trait: "Balanced",
     traitText: "No special modifier yet"
   },
