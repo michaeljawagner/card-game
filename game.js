@@ -913,19 +913,19 @@ function updateLegendaryDraftState() {
   }
 
   function renderScorebugTeams() {
-  return (
-    '<div class="bbg-scorebug-teams">' +
-      '<div class="bbg-scorebug-team-row">' +
-        '<div class="bbg-scorebug-logo">LA</div>' +
-        '<div class="bbg-scorebug-team-score">' + state.enemyScore + '</div>' +
-      '</div>' +
-      '<div class="bbg-scorebug-team-row">' +
-        '<div class="bbg-scorebug-logo">CLE</div>' +
-        '<div class="bbg-scorebug-team-score">' + state.score + '</div>' +
-      '</div>' +
-    '</div>'
-  );
-}
+    return (
+      '<div class="bbg-scorebug-teams">' +
+        '<div class="bbg-scorebug-team-row">' +
+          '<div class="bbg-scorebug-logo">CLE</div>' +
+          '<div class="bbg-scorebug-team-score">' + state.score + '</div>' +
+        '</div>' +
+        '<div class="bbg-scorebug-team-row">' +
+          '<div class="bbg-scorebug-logo">LA</div>' +
+          '<div class="bbg-scorebug-team-score">' + state.enemyScore + '</div>' +
+        '</div>' +
+      '</div>'
+    );
+  }
 
   function renderScorebugInning() {
     const inningLabel = state.inning > 9 ? 'F' : state.inning;
