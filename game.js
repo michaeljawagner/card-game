@@ -8,7 +8,7 @@
       name: "Leadoff Spark",
       contact: 78,
       power: 42,
-      discipline: 74,
+      fielding: 74,
       speed: 86,
       trait: "Table Setter",
       traitText: "+8 single chance with empty bases"
@@ -18,7 +18,7 @@
       name: "Gap Hunter",
       contact: 72,
       power: 58,
-      discipline: 65,
+      fielding: 65,
       speed: 68,
       trait: "Rally Bat",
       traitText: "+10 double chance with runners on"
@@ -28,7 +28,7 @@
       name: "Cleanup Crusher",
       contact: 64,
       power: 92,
-      discipline: 56,
+      fielding: 56,
       speed: 42,
       trait: "Moonshot",
       traitText: "+12 HR chance with Power Swing"
@@ -38,7 +38,7 @@
       name: "Patient Vet",
       contact: 66,
       power: 48,
-      discipline: 88,
+      fielding: 88,
       speed: 39,
       trait: "Professional AB",
       traitText: "+10 walk chance"
@@ -48,7 +48,7 @@
       name: "Speed Demon",
       contact: 61,
       power: 35,
-      discipline: 52,
+      fielding: 52,
       speed: 95,
       trait: "Pressure",
       traitText: "Singles can stretch harder"
@@ -58,7 +58,7 @@
       name: "Pull Power",
       contact: 57,
       power: 84,
-      discipline: 46,
+      fielding: 46,
       speed: 41,
       trait: "Dead Red",
       traitText: "+8 HR chance first pitch style swings"
@@ -426,12 +426,15 @@
   }
 
   function buildOutcomeWeights(player, modifierId, bases, inning) {
-    let walk = 5 + (player.discipline - 50) * 0.16;
-    let single = 18 + (player.contact - 50) * 0.18;
-    let double = 6 + player.power * 0.05 + player.contact * 0.03;
-    let triple = 1 + player.speed * 0.03;
-    let homer = 2.5 + (player.power - 50) * 0.16;
-    let strikeout = 24 - (player.contact - 50) * 0.1 - (player.discipline - 50) * 0.04;
+    const hitting = getHittingStat(player);
+    const speed = getSpeedStat(player);
+
+    let walk = 5;
+    let single = 18 + (hitting - 50) * 0.14;
+    let double = 6 + hitting * 0.045 + speed * 0.015;
+    let triple = 1 + speed * 0.035;
+    let homer = 2.5 + (player.power - 50) * 0.16 + (hitting - 50) * 0.04;
+    let strikeout = 24 - (hitting - 50) * 0.11;
     let out = 36;
 
     const runnersOn = bases[0] || bases[1] || bases[2];
@@ -439,7 +442,11 @@
 
     if (player.trait === "Table Setter" && basesEmpty) single += 5;
     if (player.trait === "Rally Bat" && runnersOn) double += 6;
-    if (player.trait === "Professional AB") walk += 7;
+    if (player.trait === "Professional AB") {
+      walk += 5;
+      strikeout -= 3;
+      single += 2;
+    }
     if (player.trait === "Pressure") {
       single += 5;
       triple += 3;
@@ -610,8 +617,65 @@
     return { bases: [first, second, third], runs: 0, text: "Out" };
   }
 
+  function getHittingStat(player) {
+    if (typeof player.hitting === "number") return player.hitting;
+    return Math.round((player.contact * 0.55) + (player.power * 0.45));
+  }
+
+  function getSpeedStat(player) {
+    return typeof player.speed === "number" ? player.speed : 50;
+  }
+
+  function getFieldingStat(player) {
+    if (typeof player.fielding === "number") return player.fielding;
+    if (typeof player.defense === "number") return player.defense;
+    return 50;
+  }
+
   function getOverall(player) {
-    return Math.round((player.contact + player.power + player.discipline + player.speed) / 4);
+    return Math.round((getHittingStat(player) + getSpeedStat(player) + getFieldingStat(player)) / 3);
+  }
+
+  function getLineupDefenseRating() {
+    const players = lineupPlayers();
+    if (!players.length) return 50;
+
+    let total = 0;
+    for (let i = 0; i < players.length; i++) {
+      total += getFieldingStat(players[i].player);
+    }
+    return Math.round(total / players.length);
+  }
+
+  function getOpponentRunsForHalfInning() {
+    const defense = getLineupDefenseRating();
+    const defenseMod = (defense - 50) / 50;
+    const roll = Math.random();
+
+    let chance0 = 0.42 + (defenseMod * 0.14);
+    let chance1 = 0.34 - (defenseMod * 0.06);
+    let chance2 = 0.17 - (defenseMod * 0.05);
+    let chance3 = 0.06 - (defenseMod * 0.02);
+    let chance4 = 0.01 - (defenseMod * 0.01);
+
+    chance0 = clamp(chance0, 0.18, 0.72);
+    chance1 = clamp(chance1, 0.14, 0.42);
+    chance2 = clamp(chance2, 0.04, 0.24);
+    chance3 = clamp(chance3, 0.01, 0.12);
+    chance4 = clamp(chance4, 0, 0.04);
+
+    const total = chance0 + chance1 + chance2 + chance3 + chance4;
+    chance0 /= total;
+    chance1 /= total;
+    chance2 /= total;
+    chance3 /= total;
+    chance4 /= total;
+
+    if (roll < chance0) return 0;
+    if (roll < chance0 + chance1) return 1;
+    if (roll < chance0 + chance1 + chance2) return 2;
+    if (roll < chance0 + chance1 + chance2 + chance3) return 3;
+    return 4;
   }
 
   function getPlayerRarity(player) {
@@ -628,8 +692,8 @@
 
   function getPlayerArtClass(player) {
     if (player.power >= 80) return "is-slugger";
-    if (player.speed >= 85) return "is-speed";
-    if (player.contact >= 75) return "is-contact";
+    if (getSpeedStat(player) >= 85) return "is-speed";
+    if (getHittingStat(player) >= 75) return "is-contact";
     return "is-balanced";
   }
 
@@ -858,15 +922,11 @@
   }
 
   function nextInning() {
-    const roll = Math.random();
-    let opponentRuns = 0;
-
-    if (roll > 0.65) opponentRuns = 1;
-    if (roll > 0.9) opponentRuns = 2;
-    if (roll > 0.98) opponentRuns = 3;
+    const opponentRuns = getOpponentRunsForHalfInning();
+    const defense = getLineupDefenseRating();
 
     state.enemyScore += opponentRuns;
-    addLog("Bottom " + state.inning + ": opponent scores " + opponentRuns + ".");
+    addLog("Bottom " + state.inning + ": opponent scores " + opponentRuns + ". Team fielding " + defense + ".");
     state.inning += 1;
     state.outs = 0;
     state.bases = [false, false, false];
@@ -969,9 +1029,9 @@
               '</div>' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
-                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
               '<div class="bbg-player-tag">' + player.trait + ' • OVR ' + overall + '</div>' +
             '</div>' +
@@ -1038,9 +1098,9 @@
               '</div>' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
-                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
               '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
@@ -1190,9 +1250,9 @@
               '</div>' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
-                '<div class="bbg-pip-row"><span>CON</span><div>' + statPips(player.contact) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>POW</span><div>' + statPips(player.power) + '</div></div>' +
-                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(player.speed) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
+                '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
                 '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
