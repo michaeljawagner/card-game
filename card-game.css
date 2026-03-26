@@ -823,84 +823,84 @@
 #card-game .bbg-draft-tile.bbg-rarity-uncommon,
 #card-game .bbg-draft-card.bbg-rarity-uncommon,
 #card-game .bbg-power-slot.bbg-rarity-uncommon {
-  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #6b7280;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #22c55e;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic,
 #card-game .bbg-draft-tile.bbg-rarity-epic,
 #card-game .bbg-draft-card.bbg-rarity-epic,
 #card-game .bbg-power-slot.bbg-rarity-epic {
-  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #7c3aed;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #a855f7;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare,
 #card-game .bbg-draft-tile.bbg-rarity-rare,
 #card-game .bbg-draft-card.bbg-rarity-rare,
 #card-game .bbg-power-slot.bbg-rarity-rare {
-  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #9ca3af;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #3b82f6;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary,
 #card-game .bbg-draft-tile.bbg-rarity-legendary,
 #card-game .bbg-draft-card.bbg-rarity-legendary,
 #card-game .bbg-power-slot.bbg-rarity-legendary {
-  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #f3b43b;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #f59e0b;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-uncommon .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-uncommon .bbg-power-slot-rarity {
-  color: #4b5563;
+  color: #15803d;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-rare .bbg-power-slot-rarity {
-  color: #6b7280;
+  color: #2563eb;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-epic .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-epic .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-epic .bbg-power-slot-rarity {
-  color: #6d28d9;
+  color: #7e22ce;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-legendary .bbg-power-slot-rarity {
-  color: #b7791f;
+  color: #d97706;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-uncommon .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-uncommon:not(.has-powerup) {
-  background: #f5f5f5;
+  background: #f0fdf4;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-rare:not(.has-powerup) {
-  background: #f3f4f6;
+  background: #eff6ff;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-epic .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-epic .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-epic:not(.has-powerup) {
-  background: #f5f3ff;
+  background: #faf5ff;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-art,
 #card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-legendary:not(.has-powerup) {
-  background: #fff7df;
+  background: #fffbeb;
 }
 
 #card-game .bbg-power-slot {
@@ -980,25 +980,26 @@
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-image-badge,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-image-badge {
-  background: #f5f5f5;
+  background: #dcfce7;
+  color: #15803d;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-image-badge,
 #card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-image-badge {
-  background: #f3f4f6;
-  color: #4b5563;
+  background: #dbeafe;
+  color: #2563eb;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic .bbg-player-image-badge,
 #card-game .bbg-draft-card.bbg-rarity-epic .bbg-player-image-badge {
-  background: #f5f3ff;
-  color: #6d28d9;
+  background: #f3e8ff;
+  color: #7e22ce;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-image-badge,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-image-badge {
-  background: #fff7df;
-  color: #b7791f;
+  background: #fef3c7;
+  color: #d97706;
 }
 
 #card-game .bbg-player-art.is-slugger {
@@ -1307,22 +1308,22 @@
 
 
 #card-game .bbg-rarity-uncommon .bbg-player-ovr-badge {
-  background: #6b7280;
+  background: #22c55e;
   color: #ffffff;
 }
 
 #card-game .bbg-rarity-rare .bbg-player-ovr-badge {
-  background: #9ca3af;
-  color: #111111;
+  background: #3b82f6;
+  color: #ffffff;
 }
 
 #card-game .bbg-rarity-epic .bbg-player-ovr-badge {
-  background: #6d28d9;
+  background: #a855f7;
   color: #ffffff;
 }
 
 #card-game .bbg-rarity-legendary .bbg-player-ovr-badge {
-  background: #f3b43b;
+  background: #f59e0b;
   color: #111111;
 }
 
