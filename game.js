@@ -933,14 +933,16 @@ function updateLegendaryDraftState() {
   }
 
   function renderScorebugInning() {
-    const inningLabel = state.inning > 9 ? 'F' : state.inning;
+    const isFinal = state.inning > 9;
+    const inningLabel = isFinal ? 'F' : state.inning;
+
     return (
         '<div class="bbg-scorebug-inning">' +
-            '<div class="bbg-scorebug-arrow is-active">▲</div>' +
+            '<div class="bbg-scorebug-arrow ' + (isFinal ? 'is-muted' : 'is-active') + '">▲</div>' +
             '<div class="bbg-scorebug-inning-value">' + inningLabel + '</div>' +
             '<div class="bbg-scorebug-arrow is-muted">▼</div>' +
         '</div>'
-        );
+    );
   }
 
   function renderScorebugBases() {
@@ -1137,16 +1139,17 @@ function updateLegendaryDraftState() {
         '>' +
           '<div class="bbg-draft-card-inner">' +
             '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
-  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
-'</div>' +
-'<div class="bbg-player-info">' +
+              '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+              '<div class="bbg-player-ovr-badge">' + overall + '</div>' +
+            '</div>' +
+            '<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-              '<div class="bbg-player-tag">' + player.trait + ' • OVR ' + overall + '</div>' +
+              '' +
             '</div>' +
           '</div>' +
         '</button>'
@@ -1204,16 +1207,17 @@ function updateLegendaryDraftState() {
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
-  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
-'</div>' +
-'<div class="bbg-player-info">' +
+              '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+              '<div class="bbg-player-ovr-badge">' + getOverall(player) + '</div>' +
+            '</div>' +
+            '<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-              '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
+              '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1354,16 +1358,17 @@ function updateLegendaryDraftState() {
         '<div class="bbg-board-slot bbg-rarity-' + rarity.toLowerCase() + (isActive ? ' is-active' : '') + '">' +
           '<div class="bbg-player-board-card">' +
             '<div class="bbg-player-art ' + artClass + '" style="' + getPlayerImageStyle(player) + '">' +
-  '<div class="bbg-player-image-badge">' + rarity + '</div>' +
-'</div>' +
-'<div class="bbg-player-info">' +
+              '<div class="bbg-player-image-badge">' + rarity + '</div>' +
+              '<div class="bbg-player-ovr-badge">' + getOverall(player) + '</div>' +
+            '</div>' +
+            '<div class="bbg-player-info">' +
               '<div class="bbg-player-board-name">' + player.name + '</div>' +
               '<div class="bbg-player-pips">' +
                 '<div class="bbg-pip-row"><span>HIT</span><div>' + statPips(getHittingStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-                '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : player.trait + ' • ' + formatRunStatLine(player.id)) + '</div>' +
+                '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>' +
             '</div>' +
           '</div>' +
         '</div>' +
