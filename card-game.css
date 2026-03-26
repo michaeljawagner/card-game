@@ -690,6 +690,10 @@
   align-items: start;
 }
 
+#card-game .bbg-build-modal-body.is-fullwidth-step {
+  grid-template-columns: minmax(0, 1fr);
+}
+
 #card-game .bbg-build-modal-bottom {
   display: grid;
   grid-template-columns: minmax(0, 1fr);
@@ -711,6 +715,14 @@
 #card-game .bbg-build-modal-side {
   display: grid;
   gap: 14px;
+}
+
+#card-game .bbg-build-panel.is-fullwidth-build-panel {
+  width: 100%;
+}
+
+#card-game .bbg-footer-box.is-inline-build-section {
+  margin-top: 14px;
 }
 
 #card-game .bbg-build-modal-bottom .bbg-footer-box {
@@ -1396,7 +1408,8 @@
     grid-row: auto !important;
   }
 
-  #card-game .bbg-build-modal-body {
+  #card-game .bbg-build-modal-body,
+  #card-game .bbg-build-modal-body.is-fullwidth-step {
     grid-template-columns: 1fr;
   }
 }
