@@ -25,7 +25,7 @@
   grid-template-columns: 260px minmax(0, 1fr);
   gap: 18px;
   color: #121212;
-  font-family: Inter, Arial, sans-serif;
+  font-family: t26-carbon, Arial, sans-serif;
 }
 
 #card-game .bbg-left-rail,
@@ -1305,14 +1305,25 @@
   box-shadow: 2px 2px 0 #111111;
 }
 
-.bbg-rarity-legendary .bbg-player-ovr-badge {
-  background: #f3b43b;
+
+#card-game .bbg-rarity-uncommon .bbg-player-ovr-badge {
+  background: #6b7280;
+  color: #ffffff;
+}
+
+#card-game .bbg-rarity-rare .bbg-player-ovr-badge {
+  background: #9ca3af;
   color: #111111;
 }
 
-.bbg-rarity-epic .bbg-player-ovr-badge {
+#card-game .bbg-rarity-epic .bbg-player-ovr-badge {
   background: #6d28d9;
   color: #ffffff;
+}
+
+#card-game .bbg-rarity-legendary .bbg-player-ovr-badge {
+  background: #f3b43b;
+  color: #111111;
 }
 
 @media (max-width: 1200px) {
