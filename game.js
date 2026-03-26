@@ -794,11 +794,6 @@ function updateLegendaryDraftState() {
     return "Common";
   }
 
-  function getPlayerPosition(player, index) {
-    const positions = ["INF", "OF", "C", "FLEX"];
-    return positions[index] || "UTIL";
-  }
-
   function getPlayerArtClass(player) {
     if (player.power >= 80) return "is-slugger";
     if (getSpeedStat(player) >= 85) return "is-speed";
@@ -1130,7 +1125,6 @@ function updateLegendaryDraftState() {
     .map(function (player, index) {
       const overall = getOverall(player);
       const rarity = getPlayerRarity(player);
-      const position = getPlayerPosition(player, index);
       const artClass = getPlayerArtClass(player);
 
       return (
@@ -1199,7 +1193,6 @@ function updateLegendaryDraftState() {
       }
 
       const rarity = getPlayerRarity(player);
-      const position = getPlayerPosition(player, i);
       const artClass = getPlayerArtClass(player);
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
@@ -1350,7 +1343,6 @@ function updateLegendaryDraftState() {
       }
 
       const rarity = getPlayerRarity(player);
-      const position = getPlayerPosition(player, i);
       const artClass = getPlayerArtClass(player);
       const isActive = state.gameStarted && !(state.inning > 9) && i === activeSlot;
 
