@@ -822,6 +822,7 @@ function closeBuildModal() {
     return Math.round((getHittingStat(player) + getSpeedStat(player) + getFieldingStat(player)) / 3);
   }
 
+
   function getLineupDefenseRating() {
     const players = lineupPlayers();
     if (!players.length) return 50;
@@ -831,6 +832,37 @@ function closeBuildModal() {
       total += getFieldingStat(players[i].player);
     }
     return Math.round(total / players.length);
+  }
+
+  function getOpponentRunsForHalfInning() {
+    const defense = getLineupDefenseRating();
+    const defenseMod = (defense - 50) / 50;
+    const roll = Math.random();
+
+    let chance0 = 0.42 + (defenseMod * 0.14);
+    let chance1 = 0.34 - (defenseMod * 0.06);
+    let chance2 = 0.17 - (defenseMod * 0.05);
+    let chance3 = 0.06 - (defenseMod * 0.02);
+    let chance4 = 0.01 - (defenseMod * 0.01);
+
+    chance0 = clamp(chance0, 0.18, 0.72);
+    chance1 = clamp(chance1, 0.14, 0.42);
+    chance2 = clamp(chance2, 0.04, 0.24);
+    chance3 = clamp(chance3, 0.01, 0.12);
+    chance4 = clamp(chance4, 0, 0.04);
+
+    const total = chance0 + chance1 + chance2 + chance3 + chance4;
+    chance0 /= total;
+    chance1 /= total;
+    chance2 /= total;
+    chance3 /= total;
+    chance4 /= total;
+
+    if (roll < chance0) return 0;
+    if (roll < chance0 + chance1) return 1;
+    if (roll < chance0 + chance1 + chance2) return 2;
+    if (roll < chance0 + chance1 + chance2 + chance3) return 3;
+    return 4;
   }
 
   function statPips(value) {
