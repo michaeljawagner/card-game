@@ -1242,6 +1242,10 @@
   color: #ffffff;
 }
 
+#card-game .bbg-power-slot.bbg-rarity-common .bbg-power-slot-rarity {
+  color: #7a7a7a;
+}
+
 #card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-icon,
 #card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-rarity,
 #card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-status,
