@@ -1016,7 +1016,7 @@
   padding: 8px;
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 10px;
 }
 
 #card-game .bbg-player-position,
@@ -1058,7 +1058,7 @@
 #card-game .bbg-player-pips {
   display: flex;
   flex-direction: column;
-  gap: 3px;
+  gap: 0px;
 }
 
 #card-game .bbg-pip-row {
@@ -1080,7 +1080,7 @@
 #card-game .bbg-pip {
   width: 100%;
   min-width: 8px;
-  height: 14px;
+  height: 10px;
   border: 2px solid #111111;
   background: #ffffff;
 }
