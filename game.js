@@ -1029,11 +1029,6 @@ if (activePowerups && activePowerups.length) {
     render();
   }
 
-
-  function baseEmoji(on) {
-    return on ? "🟦" : "⬜";
-  }
-
   function renderScorebugTeams() {
     return (
       '<div class="bbg-scorebug-teams">' +
