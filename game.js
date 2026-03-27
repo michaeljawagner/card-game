@@ -72,15 +72,15 @@
   const DRAFT_POOL_SIZE = 10;
 
   const DRAFT_TIER_WEIGHTS = {
-  Common: 50,
-  Uncommon: 27,
-  Rare: 15,
-  Epic: 7,
-  Legendary: 1
-};
+    Common: 50,
+    Uncommon: 27,
+    Rare: 15,
+    Epic: 7,
+    Legendary: 1
+  };
 
-const LEGENDARY_PITY_START = 5;
-const LEGENDARY_PITY_CAP = 8;
+  const LEGENDARY_PITY_START = 5;
+  const LEGENDARY_PITY_CAP = 8;
 
   const POWERUPS = [
     {
@@ -223,7 +223,6 @@ const LEGENDARY_PITY_CAP = 8;
     runsWithoutLegendary: 0,
     buildModalScrollTop: 0,
     isBuildModalOpen: true,
-    currentView: "build",
     buildScreen: "draft",
     gameStarted: false,
     inning: 1,
@@ -243,8 +242,7 @@ const LEGENDARY_PITY_CAP = 8;
     matchup: "Game 2 vs Dodgers",
     opponentName: "Clayton Kershaw",
     opponentStatLine: "3.45 ERA / 23 K",
-    opponentToday: "3 ER, 4 K Today",
-    draftPackLabel: "Standard Pack"
+    opponentToday: "3 ER, 4 K Today"
   };
 
   function shuffle(arr) {
@@ -283,81 +281,81 @@ const LEGENDARY_PITY_CAP = 8;
     return weights;
   }
 
-function getPlayersByTier() {
-  const buckets = {
-    Common: [],
-    Uncommon: [],
-    Rare: [],
-    Epic: [],
-    Legendary: []
-  };
+  function getPlayersByTier() {
+    const buckets = {
+      Common: [],
+      Uncommon: [],
+      Rare: [],
+      Epic: [],
+      Legendary: []
+    };
 
-  for (let i = 0; i < PLAYERS.length; i++) {
-    const player = PLAYERS[i];
-    const tier = getPlayerRarity(player);
-    if (!buckets[tier]) buckets[tier] = [];
-    buckets[tier].push(player);
+    for (let i = 0; i < PLAYERS.length; i++) {
+      const player = PLAYERS[i];
+      const tier = getPlayerRarity(player);
+      if (!buckets[tier]) buckets[tier] = [];
+      buckets[tier].push(player);
+    }
+
+    return buckets;
   }
 
-  return buckets;
-}
+  function pickTierFromWeights(weights, availableBuckets) {
+    const weighted = [];
+    const order = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
 
-function pickTierFromWeights(weights, availableBuckets) {
-  const weighted = [];
-  const order = ["Common", "Uncommon", "Rare", "Epic", "Legendary"];
+    for (let i = 0; i < order.length; i++) {
+      const tier = order[i];
+      if (availableBuckets[tier] && availableBuckets[tier].length) {
+        weighted.push({ key: tier, weight: weights[tier] || 0 });
+      }
+    }
 
-  for (let i = 0; i < order.length; i++) {
-    const tier = order[i];
-    if (availableBuckets[tier] && availableBuckets[tier].length) {
-      weighted.push({ key: tier, weight: weights[tier] || 0 });
+    if (!weighted.length) return null;
+    return pickWeighted(weighted);
+  }
+
+  function removeRandomPlayerFromBucket(bucket) {
+    if (!bucket || !bucket.length) return null;
+    const index = Math.floor(Math.random() * bucket.length);
+    const picked = bucket[index];
+    bucket.splice(index, 1);
+    return picked;
+  }
+
+  function buildDraftPool() {
+    const buckets = getPlayersByTier();
+    const weights = getTierWeightTable();
+    const pack = [];
+
+    for (let i = 0; i < DRAFT_POOL_SIZE; i++) {
+      const tier = pickTierFromWeights(weights, buckets);
+      if (!tier) break;
+
+      const player = removeRandomPlayerFromBucket(buckets[tier]);
+      if (!player) continue;
+      pack.push(player);
+    }
+
+    return shuffle(pack);
+  }
+
+  function updateLegendaryDraftState() {
+    let hasLegendary = false;
+
+    for (let i = 0; i < state.draftPool.length; i++) {
+      if (getPlayerRarity(state.draftPool[i]) === "Legendary") {
+        hasLegendary = true;
+        break;
+      }
+    }
+
+    if (hasLegendary) {
+      state.runsWithoutLegendary = 0;
+    } else {
+      state.runsWithoutLegendary += 1;
     }
   }
-
-  if (!weighted.length) return null;
-  return pickWeighted(weighted);
-}
-
-function removeRandomPlayerFromBucket(bucket) {
-  if (!bucket || !bucket.length) return null;
-  const index = Math.floor(Math.random() * bucket.length);
-  const picked = bucket[index];
-  bucket.splice(index, 1);
-  return picked;
-}
-
-function buildDraftPool() {
-  const buckets = getPlayersByTier();
-  const weights = getTierWeightTable();
-  const pack = [];
-
-  for (let i = 0; i < DRAFT_POOL_SIZE; i++) {
-    const tier = pickTierFromWeights(weights, buckets);
-    if (!tier) break;
-
-    const player = removeRandomPlayerFromBucket(buckets[tier]);
-    if (!player) continue;
-    pack.push(player);
-  }
-
-  return shuffle(pack);
-}
-
-function updateLegendaryDraftState() {
-  let hasLegendary = false;
-
-  for (let i = 0; i < state.draftPool.length; i++) {
-    if (getPlayerRarity(state.draftPool[i]) === "Legendary") {
-      hasLegendary = true;
-      break;
-    }
-  }
-
-  if (hasLegendary) {
-    state.runsWithoutLegendary = 0;
-  } else {
-    state.runsWithoutLegendary += 1;
-  }
-}
 
   function getArcadePoints(result, runs, combo) {
     let points = 0;
@@ -449,75 +447,75 @@ function updateLegendaryDraftState() {
   }
 
   function buildPowerupPool() {
-  const stacked = state.stackedPowerupIds || [];
-  const available = POWERUPS.filter(function (powerup) {
-    return stacked.indexOf(powerup.id) === -1;
-  });
-  return shuffle(available).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, available.length));
-}
-
-function rollGamebreakerDuration() {
-  return 1 + Math.floor(Math.random() * 5);
-}
-
-function getPowerupMeta(id) {
-  return state.stackedPowerupMeta && state.stackedPowerupMeta[id]
-    ? state.stackedPowerupMeta[id]
-    : null;
-}
-
-function getPowerupGamesRemaining(id) {
-  const meta = getPowerupMeta(id);
-  if (!meta) return 0;
-  return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
-}
-
-function clearExpiredGamebreakers() {
-  const expiredIds = [];
-
-  for (let i = 0; i < state.stackedPowerupIds.length; i++) {
-    const id = state.stackedPowerupIds[i];
-    const meta = getPowerupMeta(id);
-    if (!meta) continue;
-
-    if ((meta.expiresAfterGame || 0) < state.gameNumber) {
-      expiredIds.push(id);
-    }
+    const stacked = state.stackedPowerupIds || [];
+    const available = POWERUPS.filter(function (powerup) {
+      return stacked.indexOf(powerup.id) === -1;
+    });
+    return shuffle(available).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, available.length));
   }
 
-  if (!expiredIds.length) return;
+  function rollGamebreakerDuration() {
+    return 1 + Math.floor(Math.random() * 5);
+  }
 
-  for (let i = 0; i < expiredIds.length; i++) {
-    const expiredId = expiredIds[i];
-    const expiredPowerup = getPowerupById(expiredId);
+  function getPowerupMeta(id) {
+    return state.stackedPowerupMeta && state.stackedPowerupMeta[id]
+      ? state.stackedPowerupMeta[id]
+      : null;
+  }
 
-    for (let j = 0; j < state.lineupSlots.length; j++) {
-      if (state.lineupSlots[j].powerupId === expiredId) {
-        state.lineupSlots[j].powerupId = null;
+  function getPowerupGamesRemaining(id) {
+    const meta = getPowerupMeta(id);
+    if (!meta) return 0;
+    return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
+  }
+
+  function clearExpiredGamebreakers() {
+    const expiredIds = [];
+
+    for (let i = 0; i < state.stackedPowerupIds.length; i++) {
+      const id = state.stackedPowerupIds[i];
+      const meta = getPowerupMeta(id);
+      if (!meta) continue;
+
+      if ((meta.expiresAfterGame || 0) < state.gameNumber) {
+        expiredIds.push(id);
       }
     }
 
-    delete state.stackedPowerupMeta[expiredId];
+    if (!expiredIds.length) return;
 
-    if (expiredPowerup) {
-      addLog(expiredPowerup.name + ' expired after Game ' + (state.gameNumber - 1) + '.');
+    for (let i = 0; i < expiredIds.length; i++) {
+      const expiredId = expiredIds[i];
+      const expiredPowerup = getPowerupById(expiredId);
+
+      for (let j = 0; j < state.lineupSlots.length; j++) {
+        if (state.lineupSlots[j].powerupId === expiredId) {
+          state.lineupSlots[j].powerupId = null;
+        }
+      }
+
+      delete state.stackedPowerupMeta[expiredId];
+
+      if (expiredPowerup) {
+        addLog(expiredPowerup.name + ' expired after Game ' + (state.gameNumber - 1) + '.');
+      }
     }
+
+    state.stackedPowerupIds = state.stackedPowerupIds.filter(function (id) {
+      return expiredIds.indexOf(id) === -1;
+    });
   }
 
-  state.stackedPowerupIds = state.stackedPowerupIds.filter(function (id) {
-    return expiredIds.indexOf(id) === -1;
-  });
-}
+  function getStackedPowerups() {
+    return (state.stackedPowerupIds || [])
+      .map(function (id) {
+        return getPowerupById(id);
+      })
+      .filter(Boolean);
+  }
 
-function getStackedPowerups() {
-  return (state.stackedPowerupIds || [])
-    .map(function (id) {
-      return getPowerupById(id);
-    })
-    .filter(Boolean);
-}
-
-    function createEmptyPlayerStats() {
+  function createEmptyPlayerStats() {
     return {
       atBats: 0,
       hits: 0,
@@ -929,20 +927,13 @@ if (activePowerups && activePowerups.length) {
     return "Standard Delivery";
   }
 
-  function currentBatterPowerupId() {
-    const players = lineupPlayers();
-    if (!players.length) return null;
-    const active = players[state.batterIndex % players.length];
-    return active ? active.powerupId : null;
+  function getCurrentBatterPowerup() {
+    return getStackedPowerups();
   }
 
-  function getCurrentBatterPowerup() {
-  return getStackedPowerups();
-}
-
   function hasPowerup(id) {
-  return (state.stackedPowerupIds || []).indexOf(id) > -1;
-}
+    return (state.stackedPowerupIds || []).indexOf(id) > -1;
+  }
 
   function currentLineupSlot() {
     const players = lineupPlayers();
@@ -959,63 +950,63 @@ if (activePowerups && activePowerups.length) {
   }
 
   function assignedPowerupCount() {
-  return (state.stackedPowerupIds || []).length;
-}
+    return (state.stackedPowerupIds || []).length;
+  }
 
 
   function assignSelectedPowerupToSlot(slotIndex) {
-  const slot = state.lineupSlots[slotIndex];
-  if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
-  if (slot.powerupId) return;
+    const slot = state.lineupSlots[slotIndex];
+    if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
+    if (slot.powerupId) return;
 
-  const duration = rollGamebreakerDuration();
-  const expiresAfterGame = state.gameNumber + duration - 1;
+    const duration = rollGamebreakerDuration();
+    const expiresAfterGame = state.gameNumber + duration - 1;
 
-  slot.powerupId = state.selectedAssignPowerupId;
+    slot.powerupId = state.selectedAssignPowerupId;
 
-  if ((state.stackedPowerupIds || []).indexOf(state.selectedAssignPowerupId) === -1) {
-    state.stackedPowerupIds.push(state.selectedAssignPowerupId);
+    if ((state.stackedPowerupIds || []).indexOf(state.selectedAssignPowerupId) === -1) {
+      state.stackedPowerupIds.push(state.selectedAssignPowerupId);
+    }
+
+    state.stackedPowerupMeta[state.selectedAssignPowerupId] = {
+      slotIndex: slotIndex,
+      selectedOnGame: state.gameNumber,
+      durationGames: duration,
+      expiresAfterGame: expiresAfterGame
+    };
+
+    const attachedPowerup = getPowerupById(state.selectedAssignPowerupId);
+    const attachedPlayer = getPlayerById(slot.playerId);
+
+    if (attachedPowerup && attachedPlayer) {
+      addLog(
+        attachedPowerup.name +
+          ' attached to ' +
+          attachedPlayer.name +
+          ' for ' +
+          duration +
+          ' game' +
+          (duration > 1 ? 's' : '') +
+          '.'
+      );
+    }
+
+    state.selectedGamebreakerThisGame = true;
+    state.selectedAssignPowerupId = null;
   }
 
-  state.stackedPowerupMeta[state.selectedAssignPowerupId] = {
-    slotIndex: slotIndex,
-    selectedOnGame: state.gameNumber,
-    durationGames: duration,
-    expiresAfterGame: expiresAfterGame
-  };
-
-  const attachedPowerup = getPowerupById(state.selectedAssignPowerupId);
-  const attachedPlayer = getPlayerById(slot.playerId);
-
-  if (attachedPowerup && attachedPlayer) {
-    addLog(
-      attachedPowerup.name +
-        ' attached to ' +
-        attachedPlayer.name +
-        ' for ' +
-        duration +
-        ' game' +
-        (duration > 1 ? 's' : '') +
-        '.'
-    );
+  function switchBuildScreen(screen) {
+    if (screen === "assign" && lineupPlayers().length < 6) return;
+    state.buildScreen = screen;
+    render();
   }
 
-  state.selectedGamebreakerThisGame = true;
-  state.selectedAssignPowerupId = null;
-}
-
-    function switchBuildScreen(screen) {
-  if (screen === "assign" && lineupPlayers().length < 6) return;
-  state.buildScreen = screen;
-  render();
-}
-
-function goToGamebreakerStep() {
-  if (lineupPlayers().length < 6) return;
-  state.buildScreen = "assign";
-  state.draftPool = [];
-  render();
-}
+  function goToGamebreakerStep() {
+    if (lineupPlayers().length < 6) return;
+    state.buildScreen = "assign";
+    state.draftPool = [];
+    render();
+  }
 
   function selectedPowerupAssignedSlotIndex() {
     if (!state.selectedAssignPowerupId) return -1;
@@ -1024,19 +1015,19 @@ function goToGamebreakerStep() {
     });
   }
 
-    function openBuildModal() {
-  state.isBuildModalOpen = true;
-  render();
-}
+  function openBuildModal() {
+    state.isBuildModalOpen = true;
+    render();
+  }
 
   function closeBuildModal() {
-  const modal = root.querySelector('.bbg-build-modal');
-  if (modal) {
-    state.buildModalScrollTop = modal.scrollTop || 0;
+    const modal = root.querySelector('.bbg-build-modal');
+    if (modal) {
+      state.buildModalScrollTop = modal.scrollTop || 0;
+    }
+    state.isBuildModalOpen = false;
+    render();
   }
-  state.isBuildModalOpen = false;
-  render();
-}
 
 
   function baseEmoji(on) {
@@ -1111,13 +1102,12 @@ function goToGamebreakerStep() {
       return { playerId: null, powerupId: null };
     });
     state.selectedAssignPowerupId = null;
-   state.selectedGamebreakerThisGame = false;
+    state.selectedGamebreakerThisGame = false;
     state.stackedPowerupIds = [];
     state.stackedPowerupMeta = {};
     state.gameNumber = 1;
     state.availablePowerups = buildPowerupPool();
     state.isBuildModalOpen = true;
-    state.currentView = "build";
     state.buildScreen = "draft";
     state.gameStarted = false;
     state.inning = 1;
@@ -1162,18 +1152,17 @@ render();
   }
 
   function togglePowerup(id) {
-  state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
-  const modal = root.querySelector('.bbg-build-modal');
-  if (modal) {
-    state.buildModalScrollTop = modal.scrollTop || 0;
+    state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
+    const modal = root.querySelector('.bbg-build-modal');
+    if (modal) {
+      state.buildModalScrollTop = modal.scrollTop || 0;
+    }
+    render();
   }
-  render();
-}
 
   function startGame() {
     if (lineupPlayers().length < 6) return;
     state.gameStarted = true;
-    state.currentView = "play";
     addLog("Game start. Top 1st.");
     render();
   }
@@ -1191,36 +1180,36 @@ render();
   }
 
   function prepareNextGame() {
-  state.gameNumber += 1;
-  state.gameStarted = false;
-  state.inning = 1;
-  state.outs = 0;
-  state.score = 0;
-  state.enemyScore = 0;
-  state.bases = [false, false, false];
-  state.batterIndex = 0;
-  state.arcadeCombo = 0;
-  state.gameStats = {};
-  state.lastOutcome = null;
-  state.selectedAssignPowerupId = null;
-  state.selectedGamebreakerThisGame = false;
+    state.gameNumber += 1;
+    state.gameStarted = false;
+    state.inning = 1;
+    state.outs = 0;
+    state.score = 0;
+    state.enemyScore = 0;
+    state.bases = [false, false, false];
+    state.batterIndex = 0;
+    state.arcadeCombo = 0;
+    state.gameStats = {};
+    state.lastOutcome = null;
+    state.selectedAssignPowerupId = null;
+    state.selectedGamebreakerThisGame = false;
 
-  clearExpiredGamebreakers();
+    clearExpiredGamebreakers();
 
-  state.availablePowerups = buildPowerupPool();
-  state.buildScreen = "assign";
-  state.isBuildModalOpen = true;
+    state.availablePowerups = buildPowerupPool();
+    state.buildScreen = "assign";
+    state.isBuildModalOpen = true;
 
-  addLog(
-    "Game " +
-      state.gameNumber +
-      " unlocked. Choose 1 of 3 new gamebreakers. Current stack: " +
-      assignedPowerupCount() +
-      "."
-  );
+    addLog(
+      "Game " +
+        state.gameNumber +
+        " unlocked. Choose 1 of 3 new gamebreakers. Current stack: " +
+        assignedPowerupCount() +
+        "."
+    );
 
-  render();
-}
+    render();
+  }
 
   function takeAtBat() {
   if (!state.gameStarted) return;
@@ -1340,12 +1329,18 @@ render();
       const rarity = getPowerupRarity(powerup).toLowerCase();
       const icon = getPowerupIcon(powerup);
       const locked = state.selectedGamebreakerThisGame;
+      const durationLabel = stacked
+        ? getPowerupGamesRemaining(powerup.id) + 'G'
+        : '1-5G';
 
       return (
         '<button class="bbg-perk-card bbg-rarity-' + rarity + (selected ? ' is-active' : '') + (stacked ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '"' + (locked ? ' disabled' : '') + '>' +
           '<div class="bbg-perk-card-top">' +
             '<div class="bbg-perk-icon">' + icon + '</div>' +
-            '<div class="bbg-perk-rarity">' + getPowerupRarity(powerup) + '</div>' +
+            '<div class="bbg-perk-card-badges">' +
+              '<div class="bbg-perk-rarity">' + getPowerupRarity(powerup) + '</div>' +
+              '<div class="bbg-perk-duration-badge">' + durationLabel + '</div>' +
+            '</div>' +
           '</div>' +
           '<div class="bbg-perk-name">' + powerup.name + '</div>' +
           '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
@@ -1706,63 +1701,63 @@ render();
       '<div class="bbg-arcade-shell">' +
         renderScorePanel() +
         '<div class="bbg-arcade-main">' +
-            renderAtBatPanel() +
-            renderBuildSummary() +
-        renderLineupPreview() +
+          renderAtBatPanel() +
+          renderBuildSummary() +
+          renderLineupPreview() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-spin-wrap">' +
               '<button class="bbg-spin-btn" data-action="take-at-bat"' + (gameOver ? ' disabled' : '') + '>' + (state.gameStarted ? 'SPIN' : canStart ? 'START RUN' : 'SET LINEUP') + '</button>' +
             '</div>' +
           '</div>' +
-            '<div class="bbg-footer-panels">' +
-  '<div class="bbg-footer-box">' +
-    '<div class="bbg-lineup-header">Feed</div>' +
-    '<div class="bbg-feed">' + renderLog() + '</div>' +
-    '<button class="bbg-btn bbg-btn-full" data-action="new-run">Reset Run</button>' +
-  '</div>' +
-  '<div class="bbg-footer-box">' +
-    '<div class="bbg-lineup-header">Box Score</div>' +
-    renderStatsTable() +
-  '</div>' +
-'</div>' +
+          '<div class="bbg-footer-panels">' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Feed</div>' +
+              '<div class="bbg-feed">' + renderLog() + '</div>' +
+              '<button class="bbg-btn bbg-btn-full" data-action="new-run">Reset Run</button>' +
+            '</div>' +
+            '<div class="bbg-footer-box">' +
+              '<div class="bbg-lineup-header">Box Score</div>' +
+              renderStatsTable() +
+            '</div>' +
+          '</div>' +
           renderBuildModal() +
         '</div>' +
       '</div>';
 
     bindEvents();
 
-if (state.isBuildModalOpen) {
-  const modal = root.querySelector('.bbg-build-modal');
-  if (modal) {
-    modal.scrollTop = state.buildModalScrollTop || 0;
-  }
-}
+    if (state.isBuildModalOpen) {
+      const modal = root.querySelector('.bbg-build-modal');
+      if (modal) {
+        modal.scrollTop = state.buildModalScrollTop || 0;
+      }
+    }
   }
 
   function bindEvents() {
-    const actionEls = root.querySelectorAll("[data-action]");
+    const actionEls = root.querySelectorAll('[data-action]');
     for (let i = 0; i < actionEls.length; i++) {
-      actionEls[i].addEventListener("click", function (event) {
-        const action = this.getAttribute("data-action");
-        const id = this.getAttribute("data-id");
-        const slotIndex = this.getAttribute("data-slot-index");
-        const screen = this.getAttribute("data-screen");
-        const isModalRoot = this.getAttribute("data-modal-root");
+      actionEls[i].addEventListener('click', function (event) {
+        const action = this.getAttribute('data-action');
+        const id = this.getAttribute('data-id');
+        const slotIndex = this.getAttribute('data-slot-index');
+        const screen = this.getAttribute('data-screen');
+        const isModalRoot = this.getAttribute('data-modal-root');
 
-        if (action === "close-build-modal") {
+        if (action === 'close-build-modal') {
           if (isModalRoot) return;
-          if (this.classList.contains("bbg-build-modal-backdrop") && event.target !== this) return;
+          if (this.classList.contains('bbg-build-modal-backdrop') && event.target !== this) return;
           closeBuildModal();
           return;
         }
 
-        if (action === "new-run") resetRun();
-        if (action === "switch-build-screen") switchBuildScreen(screen);
-        if (action === "go-to-gamebreaker-step") goToGamebreakerStep();
-        if (action === "open-build-modal") openBuildModal();
-        if (action === "draft") addToLineup(Number(id));
-        if (action === "powerup") togglePowerup(id);
-        if (action === "assign-powerup-slot") {
+        if (action === 'new-run') resetRun();
+        if (action === 'switch-build-screen') switchBuildScreen(screen);
+        if (action === 'go-to-gamebreaker-step') goToGamebreakerStep();
+        if (action === 'open-build-modal') openBuildModal();
+        if (action === 'draft') addToLineup(Number(id));
+        if (action === 'powerup') togglePowerup(id);
+        if (action === 'assign-powerup-slot') {
           const parsedSlotIndex = Number(slotIndex);
           if (state.selectedAssignPowerupId) {
             assignSelectedPowerupToSlot(parsedSlotIndex);
@@ -1773,14 +1768,14 @@ if (state.isBuildModalOpen) {
             render();
           }
         }
-        if (action === "start-game") {
+        if (action === 'start-game') {
           startGame();
           if (state.gameStarted) closeBuildModal();
         }
-        if (action === "modifier") {
+        if (action === 'modifier') {
           render();
         }
-        if (action === "take-at-bat") {
+        if (action === 'take-at-bat') {
           if (!state.gameStarted) {
             if (lineupPlayers().length >= 6) {
               startGame();
@@ -1796,7 +1791,7 @@ if (state.isBuildModalOpen) {
   }
 
   state.draftPool = buildDraftPool();
-  state.availablePowerups = buildPowerupPool();
   updateLegendaryDraftState();
+  state.availablePowerups = buildPowerupPool();
   render();
 })();
