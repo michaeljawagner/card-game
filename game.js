@@ -1493,50 +1493,50 @@ render();
   }
 
   function renderStatsTable() {
-  const players = lineupPlayers();
+    const players = lineupPlayers();
 
-  if (!players.length) {
-    return '<div class="bbg-feed-row">No lineup stats yet.</div>';
-  }
+    if (!players.length) {
+      return '<div class="bbg-feed-row">No lineup stats yet.</div>';
+    }
 
-  let rows = '';
+    let rows = '';
 
-  for (let i = 0; i < players.length; i++) {
-    const player = players[i].player;
-    const stats = getGameStatsForPlayer(player.id);
+    for (let i = 0; i < players.length; i++) {
+      const player = players[i].player;
+      const stats = getRunStatsForPlayer(player.id);
 
-    rows += (
-      '<tr>' +
-        '<td>' + player.name + '</td>' +
-        '<td>' + stats.atBats + '</td>' +
-        '<td>' + stats.hits + '</td>' +
-        '<td>' + stats.rbi + '</td>' +
-        '<td>' + stats.walks + '</td>' +
-        '<td>' + stats.strikeouts + '</td>' +
-        '<td>' + formatAvg(stats) + '</td>' +
-      '</tr>'
+      rows += (
+        '<tr>' +
+          '<td>' + player.name + '</td>' +
+          '<td>' + stats.atBats + '</td>' +
+          '<td>' + stats.hits + '</td>' +
+          '<td>' + stats.rbi + '</td>' +
+          '<td>' + stats.walks + '</td>' +
+          '<td>' + stats.strikeouts + '</td>' +
+          '<td>' + formatAvg(stats) + '</td>' +
+        '</tr>'
+      );
+    }
+
+    return (
+      '<div class="bbg-stats-table-wrap">' +
+        '<table class="bbg-stats-table">' +
+          '<thead>' +
+            '<tr>' +
+              '<th>Player</th>' +
+              '<th>AB</th>' +
+              '<th>H</th>' +
+              '<th>RBI</th>' +
+              '<th>BB</th>' +
+              '<th>K</th>' +
+              '<th>AVG</th>' +
+            '</tr>' +
+          '</thead>' +
+          '<tbody>' + rows + '</tbody>' +
+        '</table>' +
+      '</div>'
     );
   }
-
-  return (
-    '<div class="bbg-stats-table-wrap">' +
-      '<table class="bbg-stats-table">' +
-        '<thead>' +
-          '<tr>' +
-            '<th>Player</th>' +
-            '<th>AB</th>' +
-            '<th>H</th>' +
-            '<th>RBI</th>' +
-            '<th>BB</th>' +
-            '<th>K</th>' +
-            '<th>AVG</th>' +
-          '</tr>' +
-        '</thead>' +
-        '<tbody>' + rows + '</tbody>' +
-      '</table>' +
-    '</div>'
-  );
-}
 
     function renderBuildTabs() {
   const lineupFull = lineupPlayers().length >= 6;
@@ -1790,7 +1790,7 @@ render();
               '<button class="bbg-btn bbg-btn-full" data-action="new-run">Reset Run</button>' +
             '</div>' +
             '<div class="bbg-footer-box">' +
-              '<div class="bbg-lineup-header">Box Score</div>' +
+              '<div class="bbg-lineup-header">Run Box Score</div>' +
               renderStatsTable() +
             '</div>' +
           '</div>' +
