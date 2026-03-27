@@ -705,7 +705,7 @@
 #card-game .bbg-draft-scroll {
   display: grid;
   grid-auto-flow: column;
-  grid-auto-columns: minmax(180px, 220px);
+  grid-auto-columns: minmax(250px, 320px);
   gap: 12px;
   overflow-x: auto;
   overflow-y: hidden;
@@ -1600,7 +1600,7 @@
   }
     
   #card-game .bbg-draft-scroll {
-    grid-auto-columns: minmax(170px, 210px);
+    grid-auto-columns: minmax(250px, 320px);
   }
 
 }
@@ -1633,7 +1633,7 @@
   }
 
   #card-game .bbg-draft-scroll {
-    grid-auto-columns: minmax(150px, 180px);
+    grid-auto-columns: minmax(250px, 320px);
   }
 
   #card-game .bbg-perk-card-badges {
