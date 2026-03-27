@@ -371,7 +371,6 @@
 #card-game .bbg-result-btn:disabled,
 #card-game .bbg-action-chip:disabled,
 #card-game .bbg-power-slot:disabled,
-#card-game .bbg-draft-tile:disabled,
 #card-game .bbg-draft-card:disabled {
   opacity: 0.45;
   cursor: not-allowed;
@@ -694,17 +693,6 @@
   grid-template-columns: minmax(0, 1fr);
 }
 
-#card-game .bbg-build-modal-bottom {
-  display: grid;
-  grid-template-columns: minmax(0, 1fr);
-  gap: 14px;
-  align-items: start;
-}
-
-#card-game .bbg-build-modal-side {
-  display: grid;
-  gap: 14px;
-}
 
 #card-game .bbg-build-panel.is-fullwidth-build-panel {
   width: 100%;
@@ -810,14 +798,12 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-common,
-#card-game .bbg-draft-tile.bbg-rarity-common,
 #card-game .bbg-draft-card.bbg-rarity-common,
 #card-game .bbg-power-slot.bbg-rarity-common {
   border-color: #111111;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon,
-#card-game .bbg-draft-tile.bbg-rarity-uncommon,
 #card-game .bbg-draft-card.bbg-rarity-uncommon,
 #card-game .bbg-power-slot.bbg-rarity-uncommon {
   border-color: #111111;
@@ -825,7 +811,6 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic,
-#card-game .bbg-draft-tile.bbg-rarity-epic,
 #card-game .bbg-draft-card.bbg-rarity-epic,
 #card-game .bbg-power-slot.bbg-rarity-epic {
   border-color: #111111;
@@ -833,7 +818,6 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare,
-#card-game .bbg-draft-tile.bbg-rarity-rare,
 #card-game .bbg-draft-card.bbg-rarity-rare,
 #card-game .bbg-power-slot.bbg-rarity-rare {
   border-color: #111111;
@@ -841,7 +825,6 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary,
-#card-game .bbg-draft-tile.bbg-rarity-legendary,
 #card-game .bbg-draft-card.bbg-rarity-legendary,
 #card-game .bbg-power-slot.bbg-rarity-legendary {
   border-color: #111111;
@@ -849,7 +832,6 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-common,
-#card-game .bbg-draft-tile.bbg-rarity-common,
 #card-game .bbg-draft-card.bbg-rarity-common,
 #card-game .bbg-power-slot.bbg-rarity-common {
   border-color: #111111;
@@ -857,56 +839,48 @@
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-rarity,
-#card-game .bbg-draft-tile.bbg-rarity-uncommon .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-uncommon .bbg-power-slot-rarity {
   color: #15803d;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-rarity,
-#card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-rare .bbg-power-slot-rarity {
   color: #2563eb;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic .bbg-player-rarity,
-#card-game .bbg-draft-tile.bbg-rarity-epic .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-epic .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-epic .bbg-power-slot-rarity {
   color: #7e22ce;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-rarity,
-#card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-meta,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-legendary .bbg-power-slot-rarity {
   color: #d97706;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-art,
-#card-game .bbg-draft-tile.bbg-rarity-uncommon .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-uncommon:not(.has-powerup) {
   background: #f0fdf4;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-art,
-#card-game .bbg-draft-tile.bbg-rarity-rare .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-rare .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-rare:not(.has-powerup) {
   background: #eff6ff;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-epic .bbg-player-art,
-#card-game .bbg-draft-tile.bbg-rarity-epic .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-epic .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-epic:not(.has-powerup) {
   background: #faf5ff;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-art,
-#card-game .bbg-draft-tile.bbg-rarity-legendary .bbg-draft-ovr,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-art,
 #card-game .bbg-power-slot.bbg-rarity-legendary:not(.has-powerup) {
   background: #fffbeb;
@@ -927,6 +901,18 @@
   gap: 6px;
   cursor: pointer;
   transition: transform 0.15s ease, background 0.15s ease, color 0.15s ease;
+}
+
+#card-game .bbg-power-slot-fill {
+  width: calc(100% + 24px);
+  min-height: calc(100% + 24px);
+  margin: -12px;
+  padding: 14px;
+  display: flex;
+  flex-direction: column;
+  justify-content: flex-start;
+  gap: 6px;
+  color: #ffffff;
 }
 
 #card-game .bbg-power-slot.is-empty {
@@ -1118,12 +1104,15 @@
 }
 
 #card-game .bbg-power-slot.has-powerup {
-  background: #111111;
-  color: #ffffff;
+  background: #ffffff;
+  color: #111111;
+  padding: 12px;
 }
 
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity,
+#card-game .bbg-power-slot.has-powerup .bbg-power-slot-name,
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-desc,
+#card-game .bbg-power-slot.has-powerup .bbg-gamebreaker-health-text,
 #card-game .bbg-perk-card.is-active .bbg-perk-rarity,
 #card-game .bbg-perk-card.is-active .bbg-perk-desc {
   color: #ffffff;
@@ -1412,7 +1401,7 @@
   height: 10px;
   margin-top: 10px;
   border: 2px solid #111111;
-  background: #ffffff;
+  background: rgba(255, 255, 255, 0.28);
   overflow: hidden;
   box-shadow: 2px 2px 0 #111111;
 }
@@ -1580,8 +1569,8 @@
   }
     
   #card-game .bbg-draft-scroll {
-     grid-auto-columns: minmax(170px, 210px);
-}
+    grid-auto-columns: minmax(170px, 210px);
+  }
 
 }
 
@@ -1613,12 +1602,12 @@
   }
 
   #card-game .bbg-draft-scroll {
-  grid-auto-columns: minmax(150px, 180px);
-}
+    grid-auto-columns: minmax(150px, 180px);
+  }
 
-#card-game .bbg-perk-card-badges {
-  align-items: flex-end;
-}
+  #card-game .bbg-perk-card-badges {
+    align-items: flex-end;
+  }
 
   #card-game .bbg-lineup-grid,
   #card-game .bbg-lineup-grid.is-setup-grid {
@@ -1694,8 +1683,8 @@
   }
 
   #card-game .bbg-perk-duration-badge {
-  min-width: 40px;
-  height: 32px;
-  font-size: 12px;
-}
+    min-width: 40px;
+    height: 32px;
+    font-size: 12px;
+  }
 }
