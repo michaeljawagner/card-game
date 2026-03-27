@@ -793,7 +793,7 @@
 #card-game .bbg-board-slot,
 #card-game .bbg-side-perk {
   background: #ffffff;
-  min-height: 230px;
+  min-height: 300px;
   position: relative;
 }
 
@@ -1055,7 +1055,7 @@
 #card-game .bbg-draft-name,
 #card-game .bbg-perk-name,
 #card-game .bbg-power-slot-name {
-  font-size: 15px;
+  font-size: 16px;
   line-height: 1;
   font-weight: 900;
   text-transform: uppercase;
