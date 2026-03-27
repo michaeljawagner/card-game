@@ -2,6 +2,7 @@
   const root = document.getElementById("card-game");
   if (!root) return;
 
+  // constants/data
   const DEFAULT_PLAYERS = [
     {
       id: 1,
@@ -245,6 +246,7 @@
     opponentToday: "3 ER, 4 K Today"
   };
 
+  // draft helpers
   function shuffle(arr) {
     const copy = arr.slice();
     for (let i = copy.length - 1; i > 0; i--) {
@@ -357,72 +359,15 @@
     }
   }
 
-  function getArcadePoints(result, runs, combo) {
-    let points = 0;
-    let label = "";
-    const runCount = runs || 0;
-    const comboCount = combo || 0;
-
-    if (result === "walk") {
-      points = 75;
-      label = "Walk Bonus";
-    } else if (result === "single") {
-      points = 125;
-      label = "Single";
-    } else if (result === "double") {
-      points = 225;
-      label = "Double";
-    } else if (result === "triple") {
-      points = 350;
-      label = "Triple";
-    } else if (result === "homer") {
-      points = 500;
-      label = runCount === 4 ? "Grand Slam" : runCount === 3 ? "3-Run Home Run" : runCount === 2 ? "2-Run Home Run" : "Solo Home Run";
-    } else if (result === "strikeout") {
-      points = 25;
-      label = "Strikeout";
-    } else if (result === "out") {
-      points = 50;
-      label = "Out";
+  function getPlayerRarity(player) {
+    if (player && typeof player.tier === "string" && player.tier.trim()) {
+      return player.tier.trim();
     }
 
-    const runBonus = runCount * 150;
-    let comboBonus = 0;
-
-    if (comboCount >= 2 && (result === "single" || result === "double" || result === "triple" || result === "homer" || result === "walk")) {
-      comboBonus = comboCount * 40;
-    }
-
-    if (result === "double" || result === "triple" || result === "homer") {
-      comboBonus += 35;
-    }
-
-    if (runCount >= 2) {
-      comboBonus += runCount * 50;
-    }
-
-    return {
-      total: points + runBonus + comboBonus,
-      base: points,
-      runBonus: runBonus,
-      comboBonus: comboBonus,
-      label: label
-    };
-  }
-
-  function clamp(n, min, max) {
-    return Math.max(min, Math.min(max, n));
-  }
-
-  function pickWeighted(weights) {
-    let total = 0;
-    for (let i = 0; i < weights.length; i++) total += weights[i].weight;
-    let roll = Math.random() * total;
-    for (let i = 0; i < weights.length; i++) {
-      roll -= weights[i].weight;
-      if (roll <= 0) return weights[i].key;
-    }
-    return weights[weights.length - 1].key;
+    const overall = getOverall(player);
+    if (overall >= 68) return "Legendary";
+    if (overall >= 62) return "Rare";
+    return "Common";
   }
 
   function getPlayerById(id) {
@@ -431,7 +376,19 @@
     }) || null;
   }
 
+  function getPlayerArtClass(player) {
+    if (player.power >= 80) return "is-slugger";
+    if (getSpeedStat(player) >= 85) return "is-speed";
+    if (getHittingStat(player) >= 75) return "is-contact";
+    return "is-balanced";
+  }
 
+  function getPlayerImageStyle(player) {
+    if (!player || !player.image) return "";
+    return "background-image:url('" + player.image + "');background-size:cover;background-position:center;";
+  }
+
+  // powerup helpers
   function getPowerupById(id) {
     return POWERUPS.find(function (powerup) {
       return powerup.id === id;
@@ -513,6 +470,206 @@
         return getPowerupById(id);
       })
       .filter(Boolean);
+  }
+
+  function getCurrentBatterPowerup() {
+    return getStackedPowerups();
+  }
+
+  function getPowerupGamesRemaining(id) {
+    const meta = getPowerupMeta(id);
+    if (!meta) return 0;
+    return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
+  }
+
+  function clearExpiredGamebreakers() {
+    const expiredIds = [];
+
+    for (let i = 0; i < state.stackedPowerupIds.length; i++) {
+      const id = state.stackedPowerupIds[i];
+      const meta = getPowerupMeta(id);
+      if (!meta) continue;
+
+      if ((meta.expiresAfterGame || 0) < state.gameNumber) {
+        expiredIds.push(id);
+      }
+    }
+
+    if (!expiredIds.length) return;
+
+    for (let i = 0; i < expiredIds.length; i++) {
+      const expiredId = expiredIds[i];
+      const expiredPowerup = getPowerupById(expiredId);
+
+      for (let j = 0; j < state.lineupSlots.length; j++) {
+        if (state.lineupSlots[j].powerupId === expiredId) {
+          state.lineupSlots[j].powerupId = null;
+        }
+      }
+
+      delete state.stackedPowerupMeta[expiredId];
+
+      if (expiredPowerup) {
+        addLog(expiredPowerup.name + ' expired after Game ' + (state.gameNumber - 1) + '.');
+      }
+    }
+
+    state.stackedPowerupIds = state.stackedPowerupIds.filter(function (id) {
+      return expiredIds.indexOf(id) === -1;
+    });
+  }
+
+  function getStackedPowerups() {
+    return (state.stackedPowerupIds || [])
+      .map(function (id) {
+        return getPowerupById(id);
+      })
+      .filter(Boolean);
+  }
+
+  function getCurrentBatterPowerup() {
+    return getStackedPowerups();
+  }
+
+  function hasPowerup(id) {
+    return (state.stackedPowerupIds || []).indexOf(id) > -1;
+  }
+
+  function assignedPowerupCount() {
+    return (state.stackedPowerupIds || []).length;
+  }
+
+  function assignSelectedPowerupToSlot(slotIndex) {
+    const slot = state.lineupSlots[slotIndex];
+    if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
+    if (slot.powerupId) return;
+
+    const duration = rollGamebreakerDuration();
+    const expiresAfterGame = state.gameNumber + duration - 1;
+
+    slot.powerupId = state.selectedAssignPowerupId;
+
+    if ((state.stackedPowerupIds || []).indexOf(state.selectedAssignPowerupId) === -1) {
+      state.stackedPowerupIds.push(state.selectedAssignPowerupId);
+    }
+
+    state.stackedPowerupMeta[state.selectedAssignPowerupId] = {
+      slotIndex: slotIndex,
+      selectedOnGame: state.gameNumber,
+      durationGames: duration,
+      expiresAfterGame: expiresAfterGame
+    };
+
+    const attachedPowerup = getPowerupById(state.selectedAssignPowerupId);
+    const attachedPlayer = getPlayerById(slot.playerId);
+
+    if (attachedPowerup && attachedPlayer) {
+      addLog(
+        attachedPowerup.name +
+          ' attached to ' +
+          attachedPlayer.name +
+          ' for ' +
+          duration +
+          ' game' +
+          (duration > 1 ? 's' : '') +
+          '.'
+      );
+    }
+
+    state.selectedGamebreakerThisGame = true;
+    state.selectedAssignPowerupId = null;
+  }
+
+  function togglePowerup(id) {
+    state.selectedAssignPowerupId = state.selectedAssignPowerupId === id ? null : id;
+    const modal = root.querySelector('.bbg-build-modal');
+    if (modal) {
+      state.buildModalScrollTop = modal.scrollTop || 0;
+    }
+    render();
+  }
+
+  function selectedPowerupAssignedSlotIndex() {
+    if (!state.selectedAssignPowerupId) return -1;
+    return state.lineupSlots.findIndex(function (slot) {
+      return slot.powerupId === state.selectedAssignPowerupId;
+    });
+  }
+
+  function currentPitcherChallenge() {
+    if (hasPowerup("launch-angle")) return "Fastball Elevated";
+    if (hasPowerup("moneyball")) return "Working The Count";
+    if (hasPowerup("small-ball")) return "Infield In";
+    return "Standard Delivery";
+  }
+
+  // stat helpers
+  function getArcadePoints(result, runs, combo) {
+    let points = 0;
+    let label = "";
+    const runCount = runs || 0;
+    const comboCount = combo || 0;
+
+    if (result === "walk") {
+      points = 75;
+      label = "Walk Bonus";
+    } else if (result === "single") {
+      points = 125;
+      label = "Single";
+    } else if (result === "double") {
+      points = 225;
+      label = "Double";
+    } else if (result === "triple") {
+      points = 350;
+      label = "Triple";
+    } else if (result === "homer") {
+      points = 500;
+      label = runCount === 4 ? "Grand Slam" : runCount === 3 ? "3-Run Home Run" : runCount === 2 ? "2-Run Home Run" : "Solo Home Run";
+    } else if (result === "strikeout") {
+      points = 25;
+      label = "Strikeout";
+    } else if (result === "out") {
+      points = 50;
+      label = "Out";
+    }
+
+    const runBonus = runCount * 150;
+    let comboBonus = 0;
+
+    if (comboCount >= 2 && (result === "single" || result === "double" || result === "triple" || result === "homer" || result === "walk")) {
+      comboBonus = comboCount * 40;
+    }
+
+    if (result === "double" || result === "triple" || result === "homer") {
+      comboBonus += 35;
+    }
+
+    if (runCount >= 2) {
+      comboBonus += runCount * 50;
+    }
+
+    return {
+      total: points + runBonus + comboBonus,
+      base: points,
+      runBonus: runBonus,
+      comboBonus: comboBonus,
+      label: label
+    };
+  }
+
+  function clamp(n, min, max) {
+    return Math.max(min, Math.min(max, n));
+  }
+
+  function pickWeighted(weights) {
+    let total = 0;
+    for (let i = 0; i < weights.length; i++) total += weights[i].weight;
+    let roll = Math.random() * total;
+    for (let i = 0; i < weights.length; i++) {
+      roll -= weights[i].weight;
+      if (roll <= 0) return weights[i].key;
+    }
+    return weights[weights.length - 1].key;
   }
 
   function createEmptyPlayerStats() {
@@ -609,6 +766,46 @@
     return parts.join(" • ");
   }
 
+  function getHittingStat(player) {
+    if (typeof player.hitting === "number") return player.hitting;
+    return Math.round((player.contact * 0.55) + (player.power * 0.45));
+  }
+
+  function getSpeedStat(player) {
+    return typeof player.speed === "number" ? player.speed : 50;
+  }
+
+  function getFieldingStat(player) {
+    if (typeof player.fielding === "number") return player.fielding;
+    if (typeof player.defense === "number") return player.defense;
+    return 50;
+  }
+
+  function getOverall(player) {
+    return Math.round((getHittingStat(player) + getSpeedStat(player) + getFieldingStat(player)) / 3);
+  }
+
+  function getLineupDefenseRating() {
+    const players = lineupPlayers();
+    if (!players.length) return 50;
+
+    let total = 0;
+    for (let i = 0; i < players.length; i++) {
+      total += getFieldingStat(players[i].player);
+    }
+    return Math.round(total / players.length);
+  }
+
+  function statPips(value) {
+    const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
+    let html = "";
+    for (let i = 0; i < 5; i++) {
+      html += '<span class="bbg-pip ' + (i < filled ? 'is-on' : '') + '"></span>';
+    }
+    return html;
+  }
+
+  // gameplay
   function lineupPlayers() {
     return state.lineupSlots
       .map(function (slot, slotIndex) {
@@ -628,6 +825,20 @@
     const players = lineupPlayers();
     if (!players.length) return null;
     return players[state.batterIndex % players.length].player;
+  }
+
+  function currentLineupSlot() {
+    const players = lineupPlayers();
+    if (!players.length) return -1;
+    return players[state.batterIndex % players.length].slotIndex;
+  }
+
+  function basesText() {
+    const active = [];
+    if (state.bases[0]) active.push("1B");
+    if (state.bases[1]) active.push("2B");
+    if (state.bases[2]) active.push("3B");
+    return active.length ? active.join(" • ") : "Bases Empty";
   }
 
   function buildOutcomeWeights(player, modifierId, bases, inning) {
@@ -684,37 +895,37 @@
     }
 
     const activePowerups = getCurrentBatterPowerup();
-if (activePowerups && activePowerups.length) {
-  const weightState = {
-    walk: walk,
-    single: single,
-    double: double,
-    triple: triple,
-    homer: homer,
-    strikeout: strikeout,
-    out: out
-  };
+    if (activePowerups && activePowerups.length) {
+      const weightState = {
+        walk: walk,
+        single: single,
+        double: double,
+        triple: triple,
+        homer: homer,
+        strikeout: strikeout,
+        out: out
+      };
 
-  for (let i = 0; i < activePowerups.length; i++) {
-    const activePowerup = activePowerups[i];
-    if (activePowerup && typeof activePowerup.modifyWeights === "function") {
-      activePowerup.modifyWeights(weightState, {
-        player: player,
-        modifierId: modifierId,
-        bases: bases,
-        inning: inning
-      });
+      for (let i = 0; i < activePowerups.length; i++) {
+        const activePowerup = activePowerups[i];
+        if (activePowerup && typeof activePowerup.modifyWeights === "function") {
+          activePowerup.modifyWeights(weightState, {
+            player: player,
+            modifierId: modifierId,
+            bases: bases,
+            inning: inning
+          });
+        }
+      }
+
+      walk = weightState.walk;
+      single = weightState.single;
+      double = weightState.double;
+      triple = weightState.triple;
+      homer = weightState.homer;
+      strikeout = weightState.strikeout;
+      out = weightState.out;
     }
-  }
-
-  walk = weightState.walk;
-  single = weightState.single;
-  double = weightState.double;
-  triple = weightState.triple;
-  homer = weightState.homer;
-  strikeout = weightState.strikeout;
-  out = weightState.out;
-}
 
     if (inning >= 8 && runnersOn) {
       single += 2;
@@ -827,207 +1038,9 @@ if (activePowerups && activePowerups.length) {
     return { bases: [first, second, third], runs: 0, text: "Out" };
   }
 
-  function getHittingStat(player) {
-    if (typeof player.hitting === "number") return player.hitting;
-    return Math.round((player.contact * 0.55) + (player.power * 0.45));
-  }
-
-  function getSpeedStat(player) {
-    return typeof player.speed === "number" ? player.speed : 50;
-  }
-
-  function getFieldingStat(player) {
-    if (typeof player.fielding === "number") return player.fielding;
-    if (typeof player.defense === "number") return player.defense;
-    return 50;
-  }
-
-  function getOverall(player) {
-    return Math.round((getHittingStat(player) + getSpeedStat(player) + getFieldingStat(player)) / 3);
-  }
-
-  function getLineupDefenseRating() {
-    const players = lineupPlayers();
-    if (!players.length) return 50;
-
-    let total = 0;
-    for (let i = 0; i < players.length; i++) {
-      total += getFieldingStat(players[i].player);
-    }
-    return Math.round(total / players.length);
-  }
-
-  function getOpponentRunsForHalfInning() {
-    const defense = getLineupDefenseRating();
-    const defenseMod = (defense - 50) / 50;
-    const roll = Math.random();
-
-    let chance0 = 0.42 + (defenseMod * 0.14);
-    let chance1 = 0.34 - (defenseMod * 0.06);
-    let chance2 = 0.17 - (defenseMod * 0.05);
-    let chance3 = 0.06 - (defenseMod * 0.02);
-    let chance4 = 0.01 - (defenseMod * 0.01);
-
-    chance0 = clamp(chance0, 0.18, 0.72);
-    chance1 = clamp(chance1, 0.14, 0.42);
-    chance2 = clamp(chance2, 0.04, 0.24);
-    chance3 = clamp(chance3, 0.01, 0.12);
-    chance4 = clamp(chance4, 0, 0.04);
-
-    const total = chance0 + chance1 + chance2 + chance3 + chance4;
-    chance0 /= total;
-    chance1 /= total;
-    chance2 /= total;
-    chance3 /= total;
-    chance4 /= total;
-
-    if (roll < chance0) return 0;
-    if (roll < chance0 + chance1) return 1;
-    if (roll < chance0 + chance1 + chance2) return 2;
-    if (roll < chance0 + chance1 + chance2 + chance3) return 3;
-    return 4;
-  }
-
-  function getPlayerRarity(player) {
-    if (player && typeof player.tier === "string" && player.tier.trim()) {
-      return player.tier.trim();
-    }
-
-    const overall = getOverall(player);
-    if (overall >= 68) return "Legendary";
-    if (overall >= 62) return "Rare";
-    return "Common";
-  }
-
-  function getPlayerArtClass(player) {
-    if (player.power >= 80) return "is-slugger";
-    if (getSpeedStat(player) >= 85) return "is-speed";
-    if (getHittingStat(player) >= 75) return "is-contact";
-    return "is-balanced";
-  }
-
-  function statPips(value) {
-    const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
-    let html = "";
-    for (let i = 0; i < 5; i++) {
-      html += '<span class="bbg-pip ' + (i < filled ? 'is-on' : '') + '"></span>';
-    }
-    return html;
-  }
-
-  function getPlayerImageStyle(player) {
-    if (!player || !player.image) return "";
-    return "background-image:url('" + player.image + "');background-size:cover;background-position:center;";
-  }
-
-  function currentPitcherChallenge() {
-    if (hasPowerup("launch-angle")) return "Fastball Elevated";
-    if (hasPowerup("moneyball")) return "Working The Count";
-    if (hasPowerup("small-ball")) return "Infield In";
-    return "Standard Delivery";
-  }
-
-  function getCurrentBatterPowerup() {
-    return getStackedPowerups();
-  }
-
-  function hasPowerup(id) {
-    return (state.stackedPowerupIds || []).indexOf(id) > -1;
-  }
-
-  function currentLineupSlot() {
-    const players = lineupPlayers();
-    if (!players.length) return -1;
-    return players[state.batterIndex % players.length].slotIndex;
-  }
-
-  function basesText() {
-    const active = [];
-    if (state.bases[0]) active.push("1B");
-    if (state.bases[1]) active.push("2B");
-    if (state.bases[2]) active.push("3B");
-    return active.length ? active.join(" • ") : "Bases Empty";
-  }
-
-  function assignedPowerupCount() {
-    return (state.stackedPowerupIds || []).length;
-  }
-
-
-  function assignSelectedPowerupToSlot(slotIndex) {
-    const slot = state.lineupSlots[slotIndex];
-    if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
-    if (slot.powerupId) return;
-
-    const duration = rollGamebreakerDuration();
-    const expiresAfterGame = state.gameNumber + duration - 1;
-
-    slot.powerupId = state.selectedAssignPowerupId;
-
-    if ((state.stackedPowerupIds || []).indexOf(state.selectedAssignPowerupId) === -1) {
-      state.stackedPowerupIds.push(state.selectedAssignPowerupId);
-    }
-
-    state.stackedPowerupMeta[state.selectedAssignPowerupId] = {
-      slotIndex: slotIndex,
-      selectedOnGame: state.gameNumber,
-      durationGames: duration,
-      expiresAfterGame: expiresAfterGame
-    };
-
-    const attachedPowerup = getPowerupById(state.selectedAssignPowerupId);
-    const attachedPlayer = getPlayerById(slot.playerId);
-
-    if (attachedPowerup && attachedPlayer) {
-      addLog(
-        attachedPowerup.name +
-          ' attached to ' +
-          attachedPlayer.name +
-          ' for ' +
-          duration +
-          ' game' +
-          (duration > 1 ? 's' : '') +
-          '.'
-      );
-    }
-
-    state.selectedGamebreakerThisGame = true;
-    state.selectedAssignPowerupId = null;
-  }
-
-  function switchBuildScreen(screen) {
-    if (screen === "assign" && lineupPlayers().length < 6) return;
-    state.buildScreen = screen;
-    render();
-  }
-
-  function goToGamebreakerStep() {
-    if (lineupPlayers().length < 6) return;
-    state.buildScreen = "assign";
-    state.draftPool = [];
-    render();
-  }
-
-  function selectedPowerupAssignedSlotIndex() {
-    if (!state.selectedAssignPowerupId) return -1;
-    return state.lineupSlots.findIndex(function (slot) {
-      return slot.powerupId === state.selectedAssignPowerupId;
-    });
-  }
-
-  function openBuildModal() {
-    state.isBuildModalOpen = true;
-    render();
-  }
-
-  function closeBuildModal() {
-    const modal = root.querySelector('.bbg-build-modal');
-    if (modal) {
-      state.buildModalScrollTop = modal.scrollTop || 0;
-    }
-    state.isBuildModalOpen = false;
-    render();
-  }
+  // render helpers
+  // modal/build UI
+  // events/init
 
   function renderScorebugTeams() {
     return (
