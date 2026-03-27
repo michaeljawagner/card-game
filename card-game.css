@@ -856,10 +856,15 @@
   color: #7e22ce;
 }
 
+
 #card-game .bbg-board-slot.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-draft-card.bbg-rarity-legendary .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-legendary .bbg-power-slot-rarity {
   color: #d97706;
+}
+
+#card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity {
+  color: #ffffff;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-art,
