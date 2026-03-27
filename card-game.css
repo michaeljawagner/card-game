@@ -904,9 +904,8 @@
 }
 
 #card-game .bbg-power-slot-fill {
-  width: calc(100% + 24px);
-  min-height: calc(100% + 24px);
-  margin: -12px;
+  width: 100%;
+  min-height: 100%;
   padding: 14px;
   display: flex;
   flex-direction: column;
@@ -1106,7 +1105,8 @@
 #card-game .bbg-power-slot.has-powerup {
   background: #ffffff;
   color: #111111;
-  padding: 12px;
+  padding: 0;
+  overflow: hidden;
 }
 
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity,
@@ -1116,6 +1116,16 @@
 #card-game .bbg-perk-card.is-active .bbg-perk-rarity,
 #card-game .bbg-perk-card.is-active .bbg-perk-desc {
   color: #ffffff;
+}
+
+#card-game .bbg-power-slot.has-powerup .bbg-gamebreaker-health {
+  border-color: #ffffff;
+  background: #222222;
+  box-shadow: 2px 2px 0 #111111;
+}
+
+#card-game .bbg-power-slot.has-powerup .bbg-gamebreaker-health-bar {
+  background: #ffffff;
 }
 
 #card-game .bbg-power-slot-rarity,
@@ -1401,14 +1411,14 @@
   height: 10px;
   margin-top: 10px;
   border: 2px solid #111111;
-  background: rgba(255, 255, 255, 0.28);
+  background: #222222;
   overflow: hidden;
   box-shadow: 2px 2px 0 #111111;
 }
 
 #card-game .bbg-gamebreaker-health-bar {
   height: 100%;
-  background: #111111;
+  background: #ffffff;
 }
 
 #card-game .bbg-gamebreaker-health-text {
