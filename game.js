@@ -215,8 +215,13 @@
     teamName: "Indians",
     matchup: "Game 2 vs Dodgers",
     opponentName: "Clayton Kershaw",
-    opponentStatLine: "3.45 ERA / 23 K",
-    opponentToday: "3 ER, 4 K Today"
+    opponentGameStats: {
+      runsAllowed: 0,
+      strikeouts: 0,
+      outsRecorded: 0,
+      hitsAllowed: 0,
+      walksAllowed: 0
+    }
   };
 
   // draft helpers
@@ -848,6 +853,31 @@ function closeBuildModal() {
   }
 
   function getOpponentRunsForHalfInning() {
+  function createEmptyOpponentGameStats() {
+    return {
+      runsAllowed: 0,
+      strikeouts: 0,
+      outsRecorded: 0,
+      hitsAllowed: 0,
+      walksAllowed: 0
+    };
+  }
+
+  function formatInningsPitched(outsRecorded) {
+    const whole = Math.floor((outsRecorded || 0) / 3);
+    const remainder = (outsRecorded || 0) % 3;
+    return whole + '.' + remainder;
+  }
+
+  function formatOpponentGameLine() {
+    const stats = state.opponentGameStats || createEmptyOpponentGameStats();
+    return 'IP ' + formatInningsPitched(stats.outsRecorded) + ' / ' + stats.strikeouts + ' K / ' + stats.runsAllowed + ' ER';
+  }
+
+  function formatOpponentGameDetailLine() {
+    const stats = state.opponentGameStats || createEmptyOpponentGameStats();
+    return stats.hitsAllowed + ' H / ' + stats.walksAllowed + ' BB Allowed';
+  }
     const defense = getLineupDefenseRating();
     const defenseMod = (defense - 50) / 50;
     const roll = Math.random();
@@ -1191,6 +1221,7 @@ function closeBuildModal() {
     state.arcadeCombo = 0;
     state.runStats = {};
     state.gameStats = {};
+    state.opponentGameStats = createEmptyOpponentGameStats();
     state.log = ["New run started. Opened a 10-card draft pack. Draft 6 hitters, then pick 1 of 3 gamebreakers before Game 1."];
     state.lastOutcome = null;
     render();
@@ -1260,6 +1291,7 @@ render();
     state.batterIndex = 0;
     state.arcadeCombo = 0;
     state.gameStats = {};
+    state.opponentGameStats = createEmptyOpponentGameStats();
     state.lastOutcome = null;
     state.selectedAssignPowerupId = null;
     state.selectedGamebreakerThisGame = false;
@@ -1312,8 +1344,23 @@ render();
   state.score += advanced.runs;
   state.arcadeScore += arcadePoints.total;
 
-  if (result === "out" || result === "strikeout") {
+  state.opponentGameStats.runsAllowed += advanced.runs;
+
+  if (result === "walk") {
+    state.opponentGameStats.walksAllowed += 1;
+  }
+
+  if (result === "single" || result === "double" || result === "triple" || result === "homer") {
+    state.opponentGameStats.hitsAllowed += 1;
+  }
+
+  if (result === "strikeout") {
     state.outs += 1;
+    state.opponentGameStats.outsRecorded += 1;
+    state.opponentGameStats.strikeouts += 1;
+  } else if (result === "out") {
+    state.outs += 1;
+    state.opponentGameStats.outsRecorded += 1;
   }
 
   state.batterIndex += 1;
@@ -1737,6 +1784,8 @@ render();
     const batterToday = batter
       ? formatGameStatLine(batter.id)
       : 'No plate appearance yet';
+    const opponentGameLine = formatOpponentGameLine();
+    const opponentGameDetail = formatOpponentGameDetailLine();
 
     return (
       '<div class="bbg-atbat-panel">' +
@@ -1761,9 +1810,9 @@ render();
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
-          '<div class="bbg-atbat-line is-right">' + state.opponentStatLine + '</div>' +
+          '<div class="bbg-atbat-line is-right">' + opponentGameLine + '</div>' +
           '<div class="bbg-atbat-divider"></div>' +
-          '<div class="bbg-atbat-today is-right">' + state.opponentToday + '</div>' +
+          '<div class="bbg-atbat-today is-right">' + opponentGameDetail + '</div>' +
           '<div class="bbg-pitcher-challenge">' + currentPitcherChallenge() + '</div>' +
         '</div>' +
         '<div class="bbg-atbat-art is-pitcher"></div>' +
