@@ -1752,7 +1752,7 @@ render();
   '<div class="bbg-count-box">Arcade Mode</div>' +
   '<div class="bbg-count-box">' + currentPitcherChallenge() + '</div>' +
 '</div>' +
-          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.gameStarted ? 'Spin' : lineupPlayers().length >= 6 ? 'Start Run' : 'Set Lineup') + '</button>' +
+          '<button class="bbg-result-btn" data-action="take-at-bat">' + (state.inning > 9 ? 'New Run' : (state.gameStarted ? 'Spin' : lineupPlayers().length >= 6 ? 'Start Run' : 'Set Lineup')) + '</button>' +
         '</div>' +
         '<div class="bbg-atbat-right">' +
           '<div class="bbg-atbat-name is-right">' + state.opponentName + '</div>' +
@@ -1779,7 +1779,7 @@ render();
           renderLineupPreview() +
           '<div class="bbg-bottom-row">' +
             '<div class="bbg-spin-wrap">' +
-              '<button class="bbg-spin-btn" data-action="take-at-bat"' + (gameOver ? ' disabled' : '') + '>' + (state.gameStarted ? 'SPIN' : canStart ? 'START RUN' : 'SET LINEUP') + '</button>' +
+              '<button class="bbg-spin-btn" data-action="take-at-bat">' + (gameOver ? 'NEW RUN' : (state.gameStarted ? 'SPIN' : canStart ? 'START RUN' : 'SET LINEUP')) + '</button>' +
             '</div>' +
           '</div>' +
           '<div class="bbg-footer-panels">' +
@@ -1847,6 +1847,11 @@ render();
         }
     
         if (action === 'take-at-bat') {
+          if (state.inning > 9) {
+            resetRun();
+            return;
+          }
+
           if (!state.gameStarted) {
             if (lineupPlayers().length >= 6) {
               startGame();
@@ -1855,6 +1860,7 @@ render();
             }
             return;
           }
+
           takeAtBat();
         }
       });
