@@ -1080,7 +1080,7 @@
 #card-game .bbg-pip {
   width: 100%;
   min-width: 8px;
-  height: 7px;
+  height: 14px;
   border: 2px solid #111111;
   background: #ffffff;
 }
