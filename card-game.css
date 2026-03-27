@@ -1058,13 +1058,13 @@
 #card-game .bbg-player-pips {
   display: flex;
   flex-direction: column;
-  gap: 4px;
+  gap: 3px;
 }
 
 #card-game .bbg-pip-row {
   display: grid;
-  grid-template-columns: 24px 1fr;
-  gap: 5px;
+  grid-template-columns: 22px 1fr;
+  gap: 4px;
   align-items: center;
   font-size: 8px;
   font-weight: 800;
@@ -1074,7 +1074,7 @@
 
 #card-game .bbg-pip-row > div {
   display: flex;
-  gap: 4px;
+  gap: 3px;
 }
 
 #card-game .bbg-pip {
@@ -1085,8 +1085,28 @@
   background: #ffffff;
 }
 
-#card-game .bbg-pip.is-on {
-  background: #111111;
+#card-game .bbg-pip.is-on.pip-1 {
+  background: #ef4444;
+}
+
+#card-game .bbg-pip.is-on.pip-2 {
+  background: #f97316;
+}
+
+#card-game .bbg-pip.is-on.pip-3 {
+  background: #eab308;
+}
+
+#card-game .bbg-pip.is-on.pip-4 {
+  background: #84cc16;
+}
+
+#card-game .bbg-pip.is-on.pip-5 {
+  background: #22c55e;
+}
+
+#card-game .bbg-pip.is-off {
+  background: #ffffff;
 }
 
 #card-game .bbg-board-slot.is-active {
