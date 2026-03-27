@@ -184,7 +184,7 @@ const LEGENDARY_PITY_CAP = 8;
     }
   ];
 
-  const GAMEBREAKER_POOL_SIZE = 2;
+  const GAMEBREAKER_POOL_SIZE = 3;
 
   const MODIFIERS = [
     {
@@ -216,6 +216,9 @@ const LEGENDARY_PITY_CAP = 8;
     }),
     selectedAssignPowerupId: null,
     availablePowerups: [],
+    selectedGamebreakerThisGame: false,
+    stackedPowerupIds: [],
+    gameNumber: 1,
     runsWithoutLegendary: 0,
     buildModalScrollTop: 0,
     isBuildModalOpen: true,
@@ -445,8 +448,20 @@ function updateLegendaryDraftState() {
   }
 
   function buildPowerupPool() {
-    return shuffle(POWERUPS.slice()).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, POWERUPS.length));
-  }
+  const stacked = state.stackedPowerupIds || [];
+  const available = POWERUPS.filter(function (powerup) {
+    return stacked.indexOf(powerup.id) === -1;
+  });
+  return shuffle(available).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, available.length));
+}
+
+function getStackedPowerups() {
+  return (state.stackedPowerupIds || [])
+    .map(function (id) {
+      return getPowerupById(id);
+    })
+    .filter(Boolean);
+}
 
     function createEmptyPlayerStats() {
     return {
@@ -616,33 +631,38 @@ function updateLegendaryDraftState() {
       out = 48;
     }
 
-    const activePowerup = getCurrentBatterPowerup();
-    if (activePowerup && typeof activePowerup.modifyWeights === "function") {
-      const weightState = {
-        walk: walk,
-        single: single,
-        double: double,
-        triple: triple,
-        homer: homer,
-        strikeout: strikeout,
-        out: out
-      };
+    const activePowerups = getCurrentBatterPowerup();
+if (activePowerups && activePowerups.length) {
+  const weightState = {
+    walk: walk,
+    single: single,
+    double: double,
+    triple: triple,
+    homer: homer,
+    strikeout: strikeout,
+    out: out
+  };
 
+  for (let i = 0; i < activePowerups.length; i++) {
+    const activePowerup = activePowerups[i];
+    if (activePowerup && typeof activePowerup.modifyWeights === "function") {
       activePowerup.modifyWeights(weightState, {
         player: player,
         modifierId: modifierId,
         bases: bases,
         inning: inning
       });
-
-      walk = weightState.walk;
-      single = weightState.single;
-      double = weightState.double;
-      triple = weightState.triple;
-      homer = weightState.homer;
-      strikeout = weightState.strikeout;
-      out = weightState.out;
     }
+  }
+
+  walk = weightState.walk;
+  single = weightState.single;
+  double = weightState.double;
+  triple = weightState.triple;
+  homer = weightState.homer;
+  strikeout = weightState.strikeout;
+  out = weightState.out;
+}
 
     if (inning >= 8 && runnersOn) {
       single += 2;
@@ -863,13 +883,12 @@ function updateLegendaryDraftState() {
   }
 
   function getCurrentBatterPowerup() {
-    const powerupId = currentBatterPowerupId();
-    return powerupId ? getPowerupById(powerupId) : null;
-  }
+  return getStackedPowerups();
+}
 
   function hasPowerup(id) {
-    return currentBatterPowerupId() === id;
-  }
+  return (state.stackedPowerupIds || []).indexOf(id) > -1;
+}
 
   function currentLineupSlot() {
     const players = lineupPlayers();
@@ -886,10 +905,8 @@ function updateLegendaryDraftState() {
   }
 
   function assignedPowerupCount() {
-    return state.lineupSlots.filter(function (slot) {
-      return !!slot.powerupId;
-    }).length;
-  }
+  return (state.stackedPowerupIds || []).length;
+}
 
   function powerupAssignedToAnotherSlot(powerupId, slotIndex) {
     return state.lineupSlots.some(function (slot, index) {
@@ -898,12 +915,22 @@ function updateLegendaryDraftState() {
   }
 
   function assignSelectedPowerupToSlot(slotIndex) {
-    const slot = state.lineupSlots[slotIndex];
-    if (!slot || !slot.playerId || !state.selectedAssignPowerupId) return;
-    if (powerupAssignedToAnotherSlot(state.selectedAssignPowerupId, slotIndex)) return;
-    slot.powerupId = state.selectedAssignPowerupId;
-    state.selectedAssignPowerupId = null;
+  const slot = state.lineupSlots[slotIndex];
+  if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
+
+  for (let i = 0; i < state.lineupSlots.length; i++) {
+    state.lineupSlots[i].powerupId = null;
   }
+
+  slot.powerupId = state.selectedAssignPowerupId;
+
+  if ((state.stackedPowerupIds || []).indexOf(state.selectedAssignPowerupId) === -1) {
+    state.stackedPowerupIds.push(state.selectedAssignPowerupId);
+  }
+
+  state.selectedGamebreakerThisGame = true;
+  state.selectedAssignPowerupId = null;
+}
 
   function clearPowerupFromSlot(slotIndex) {
     const slot = state.lineupSlots[slotIndex];
@@ -1018,6 +1045,9 @@ function goToGamebreakerStep() {
       return { playerId: null, powerupId: null };
     });
     state.selectedAssignPowerupId = null;
+    state.selectedGamebreakerThisGame = false;
+    state.stackedPowerupIds = [];
+    state.gameNumber = 1;
     state.availablePowerups = buildPowerupPool();
     state.isBuildModalOpen = true;
     state.currentView = "build";
@@ -1034,7 +1064,7 @@ function goToGamebreakerStep() {
     state.runStats = {};
     state.gameStats = {};
     state.modifier = "normal";
-    state.log = ["New run started. Opened a 10-card draft pack. Draft up to 6 hitters and assign gamebreakers under each card."];
+    state.log = ["New run started. Opened a 10-card draft pack. Draft 6 hitters, then pick 1 of 3 gamebreakers before Game 1."];
     state.lastOutcome = null;
     render();
   }
@@ -1093,69 +1123,106 @@ render();
     state.lastOutcome = null;
   }
 
-  function takeAtBat() {
-    if (!state.gameStarted) return;
-    if (state.inning > 9) return;
+  function prepareNextGame() {
+  state.gameNumber += 1;
+  state.gameStarted = false;
+  state.inning = 1;
+  state.outs = 0;
+  state.score = 0;
+  state.enemyScore = 0;
+  state.bases = [false, false, false];
+  state.batterIndex = 0;
+  state.arcadeCombo = 0;
+  state.gameStats = {};
+  state.lastOutcome = null;
+  state.selectedAssignPowerupId = null;
+  state.selectedGamebreakerThisGame = false;
+  state.availablePowerups = buildPowerupPool();
 
-    const batter = currentBatter();
-    if (!batter) return;
-
-    const weights = buildOutcomeWeights(batter, state.modifier, state.bases, state.inning);
-    const result = pickWeighted(weights);
-    const advanced = advanceRunners(state.bases, result);
-
-    if (state.modifier === "bunt" && result === "out") {
-      const first = state.bases[0];
-      const second = state.bases[1];
-      const third = state.bases[2];
-      state.bases = [false, first, second || third];
-    } else {
-      state.bases = advanced.bases;
-    }
-
-    const isPositiveOutcome = result === "walk" || result === "single" || result === "double" || result === "triple" || result === "homer";
-    if (isPositiveOutcome) {
-      state.arcadeCombo += 1;
-    } else {
-      state.arcadeCombo = 0;
-    }
-
-    const arcadePoints = getArcadePoints(result, advanced.runs, state.arcadeCombo);
-
-    state.score += advanced.runs;
-    state.arcadeScore += arcadePoints.total;
-
-    if (result === "out" || result === "strikeout") {
-      state.outs += 1;
-    }
-
-    state.batterIndex += 1;
-    state.lastOutcome = {
-      batter: batter.name,
-      text: advanced.text,
-      runs: advanced.runs,
-      points: arcadePoints.total,
-      combo: state.arcadeCombo,
-      pointsLabel: arcadePoints.label,
-      pointsBreakdown: arcadePoints
-    };
-    updatePlayerStatsForResult(batter.id, result, advanced.runs);
-
-    addLog(
-      batter.name +
-        ": " +
-        advanced.text +
-        (advanced.runs > 0 ? " +" + advanced.runs + " run" + (advanced.runs > 1 ? "s" : "") : "") +
-        " • " + arcadePoints.total + " pts" +
-        (arcadePoints.comboBonus > 0 ? " • combo bonus" : "")
-    );
-
-    if (state.outs >= 3) {
-      nextInning();
-    }
-
-    render();
+  for (let i = 0; i < state.lineupSlots.length; i++) {
+    state.lineupSlots[i].powerupId = null;
   }
+
+  state.buildScreen = "assign";
+  state.isBuildModalOpen = true;
+
+  addLog("Game " + state.gameNumber + " unlocked. Choose 1 of 3 new gamebreakers. Current stack: " + assignedPowerupCount() + ".");
+  render();
+}
+
+  function takeAtBat() {
+  if (!state.gameStarted) return;
+  if (state.inning > 9) return;
+
+  const batter = currentBatter();
+  if (!batter) return;
+
+  const weights = buildOutcomeWeights(batter, state.modifier, state.bases, state.inning);
+  const result = pickWeighted(weights);
+  const advanced = advanceRunners(state.bases, result);
+
+  if (state.modifier === "bunt" && result === "out") {
+    const first = state.bases[0];
+    const second = state.bases[1];
+    const third = state.bases[2];
+    state.bases = [false, first, second || third];
+  } else {
+    state.bases = advanced.bases;
+  }
+
+  const isPositiveOutcome = result === "walk" || result === "single" || result === "double" || result === "triple" || result === "homer";
+  if (isPositiveOutcome) {
+    state.arcadeCombo += 1;
+  } else {
+    state.arcadeCombo = 0;
+  }
+
+  const arcadePoints = getArcadePoints(result, advanced.runs, state.arcadeCombo);
+
+  state.score += advanced.runs;
+  state.arcadeScore += arcadePoints.total;
+
+  if (result === "out" || result === "strikeout") {
+    state.outs += 1;
+  }
+
+  state.batterIndex += 1;
+  state.lastOutcome = {
+    batter: batter.name,
+    text: advanced.text,
+    runs: advanced.runs,
+    points: arcadePoints.total,
+    combo: state.arcadeCombo,
+    pointsLabel: arcadePoints.label,
+    pointsBreakdown: arcadePoints
+  };
+
+  updatePlayerStatsForResult(batter.id, result, advanced.runs);
+
+  addLog(
+    batter.name +
+      ": " +
+      advanced.text +
+      (advanced.runs > 0 ? " +" + advanced.runs + " run" + (advanced.runs > 1 ? "s" : "") : "") +
+      " • " + arcadePoints.total + " pts" +
+      (arcadePoints.comboBonus > 0 ? " • combo bonus" : "")
+  );
+
+  if (state.outs >= 3) {
+    nextInning();
+  }
+
+  if (state.inning > 9) {
+    if (state.score > state.enemyScore) {
+      prepareNextGame();
+      return;
+    }
+
+    addLog("Run over. Lost in Game " + state.gameNumber + ". Reset to start a new run.");
+  }
+
+  render();
+}
 
   function renderDraftPool() {
   return state.draftPool
@@ -1194,29 +1261,28 @@ render();
 }
 
   function renderPowerups() {
-    return state.availablePowerups
-      .map(function (powerup) {
-        const selected = state.selectedAssignPowerupId === powerup.id;
-        const assigned = state.lineupSlots.some(function (slot) {
-          return slot.powerupId === powerup.id;
-        });
-        const rarity = getPowerupRarity(powerup).toLowerCase();
-        const icon = getPowerupIcon(powerup);
+  return state.availablePowerups
+    .map(function (powerup) {
+      const selected = state.selectedAssignPowerupId === powerup.id;
+      const stacked = (state.stackedPowerupIds || []).indexOf(powerup.id) > -1;
+      const rarity = getPowerupRarity(powerup).toLowerCase();
+      const icon = getPowerupIcon(powerup);
+      const locked = state.selectedGamebreakerThisGame;
 
-        return (
-          '<button class="bbg-perk-card bbg-rarity-' + rarity + (selected ? ' is-active' : '') + (assigned ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '">' +
-            '<div class="bbg-perk-card-top">' +
-              '<div class="bbg-perk-icon">' + icon + '</div>' +
-              '<div class="bbg-perk-rarity">' + getPowerupRarity(powerup) + '</div>' +
-            '</div>' +
-            '<div class="bbg-perk-name">' + powerup.name + '</div>' +
-            '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
-            '<div class="bbg-perk-status">' + (assigned ? 'Assigned' : selected ? 'Selected' : 'Available') + '</div>' +
-          '</button>'
-        );
-      })
-      .join("");
-  }
+      return (
+        '<button class="bbg-perk-card bbg-rarity-' + rarity + (selected ? ' is-active' : '') + (stacked ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '"' + (locked ? ' disabled' : '') + '>' +
+          '<div class="bbg-perk-card-top">' +
+            '<div class="bbg-perk-icon">' + icon + '</div>' +
+            '<div class="bbg-perk-rarity">' + getPowerupRarity(powerup) + '</div>' +
+          '</div>' +
+          '<div class="bbg-perk-name">' + powerup.name + '</div>' +
+          '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
+          '<div class="bbg-perk-status">' + (stacked ? 'Stacked' : selected ? 'Selected' : locked ? 'Locked' : 'Available') + '</div>' +
+        '</button>'
+      );
+    })
+    .join("");
+}
 
   function renderLineup() {
     let html = '';
@@ -1352,17 +1418,19 @@ render();
       '<div class="bbg-build-panel is-fullwidth-build-panel">' +
         '<div class="bbg-build-panel-header">' +
           '<div class="bbg-build-panel-title">Step 2: Assign Gamebreakers</div>' +
-          '<div class="bbg-build-panel-copy">Your lineup is locked in. Select a gamebreaker below, then click the slot beneath a player card to attach it.</div>' +
+          '<div class="bbg-build-panel-copy">Choose 1 of 3 new gamebreakers for Game ' + state.gameNumber + '. Each game adds 1 new gamebreaker to your run stack.</div>' +
         '</div>' +
         '<div class="bbg-board-area">' +
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
         '</div>' +
         '<div class="bbg-footer-box is-inline-build-section">' +
-          '<div class="bbg-lineup-header">Gamebreakers • ' + state.availablePowerups.length + ' Available</div>' +
+          '<div class="bbg-lineup-header">Gamebreakers • ' + state.availablePowerups.length + ' Choices • ' + assignedPowerupCount() + ' Stacked</div>' +
           '<div class="bbg-build-panel-copy">' +
             (state.selectedAssignPowerupId
               ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
-              : 'No gamebreaker selected. Click one below, then click a slot beneath a player card.') +
+              : (state.selectedGamebreakerThisGame
+                  ? 'Gamebreaker locked in for Game ' + state.gameNumber + '. Start the game to keep the run going.'
+                  : 'No gamebreaker selected. Click one below, then click a slot beneath a player card. You may choose only 1 new gamebreaker this game.')) +
           '</div>' +
           '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
         '</div>' +
@@ -1399,7 +1467,7 @@ render();
     '<div class="bbg-build-summary">' +
       '<div class="bbg-build-summary-copy">' +
         '<div class="bbg-build-summary-title">Set Lineup</div>' +
-        '<div class="bbg-build-summary-text">' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' gamebreakers attached • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +
+        '<div class="bbg-build-summary-text">Game ' + state.gameNumber + ' • ' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' stacked gamebreakers • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +
       '</div>' +
       (state.gameStarted ? '' : '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>') +
     '</div>'
@@ -1493,7 +1561,7 @@ render();
       '<div class="bbg-left-rail">' +
         '<div class="bbg-team-panel">' +
           '<div class="bbg-team-name">' + state.teamName + '</div>' +
-          '<div class="bbg-team-matchup">' + state.matchup + '</div>' +
+          '<div class="bbg-team-matchup">Run • Game ' + state.gameNumber + ' • ' + state.matchup + '</div>' +
         '</div>' +
         '<div class="bbg-total-score">' +
           '<div class="bbg-total-label">Total Score</div>' +
@@ -1534,7 +1602,7 @@ render();
           '<div class="bbg-atbat-divider"></div>' +
           '<div class="bbg-atbat-today">' + batterToday + '</div>' +
           '<div class="bbg-status-row">' +
-            '<div class="bbg-status-pill">TOP ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
+            '<div class="bbg-status-pill">G' + state.gameNumber + ' • TOP ' + (state.inning > 9 ? 'F' : state.inning) + '</div>' +
             '<div class="bbg-status-pill">OUTS ' + state.outs + '</div>' +
             '<div class="bbg-status-pill">' + basesText() + '</div>' +
           '</div>' +
@@ -1578,7 +1646,7 @@ render();
   '<div class="bbg-footer-box">' +
     '<div class="bbg-lineup-header">Feed</div>' +
     '<div class="bbg-feed">' + renderLog() + '</div>' +
-    '<button class="bbg-btn bbg-btn-full" data-action="new-run">New Run</button>' +
+    '<button class="bbg-btn bbg-btn-full" data-action="new-run">Reset Run</button>' +
   '</div>' +
   '<div class="bbg-footer-box">' +
     '<div class="bbg-lineup-header">Box Score</div>' +
