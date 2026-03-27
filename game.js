@@ -218,6 +218,7 @@ const LEGENDARY_PITY_CAP = 8;
     availablePowerups: [],
     selectedGamebreakerThisGame: false,
     stackedPowerupIds: [],
+    stackedPowerupMeta: {},
     gameNumber: 1,
     runsWithoutLegendary: 0,
     buildModalScrollTop: 0,
@@ -453,6 +454,59 @@ function updateLegendaryDraftState() {
     return stacked.indexOf(powerup.id) === -1;
   });
   return shuffle(available).slice(0, Math.min(GAMEBREAKER_POOL_SIZE, available.length));
+}
+
+function rollGamebreakerDuration() {
+  return 1 + Math.floor(Math.random() * 5);
+}
+
+function getPowerupMeta(id) {
+  return state.stackedPowerupMeta && state.stackedPowerupMeta[id]
+    ? state.stackedPowerupMeta[id]
+    : null;
+}
+
+function getPowerupGamesRemaining(id) {
+  const meta = getPowerupMeta(id);
+  if (!meta) return 0;
+  return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
+}
+
+function clearExpiredGamebreakers() {
+  const expiredIds = [];
+
+  for (let i = 0; i < state.stackedPowerupIds.length; i++) {
+    const id = state.stackedPowerupIds[i];
+    const meta = getPowerupMeta(id);
+    if (!meta) continue;
+
+    if ((meta.expiresAfterGame || 0) < state.gameNumber) {
+      expiredIds.push(id);
+    }
+  }
+
+  if (!expiredIds.length) return;
+
+  for (let i = 0; i < expiredIds.length; i++) {
+    const expiredId = expiredIds[i];
+    const expiredPowerup = getPowerupById(expiredId);
+
+    for (let j = 0; j < state.lineupSlots.length; j++) {
+      if (state.lineupSlots[j].powerupId === expiredId) {
+        state.lineupSlots[j].powerupId = null;
+      }
+    }
+
+    delete state.stackedPowerupMeta[expiredId];
+
+    if (expiredPowerup) {
+      addLog(expiredPowerup.name + ' expired after Game ' + (state.gameNumber - 1) + '.');
+    }
+  }
+
+  state.stackedPowerupIds = state.stackedPowerupIds.filter(function (id) {
+    return expiredIds.indexOf(id) === -1;
+  });
 }
 
 function getStackedPowerups() {
@@ -908,19 +962,14 @@ if (activePowerups && activePowerups.length) {
   return (state.stackedPowerupIds || []).length;
 }
 
-  function powerupAssignedToAnotherSlot(powerupId, slotIndex) {
-    return state.lineupSlots.some(function (slot, index) {
-      return index !== slotIndex && slot.powerupId === powerupId;
-    });
-  }
 
   function assignSelectedPowerupToSlot(slotIndex) {
   const slot = state.lineupSlots[slotIndex];
   if (!slot || !slot.playerId || !state.selectedAssignPowerupId || state.selectedGamebreakerThisGame) return;
+  if (slot.powerupId) return;
 
-  for (let i = 0; i < state.lineupSlots.length; i++) {
-    state.lineupSlots[i].powerupId = null;
-  }
+  const duration = rollGamebreakerDuration();
+  const expiresAfterGame = state.gameNumber + duration - 1;
 
   slot.powerupId = state.selectedAssignPowerupId;
 
@@ -928,15 +977,32 @@ if (activePowerups && activePowerups.length) {
     state.stackedPowerupIds.push(state.selectedAssignPowerupId);
   }
 
+  state.stackedPowerupMeta[state.selectedAssignPowerupId] = {
+    slotIndex: slotIndex,
+    selectedOnGame: state.gameNumber,
+    durationGames: duration,
+    expiresAfterGame: expiresAfterGame
+  };
+
+  const attachedPowerup = getPowerupById(state.selectedAssignPowerupId);
+  const attachedPlayer = getPlayerById(slot.playerId);
+
+  if (attachedPowerup && attachedPlayer) {
+    addLog(
+      attachedPowerup.name +
+        ' attached to ' +
+        attachedPlayer.name +
+        ' for ' +
+        duration +
+        ' game' +
+        (duration > 1 ? 's' : '') +
+        '.'
+    );
+  }
+
   state.selectedGamebreakerThisGame = true;
   state.selectedAssignPowerupId = null;
 }
-
-  function clearPowerupFromSlot(slotIndex) {
-    const slot = state.lineupSlots[slotIndex];
-    if (!slot) return;
-    slot.powerupId = null;
-  }
 
     function switchBuildScreen(screen) {
   if (screen === "assign" && lineupPlayers().length < 6) return;
@@ -1045,8 +1111,9 @@ function goToGamebreakerStep() {
       return { playerId: null, powerupId: null };
     });
     state.selectedAssignPowerupId = null;
-    state.selectedGamebreakerThisGame = false;
+   state.selectedGamebreakerThisGame = false;
     state.stackedPowerupIds = [];
+    state.stackedPowerupMeta = {};
     state.gameNumber = 1;
     state.availablePowerups = buildPowerupPool();
     state.isBuildModalOpen = true;
@@ -1137,16 +1204,21 @@ render();
   state.lastOutcome = null;
   state.selectedAssignPowerupId = null;
   state.selectedGamebreakerThisGame = false;
+
+  clearExpiredGamebreakers();
+
   state.availablePowerups = buildPowerupPool();
-
-  for (let i = 0; i < state.lineupSlots.length; i++) {
-    state.lineupSlots[i].powerupId = null;
-  }
-
   state.buildScreen = "assign";
   state.isBuildModalOpen = true;
 
-  addLog("Game " + state.gameNumber + " unlocked. Choose 1 of 3 new gamebreakers. Current stack: " + assignedPowerupCount() + ".");
+  addLog(
+    "Game " +
+      state.gameNumber +
+      " unlocked. Choose 1 of 3 new gamebreakers. Current stack: " +
+      assignedPowerupCount() +
+      "."
+  );
+
   render();
 }
 
@@ -1277,7 +1349,7 @@ render();
           '</div>' +
           '<div class="bbg-perk-name">' + powerup.name + '</div>' +
           '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
-          '<div class="bbg-perk-status">' + (stacked ? 'Stacked' : selected ? 'Selected' : locked ? 'Locked' : 'Available') + '</div>' +
+          '<div class="bbg-perk-status">' + (stacked ? ('Stacked • ' + getPowerupGamesRemaining(powerup.id) + 'G') : selected ? 'Selected' : locked ? 'Locked' : 'Available') + '</div>' +
         '</button>'
       );
     })
@@ -1329,7 +1401,7 @@ render();
         '</div>' +
         '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId && state.buildScreen === 'assign' ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '"' + (state.buildScreen === 'assign' ? '' : ' disabled') + '>' +
           (powerup
-            ? '<div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
+            ? '<div class="bbg-power-slot-rarity">Attached • ' + getPowerupGamesRemaining(powerup.id) + 'G Left</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
             : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
         '</button>'
       );
@@ -1418,7 +1490,7 @@ render();
       '<div class="bbg-build-panel is-fullwidth-build-panel">' +
         '<div class="bbg-build-panel-header">' +
           '<div class="bbg-build-panel-title">Step 2: Assign Gamebreakers</div>' +
-          '<div class="bbg-build-panel-copy">Choose 1 of 3 new gamebreakers for Game ' + state.gameNumber + '. Each game adds 1 new gamebreaker to your run stack.</div>' +
+          '<div class="bbg-build-panel-copy">Choose 1 of 3 new gamebreakers for Game ' + state.gameNumber + '. Each game adds 1 new gamebreaker to your run stack, each player can hold only 1, and every gamebreaker expires after 1–5 games.</div>' +
         '</div>' +
         '<div class="bbg-board-area">' +
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
@@ -1430,7 +1502,7 @@ render();
               ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
               : (state.selectedGamebreakerThisGame
                   ? 'Gamebreaker locked in for Game ' + state.gameNumber + '. Start the game to keep the run going.'
-                  : 'No gamebreaker selected. Click one below, then click a slot beneath a player card. You may choose only 1 new gamebreaker this game.')) +
+                  : 'No gamebreaker selected. Click one below, then click an empty slot beneath a player card. You may choose only 1 new gamebreaker this game.')) +
           '</div>' +
           '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
         '</div>' +
@@ -1518,7 +1590,7 @@ render();
           '</div>' +
         '</div>' +
         (powerup
-  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Attached</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
+  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Attached • ' + getPowerupGamesRemaining(powerup.id) + 'G Left</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
   : '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + '"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
       );
     }
@@ -1691,18 +1763,16 @@ if (state.isBuildModalOpen) {
         if (action === "draft") addToLineup(Number(id));
         if (action === "powerup") togglePowerup(id);
         if (action === "assign-powerup-slot") {
-  const parsedSlotIndex = Number(slotIndex);
-  if (state.selectedAssignPowerupId) {
-    assignSelectedPowerupToSlot(parsedSlotIndex);
-  } else {
-    clearPowerupFromSlot(parsedSlotIndex);
-  }
-  const modal = root.querySelector('.bbg-build-modal');
-  if (modal) {
-    state.buildModalScrollTop = modal.scrollTop || 0;
-  }
-  render();
-}
+          const parsedSlotIndex = Number(slotIndex);
+          if (state.selectedAssignPowerupId) {
+            assignSelectedPowerupToSlot(parsedSlotIndex);
+            const modal = root.querySelector('.bbg-build-modal');
+            if (modal) {
+              state.buildModalScrollTop = modal.scrollTop || 0;
+            }
+            render();
+          }
+        }
         if (action === "start-game") {
           startGame();
           if (state.gameStarted) closeBuildModal();
