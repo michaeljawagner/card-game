@@ -801,6 +801,7 @@
 #card-game .bbg-draft-card.bbg-rarity-common,
 #card-game .bbg-power-slot.bbg-rarity-common {
   border-color: #111111;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #7a7a7a;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon,
@@ -835,13 +836,13 @@
 #card-game .bbg-draft-card.bbg-rarity-common,
 #card-game .bbg-power-slot.bbg-rarity-common {
   border-color: #111111;
-  box-shadow: 4px 4px 0 #111111;
+  box-shadow: 4px 4px 0 #111111, inset 0 0 0 3px #7a7a7a;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-rarity,
 #card-game .bbg-draft-card.bbg-rarity-uncommon .bbg-player-rarity,
 #card-game .bbg-power-slot.bbg-rarity-uncommon .bbg-power-slot-rarity {
-  color: #15803d;
+  color: #324b3b;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-rare .bbg-player-rarity,
