@@ -586,6 +586,33 @@
     });
   }
 
+  function switchBuildScreen(screen) {
+  if (screen === "assign" && lineupPlayers().length < 6) return;
+  state.buildScreen = screen;
+  render();
+}
+
+function goToGamebreakerStep() {
+  if (lineupPlayers().length < 6) return;
+  state.buildScreen = "assign";
+  state.draftPool = [];
+  render();
+}
+
+function openBuildModal() {
+  state.isBuildModalOpen = true;
+  render();
+}
+
+function closeBuildModal() {
+  const modal = root.querySelector('.bbg-build-modal');
+  if (modal) {
+    state.buildModalScrollTop = modal.scrollTop || 0;
+  }
+  state.isBuildModalOpen = false;
+  render();
+}
+
   function currentPitcherChallenge() {
   const activePowerup = getCurrentBatterPowerup();
   if (!activePowerup) return "Standard Delivery";
