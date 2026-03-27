@@ -591,6 +591,7 @@
 
     state.selectedGamebreakerThisGame = true;
     state.selectedAssignPowerupId = null;
+    closeBuildModal();
   }
 
   function togglePowerup(id) {
