@@ -865,7 +865,7 @@
 }
 
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity {
-  color: #ffffff;
+  color: #111111;
 }
 
 #card-game .bbg-board-slot.bbg-rarity-uncommon .bbg-player-art,
@@ -1138,7 +1138,10 @@
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-rarity,
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-name,
 #card-game .bbg-power-slot.has-powerup .bbg-power-slot-desc,
-#card-game .bbg-power-slot.has-powerup .bbg-gamebreaker-health-text,
+#card-game .bbg-power-slot.has-powerup .bbg-gamebreaker-health-text {
+  color: #111111;
+}
+
 #card-game .bbg-perk-card.is-active .bbg-perk-rarity,
 #card-game .bbg-perk-card.is-active .bbg-perk-desc {
   color: #ffffff;
