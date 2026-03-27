@@ -1186,19 +1186,49 @@
   font-size: 20px;
   line-height: 1;
   box-shadow: 2px 2px 0 #111111;
+  flex: 0 0 auto;
 }
 
 #card-game .bbg-perk-status {
   margin-top: auto;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 28px;
+  padding: 6px 10px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  color: #111111;
   font-size: 10px;
   line-height: 1;
   font-weight: 900;
   text-transform: uppercase;
   letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0 #111111;
+}
+
+#card-game .bbg-perk-rarity {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  align-self: flex-start;
+  min-height: 28px;
+  padding: 6px 10px;
+  border: 2px solid #111111;
+  background: #ffffff;
+  color: #111111;
+  font-size: 10px;
+  line-height: 1;
+  font-weight: 900;
+  text-transform: uppercase;
+  letter-spacing: 0.08em;
+  box-shadow: 2px 2px 0 #111111;
 }
 
 #card-game .bbg-perk-card.bbg-rarity-common .bbg-perk-rarity,
 #card-game .bbg-perk-card.bbg-rarity-common .bbg-perk-status {
+  background: #ffffff;
   color: #111111;
 }
 
@@ -1239,6 +1269,17 @@
   background: #111111;
   color: #ffffff;
   transform: translate(-1px, -1px);
+}
+
+#card-game .bbg-perk-card.is-active .bbg-perk-status,
+#card-game .bbg-perk-card.is-active .bbg-perk-rarity {
+  border-color: #ffffff;
+  box-shadow: 2px 2px 0 #ffffff;
+}
+
+#card-game .bbg-perk-card.is-active .bbg-perk-icon {
+  border-color: #ffffff;
+  box-shadow: 2px 2px 0 #ffffff;
 }
 
 #card-game .bbg-bottom-row {
