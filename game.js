@@ -356,6 +356,18 @@
     return "is-balanced";
   }
 
+  // Helper to return background color by rarity (gradient Option A)
+  function getRarityColor(rarity) {
+    if (!rarity) return '#111';
+    const r = rarity.toLowerCase();
+    if (r === 'common') return 'linear-gradient(135deg, #2a2a2a, #1a1a1a)';
+    if (r === 'uncommon') return 'linear-gradient(135deg, #1f6f3e, #14522c)';
+    if (r === 'rare') return 'linear-gradient(135deg, #1f4e8c, #15355f)';
+    if (r === 'epic') return 'linear-gradient(135deg, #6a1b9a, #3e0f5f)';
+    if (r === 'legendary') return 'linear-gradient(135deg, #b8860b, #7a5a07)';
+    return '#111';
+  }
+
   function getPlayerImageStyle(player) {
     if (!player || !player.image) return "";
     return "background-image:url('" + player.image + "');background-size:cover;background-position:center;";
@@ -1453,7 +1465,7 @@ render();
         '</div>' +
         '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId && state.buildScreen === 'assign' ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '"' + (state.buildScreen === 'assign' ? '' : ' disabled') + '>' +
           (powerup
-            ? '<div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id)
+            ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup" style="background:' + getRarityColor(rarity) + ';"><div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id) + '</div>'
             : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
         '</button>'
       );
@@ -1642,7 +1654,7 @@ render();
           '</div>' +
         '</div>' +
         (powerup
-  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id) + '</div>'
+  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup" style="background:' + getRarityColor(rarity) + ';"><div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id) + '</div>'
   : '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + '"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
       );
     }
