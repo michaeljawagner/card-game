@@ -535,10 +535,6 @@
       .filter(Boolean);
   }
 
-  function getCurrentBatterPowerup() {
-    return getStackedPowerups();
-  }
-
   function assignedPowerupCount() {
     return (state.stackedPowerupIds || []).length;
   }
@@ -1244,18 +1240,18 @@ render();
   if (!batter) return;
 
   const weights = buildOutcomeWeights(batter, state.bases, state.inning);
+  const result = pickWeighted(weights);
   const advanced = advanceRunners(state.bases, result);
 
-  if (state.modifier === "bunt" && result === "out") {
-    const first = state.bases[0];
-    const second = state.bases[1];
-    const third = state.bases[2];
-    state.bases = [false, first, second || third];
-  } else {
-    state.bases = advanced.bases;
-  }
+  state.bases = advanced.bases;
 
-  const isPositiveOutcome = result === "walk" || result === "single" || result === "double" || result === "triple" || result === "homer";
+  const isPositiveOutcome =
+    result === "walk" ||
+    result === "single" ||
+    result === "double" ||
+    result === "triple" ||
+    result === "homer";
+
   if (isPositiveOutcome) {
     state.arcadeCombo += 1;
   } else {
@@ -1520,13 +1516,13 @@ render();
           '<div class="bbg-lineup-grid is-setup-grid">' + renderLineup() + '</div>' +
         '</div>' +
         '<div class="bbg-footer-box is-inline-build-section">' +
-          '<div class="bbg-lineup-header">Gamebreakers • ' + state.availablePowerups.length + ' Choices • ' + assignedPowerupCount() + ' Stacked</div>' +
+          '<div class="bbg-lineup-header">Gamebreakers • ' + state.availablePowerups.length + ' Choices • ' + assignedPowerupCount() + ' Active</div>' +
           '<div class="bbg-build-panel-copy">' +
             (state.selectedAssignPowerupId
               ? 'Selected gamebreaker: ' + (getPowerupById(state.selectedAssignPowerupId) ? getPowerupById(state.selectedAssignPowerupId).name : '') + (selectedAssignedSlot > -1 ? ' — currently attached to slot ' + (selectedAssignedSlot + 1) : '')
               : (state.selectedGamebreakerThisGame
                   ? 'Gamebreaker locked in for Game ' + state.gameNumber + '. Start the game to keep the run going.'
-                  : 'No gamebreaker selected. Click one below, then click an empty slot beneath a player card. You may choose only 1 new gamebreaker this game.')) +
+                  : 'No gamebreaker selected. Click one below, then click an empty slot beneath a player card. Once attached, it stays active until it expires.')) +
           '</div>' +
           '<div class="bbg-perk-grid">' + renderActiveBuild() + '</div>' +
         '</div>' +
@@ -1563,7 +1559,7 @@ render();
     '<div class="bbg-build-summary">' +
       '<div class="bbg-build-summary-copy">' +
         '<div class="bbg-build-summary-title">Set Lineup</div>' +
-        '<div class="bbg-build-summary-text">Game ' + state.gameNumber + ' • ' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' stacked gamebreakers • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +
+        '<div class="bbg-build-summary-text">Game ' + state.gameNumber + ' • ' + playerCount + ' / 6 players • ' + assignedPowerupCount() + ' active gamebreakers • ' + (state.buildScreen === 'assign' ? 'Step 2 of 2' : 'Step 1 of 2') + '</div>' +
       '</div>' +
       (state.gameStarted ? '' : '<button class="bbg-btn" data-action="open-build-modal">Edit Lineup</button>') +
     '</div>'
