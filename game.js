@@ -358,15 +358,15 @@
 
   // Helper to return background color by rarity (gradient Option A)
   function getRarityColor(rarity) {
-    if (!rarity) return '#111';
-    const r = rarity.toLowerCase();
-    if (r === 'common') return 'linear-gradient(135deg, #2a2a2a, #1a1a1a)';
-    if (r === 'uncommon') return 'linear-gradient(135deg, #1f6f3e, #14522c)';
-    if (r === 'rare') return 'linear-gradient(135deg, #1f4e8c, #15355f)';
-    if (r === 'epic') return 'linear-gradient(135deg, #6a1b9a, #3e0f5f)';
-    if (r === 'legendary') return 'linear-gradient(135deg, #b8860b, #7a5a07)';
-    return '#111';
-  }
+  if (!rarity) return '#111111';
+  const r = rarity.toLowerCase();
+  if (r === 'common') return '#2a2a2a';
+  if (r === 'uncommon') return '#22c55e';
+  if (r === 'rare') return '#3b82f6';
+  if (r === 'epic') return '#a855f7';
+  if (r === 'legendary') return '#f59e0b';
+  return '#111111';
+}
 
   function getPlayerImageStyle(player) {
     if (!player || !player.image) return "";
