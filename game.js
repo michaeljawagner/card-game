@@ -501,57 +501,6 @@
   return getPowerupById(active.powerupId);
 }
 
-  function getPowerupGamesRemaining(id) {
-    const meta = getPowerupMeta(id);
-    if (!meta) return 0;
-    return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
-  }
-
-  function clearExpiredGamebreakers() {
-    const expiredIds = [];
-
-    for (let i = 0; i < state.stackedPowerupIds.length; i++) {
-      const id = state.stackedPowerupIds[i];
-      const meta = getPowerupMeta(id);
-      if (!meta) continue;
-
-      if ((meta.expiresAfterGame || 0) < state.gameNumber) {
-        expiredIds.push(id);
-      }
-    }
-
-    if (!expiredIds.length) return;
-
-    for (let i = 0; i < expiredIds.length; i++) {
-      const expiredId = expiredIds[i];
-      const expiredPowerup = getPowerupById(expiredId);
-
-      for (let j = 0; j < state.lineupSlots.length; j++) {
-        if (state.lineupSlots[j].powerupId === expiredId) {
-          state.lineupSlots[j].powerupId = null;
-        }
-      }
-
-      delete state.stackedPowerupMeta[expiredId];
-
-      if (expiredPowerup) {
-        addLog(expiredPowerup.name + ' expired after Game ' + (state.gameNumber - 1) + '.');
-      }
-    }
-
-    state.stackedPowerupIds = state.stackedPowerupIds.filter(function (id) {
-      return expiredIds.indexOf(id) === -1;
-    });
-  }
-
-  function getStackedPowerups() {
-    return (state.stackedPowerupIds || [])
-      .map(function (id) {
-        return getPowerupById(id);
-      })
-      .filter(Boolean);
-  }
-
   function assignedPowerupCount() {
     return (state.stackedPowerupIds || []).length;
   }
@@ -852,61 +801,62 @@ function closeBuildModal() {
     return Math.round(total / players.length);
   }
 
-  function getOpponentRunsForHalfInning() {
   function createEmptyOpponentGameStats() {
-    return {
-      runsAllowed: 0,
-      strikeouts: 0,
-      outsRecorded: 0,
-      hitsAllowed: 0,
-      walksAllowed: 0
-    };
-  }
+  return {
+    runsAllowed: 0,
+    strikeouts: 0,
+    outsRecorded: 0,
+    hitsAllowed: 0,
+    walksAllowed: 0
+  };
+}
 
-  function formatInningsPitched(outsRecorded) {
-    const whole = Math.floor((outsRecorded || 0) / 3);
-    const remainder = (outsRecorded || 0) % 3;
-    return whole + '.' + remainder;
-  }
+function formatInningsPitched(outsRecorded) {
+  const whole = Math.floor((outsRecorded || 0) / 3);
+  const remainder = (outsRecorded || 0) % 3;
+  return whole + '.' + remainder;
+}
 
-  function formatOpponentGameLine() {
-    const stats = state.opponentGameStats || createEmptyOpponentGameStats();
-    return 'IP ' + formatInningsPitched(stats.outsRecorded) + ' / ' + stats.strikeouts + ' K / ' + stats.runsAllowed + ' ER';
-  }
+function formatOpponentGameLine() {
+  const stats = state.opponentGameStats || createEmptyOpponentGameStats();
+  return 'IP ' + formatInningsPitched(stats.outsRecorded) + ' / ' + stats.strikeouts + ' K / ' + stats.runsAllowed + ' ER';
+}
 
-  function formatOpponentGameDetailLine() {
-    const stats = state.opponentGameStats || createEmptyOpponentGameStats();
-    return stats.hitsAllowed + ' H / ' + stats.walksAllowed + ' BB Allowed';
-  }
-    const defense = getLineupDefenseRating();
-    const defenseMod = (defense - 50) / 50;
-    const roll = Math.random();
+function formatOpponentGameDetailLine() {
+  const stats = state.opponentGameStats || createEmptyOpponentGameStats();
+  return stats.hitsAllowed + ' H / ' + stats.walksAllowed + ' BB Allowed';
+}
 
-    let chance0 = 0.42 + (defenseMod * 0.14);
-    let chance1 = 0.34 - (defenseMod * 0.06);
-    let chance2 = 0.17 - (defenseMod * 0.05);
-    let chance3 = 0.06 - (defenseMod * 0.02);
-    let chance4 = 0.01 - (defenseMod * 0.01);
+function getOpponentRunsForHalfInning() {
+  const defense = getLineupDefenseRating();
+  const defenseMod = (defense - 50) / 50;
+  const roll = Math.random();
 
-    chance0 = clamp(chance0, 0.18, 0.72);
-    chance1 = clamp(chance1, 0.14, 0.42);
-    chance2 = clamp(chance2, 0.04, 0.24);
-    chance3 = clamp(chance3, 0.01, 0.12);
-    chance4 = clamp(chance4, 0, 0.04);
+  let chance0 = 0.42 + (defenseMod * 0.14);
+  let chance1 = 0.34 - (defenseMod * 0.06);
+  let chance2 = 0.17 - (defenseMod * 0.05);
+  let chance3 = 0.06 - (defenseMod * 0.02);
+  let chance4 = 0.01 - (defenseMod * 0.01);
 
-    const total = chance0 + chance1 + chance2 + chance3 + chance4;
-    chance0 /= total;
-    chance1 /= total;
-    chance2 /= total;
-    chance3 /= total;
-    chance4 /= total;
+  chance0 = clamp(chance0, 0.18, 0.72);
+  chance1 = clamp(chance1, 0.14, 0.42);
+  chance2 = clamp(chance2, 0.04, 0.24);
+  chance3 = clamp(chance3, 0.01, 0.12);
+  chance4 = clamp(chance4, 0, 0.04);
 
-    if (roll < chance0) return 0;
-    if (roll < chance0 + chance1) return 1;
-    if (roll < chance0 + chance1 + chance2) return 2;
-    if (roll < chance0 + chance1 + chance2 + chance3) return 3;
-    return 4;
-  }
+  const total = chance0 + chance1 + chance2 + chance3 + chance4;
+  chance0 /= total;
+  chance1 /= total;
+  chance2 /= total;
+  chance3 /= total;
+  chance4 /= total;
+
+  if (roll < chance0) return 0;
+  if (roll < chance0 + chance1) return 1;
+  if (roll < chance0 + chance1 + chance2) return 2;
+  if (roll < chance0 + chance1 + chance2 + chance3) return 3;
+  return 4;
+}
 
   function statPips(value) {
   const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
