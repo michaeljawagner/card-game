@@ -414,6 +414,21 @@
     return Math.max(0, (meta.expiresAfterGame || 0) - state.gameNumber + 1);
   }
 
+  function renderGamebreakerHealthBar(powerupId) {
+  const meta = getPowerupMeta(powerupId);
+  const remaining = getPowerupGamesRemaining(powerupId);
+  const total = meta && meta.durationGames ? meta.durationGames : 0;
+  const ratio = total > 0 ? Math.max(0, Math.min(1, remaining / total)) : 0;
+  const percent = Math.round(ratio * 100);
+
+  return (
+    '<div class="bbg-gamebreaker-health" aria-label="' + remaining + ' of ' + total + ' games remaining">' +
+      '<div class="bbg-gamebreaker-health-bar" style="width:' + percent + '%;"></div>' +
+    '</div>' +
+    '<div class="bbg-gamebreaker-health-text">' + remaining + ' / ' + total + ' Games</div>'
+  );
+}
+
   function clearExpiredGamebreakers() {
     const expiredIds = [];
 
@@ -1342,8 +1357,8 @@ render();
         const icon = getPowerupIcon(powerup);
         const locked = state.selectedGamebreakerThisGame;
         const durationLabel = stacked
-          ? getPowerupGamesRemaining(powerup.id) + 'G'
-          : option.durationGames + ' Game' + (option.durationGames > 1 ? 's' : '');
+          ? getPowerupGamesRemaining(powerup.id) + ' Game' + (getPowerupGamesRemaining(powerup.id) !== 1 ? 's' : '')
+          : option.durationGames + ' Game' + (option.durationGames !== 1 ? 's' : '');
 
         return (
           '<button class="bbg-perk-card bbg-rarity-' + rarity + (selected ? ' is-active' : '') + (stacked ? ' is-assigned' : '') + '" data-action="powerup" data-id="' + powerup.id + '"' + (locked ? ' disabled' : '') + '>' +
@@ -1356,7 +1371,9 @@ render();
             '</div>' +
             '<div class="bbg-perk-name">' + powerup.name + '</div>' +
             '<div class="bbg-perk-desc">' + powerup.desc + '</div>' +
-            '<div class="bbg-perk-status">' + (stacked ? ('Stacked • ' + getPowerupGamesRemaining(powerup.id) + 'G') : selected ? 'Selected' : locked ? 'Locked' : 'Available') + '</div>' +
+            '<div class="bbg-perk-status">' + (stacked
+  ? renderGamebreakerHealthBar(powerup.id)
+  : selected ? 'Selected' : locked ? 'Locked' : 'Available') + '</div>' +
           '</button>'
         );
       })
@@ -1408,7 +1425,7 @@ render();
         '</div>' +
         '<button class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + (powerup ? ' has-powerup' : '') + (state.selectedAssignPowerupId && state.buildScreen === 'assign' ? ' is-assigning' : '') + '" data-action="assign-powerup-slot" data-slot-index="' + i + '"' + (state.buildScreen === 'assign' ? '' : ' disabled') + '>' +
           (powerup
-            ? '<div class="bbg-power-slot-rarity">Attached • ' + getPowerupGamesRemaining(powerup.id) + 'G Left</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>'
+            ? '<div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id)
             : '<div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">' + (state.selectedAssignPowerupId ? 'Click To Attach' : '+') + '</div><div class="bbg-power-slot-desc">' + (state.selectedAssignPowerupId ? 'Assign selected gamebreaker to ' + player.name : 'Select a gamebreaker first') + '</div>') +
         '</button>'
       );
@@ -1597,7 +1614,7 @@ render();
           '</div>' +
         '</div>' +
         (powerup
-  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Attached • ' + getPowerupGamesRemaining(powerup.id) + 'G Left</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div></div>'
+  ? '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + ' has-powerup"><div class="bbg-power-slot-rarity">Gamebreaker</div><div class="bbg-power-slot-name">' + powerup.name + '</div><div class="bbg-power-slot-desc">' + powerup.desc + '</div>' + renderGamebreakerHealthBar(powerup.id) + '</div>'
   : '<div class="bbg-power-slot bbg-rarity-' + rarity.toLowerCase() + '"><div class="bbg-power-slot-rarity">Power Up Slot</div><div class="bbg-power-slot-name">+</div><div class="bbg-power-slot-desc">No gamebreaker attached</div></div>')
       );
     }
