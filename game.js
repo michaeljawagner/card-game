@@ -1464,7 +1464,9 @@ render();
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-              '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>' +
+              (state.buildScreen === 'draft'
+                ? ''
+                : '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>') +
             '</div>' +
           '</div>' +
         '</div>' +
@@ -1654,7 +1656,9 @@ render();
                 '<div class="bbg-pip-row"><span>SPD</span><div>' + statPips(getSpeedStat(player)) + '</div></div>' +
                 '<div class="bbg-pip-row"><span>FLD</span><div>' + statPips(getFieldingStat(player)) + '</div></div>' +
               '</div>' +
-                '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>' +
+                (state.buildScreen === 'draft'
+                  ? ''
+                  : '<div class="bbg-player-tag">' + (isActive ? 'At Bat • ' + formatRunStatLine(player.id) : formatRunStatLine(player.id)) + '</div>') +
             '</div>' +
           '</div>' +
         '</div>' +
