@@ -878,13 +878,17 @@ function closeBuildModal() {
   }
 
   function statPips(value) {
-    const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
-    let html = "";
-    for (let i = 0; i < 5; i++) {
-      html += '<span class="bbg-pip ' + (i < filled ? 'is-on' : '') + '"></span>';
-    }
-    return html;
+  const filled = Math.max(1, Math.min(5, Math.round(value / 20)));
+  let html = '';
+
+  for (let i = 0; i < 5; i++) {
+    const pipNumber = i + 1;
+    const stateClass = i < filled ? 'is-on' : 'is-off';
+    html += '<span class="bbg-pip ' + stateClass + ' pip-' + pipNumber + '"></span>';
   }
+
+  return html;
+}
 
   // gameplay
   function lineupPlayers() {
