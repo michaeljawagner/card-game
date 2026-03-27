@@ -1,6 +1,7 @@
 /* Cleaned and deduplicated CSS for #card-game */
 #card-game {
   --bbg-soft-bg: #f3f4f6;
+  --bbg-black: #111111;
   width: 100%;
   background: var(--bbg-soft-bg);
 }
@@ -34,7 +35,6 @@
 #card-game .bbg-footer-box,
 #card-game .bbg-side-perk,
 #card-game .bbg-queue-card,
-#card-game .bbg-draft-tile,
 #card-game .bbg-draft-card,
 #card-game .bbg-power-slot {
   border: 3px solid #111111;
@@ -701,17 +701,6 @@
   align-items: start;
 }
 
-#card-game .bbg-build-modal-bottom .bbg-footer-box {
-  min-height: 100%;
-}
-
-
-#card-game .bbg-build-modal-side .bbg-perk-grid {
-  grid-template-columns: 1fr;
-  align-items: stretch;
-}
-
-
 #card-game .bbg-build-modal-side {
   display: grid;
   gap: 14px;
@@ -723,10 +712,6 @@
 
 #card-game .bbg-footer-box.is-inline-build-section {
   margin-top: 14px;
-}
-
-#card-game .bbg-build-modal-bottom .bbg-footer-box {
-  overflow: hidden;
 }
 
 #card-game .bbg-draft-scroll {
@@ -1175,6 +1160,30 @@
   gap: 8px;
 }
 
+#card-game .bbg-perk-card-badges {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+}
+
+#card-game .bbg-perk-duration-badge {
+  min-width: 44px;
+  height: 36px;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #111111;
+  background: #111111;
+  color: #ffffff;
+  font-size: 13px;
+  font-weight: 900;
+  line-height: 1;
+  text-transform: uppercase;
+  box-shadow: 2px 2px 0 #111111;
+  border-radius: 0;
+}
+
 #card-game .bbg-perk-icon {
   width: 40px;
   height: 40px;
@@ -1232,30 +1241,39 @@
   color: #111111;
 }
 
+#card-game .bbg-perk-card.bbg-rarity-common .bbg-perk-duration-badge {
+  background: #111111;
+  color: #ffffff;
+}
+
 #card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-icon,
 #card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-rarity,
-#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-status {
+#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-status,
+#card-game .bbg-perk-card.bbg-rarity-uncommon .bbg-perk-duration-badge {
   background: #22c55e;
   color: #ffffff;
 }
 
 #card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-icon,
 #card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-rarity,
-#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-status {
+#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-status,
+#card-game .bbg-perk-card.bbg-rarity-rare .bbg-perk-duration-badge {
   background: #3b82f6;
   color: #ffffff;
 }
 
 #card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-icon,
 #card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-rarity,
-#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-status {
+#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-status,
+#card-game .bbg-perk-card.bbg-rarity-epic .bbg-perk-duration-badge {
   background: #a855f7;
   color: #ffffff;
 }
 
 #card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-icon,
 #card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-rarity,
-#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-status {
+#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-status,
+#card-game .bbg-perk-card.bbg-rarity-legendary .bbg-perk-duration-badge {
   background: #f59e0b;
   color: #111111;
 }
@@ -1265,6 +1283,10 @@
   background: #ffffff;
 }
 
+#card-game .bbg-perk-card.is-assigned .bbg-perk-status {
+  opacity: 0.9;
+}
+
 #card-game .bbg-perk-card.is-active {
   background: #111111;
   color: #ffffff;
@@ -1272,7 +1294,8 @@
 }
 
 #card-game .bbg-perk-card.is-active .bbg-perk-status,
-#card-game .bbg-perk-card.is-active .bbg-perk-rarity {
+#card-game .bbg-perk-card.is-active .bbg-perk-rarity,
+#card-game .bbg-perk-card.is-active .bbg-perk-duration-badge {
   border-color: #ffffff;
   box-shadow: 2px 2px 0 #ffffff;
 }
@@ -1531,6 +1554,11 @@
   #card-game .bbg-perk-grid {
     grid-template-columns: repeat(2, minmax(0, 1fr));
   }
+    
+  #card-game .bbg-draft-scroll {
+     grid-auto-columns: minmax(170px, 210px);
+}
+
 }
 
 @media (max-width: 991px) {
@@ -1559,6 +1587,14 @@
   #card-game .bbg-perk-grid {
     grid-template-columns: 1fr;
   }
+
+  #card-game .bbg-draft-scroll {
+  grid-auto-columns: minmax(150px, 180px);
+}
+
+#card-game .bbg-perk-card-badges {
+  align-items: flex-end;
+}
 
   #card-game .bbg-lineup-grid,
   #card-game .bbg-lineup-grid.is-setup-grid {
@@ -1632,4 +1668,10 @@
   #card-game .bbg-callout-value {
     font-size: 36px;
   }
+
+  #card-game .bbg-perk-duration-badge {
+  min-width: 40px;
+  height: 32px;
+  font-size: 12px;
+}
 }
